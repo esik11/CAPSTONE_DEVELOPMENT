@@ -1,7 +1,207 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+@import './fullcalendar_custom.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 [x-cloak] { display: none !important; }
+
+.font-inter {
+    font-family: 'Inter', sans-serif;
+}
+
+/* FullCalendar specific styles for light theme */
+.fc-theme-standard .fc-scrollgrid {
+    border: 1px solid #e5e7eb; /* Light gray border */
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.fc .fc-view-harness {
+    background-color: #ffffff; /* White background for calendar */
+}
+
+.fc .fc-daygrid-day-frame {
+    background-color: #ffffff; /* White for day cells */
+}
+
+.fc .fc-col-header-cell {
+    background-color: #f9fafb; /* Light gray for column headers */
+    color: #1f2937; /* Dark gray for day names */
+    font-weight: 600; /* Medium weight for headers */
+    border-color: #e5e7eb; /* Light gray border */
+}
+
+.fc .fc-daygrid-day-number {
+    color: #4b5563; /* Darker gray for day numbers */
+    font-weight: 400; /* Regular weight for cells */
+}
+
+.fc .fc-toolbar-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #16a750; /* Light green color for title, matching buttons */
+    font-family: 'Inter', sans-serif;
+}
+
+.fc .fc-toolbar-chunk {
+    background-color: transparent !important;
+}
+
+.fc .fc-button-group {
+    border: 1px solid #e5e7eb; /* Light gray border for button group */
+    border-radius: 0.5rem;
+}
+
+.fc .fc-button {
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.15s ease-in-out;
+    color: #4b5563; /* Dark gray text for default buttons */
+    background-color: #ffffff; /* White background for default buttons */
+    border-color: #e5e7eb; /* Light gray border for default buttons */
+}
+
+.fc .fc-button:hover {
+    background-color: #f9fafb; /* Lighter gray on hover */
+}
+
+.fc .fc-button-primary {
+    background-color: #3CB371; /* clinic-green-dark / primary */
+    border-color: #3CB371;
+    color: #fff;
+}
+
+.fc .fc-button-primary:hover {
+    background-color: #349D61; /* Slightly darker green on hover */
+    border-color: #349D61;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+    background-color: #349D61; /* Slightly darker green when active */
+    border-color: #349D61;
+}
+
+.fc .fc-today-button {
+    background-color: #3CB371 !important; /* clinic-green-dark */
+    border-color: #3CB371 !important;
+    color: #fff !important;
+}
+
+.fc .fc-prev-button, .fc .fc-next-button {
+    background-color: #ffffff; /* White background for navigation buttons */
+    border-color: #e5e7eb;
+    color: #4b5563;
+}
+
+.fc .fc-prev-button:hover, .fc .fc-next-button:hover {
+    background-color: #f9fafb; /* Lighter gray on hover */
+}
+
+/* Overrides for specific FullCalendar buttons if needed, e.g., today button */
+.fc .fc-button-group > .fc-button:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.fc-daygrid-event {
+    white-space: normal;
+}
+
+.fc-event {
+    border-radius: 0.25rem;
+    padding: 2px 4px;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-family: 'Inter', sans-serif;
+    color: #1f2937; /* Dark text for events */
+}
+
+.fc-event-main {
+    display: flex;
+    flex-direction: column;
+}
+
+.fc-event-doctor {
+    font-size: 0.75rem;
+    color: #4b5563; /* Darker gray for readability on light event backgrounds */
+}
+
+.fc-event-status-badge {
+    display: inline-block;
+    padding: 0.125rem 0.375rem;
+    border-radius: 9999px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1;
+    margin-top: 0.25rem;
+}
+
+/* Status badge colors - consistent with Tailwind classes */
+.fc-event-status-approved {
+    background-color: #d1fae5; /* green-100 */
+    color: #065f46; /* green-800 */
+}
+.fc-event-status-pending {
+    background-color: #fef3c7; /* yellow-100 */
+    color: #92400e; /* yellow-800 */
+}
+.fc-event-status-cancelled,
+.fc-event-status-declined {
+    background-color: #fee2e2; /* red-100 */
+    color: #991b1b; /* red-800 */
+}
+.fc-event-status-rescheduled {
+    background-color: #dbeafe; /* blue-100 */
+    color: #1e40af; /* blue-800 */
+}
+.fc-event-status-default {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #1f2937; /* gray-800 */
+}
+
+/* Specific styles for appointment status badges in the list */
+.px-2.inline-flex.text-xs.leading-5.font-semibold.rounded-full.bg-yellow-100.text-yellow-800 {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+.px-2.inline-flex.text-xs.leading-5.font-semibold.rounded-full.bg-green-100.text-green-800 {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+.px-2.inline-flex.text-xs.leading-5.font-semibold.rounded-full.bg-red-100.text-red-800 {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+.px-2.inline-flex.text-xs.leading-5.font-semibold.rounded-full.bg-gray-100.text-gray-800 {
+    background-color: #f3f4f6;
+    color: #1f2937;
+}
+
+.appointment-card:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+#appointments-list-container {
+    /* Temporary debug styles for visibility */
+    /* background-color: #ff00ff !important; */ /* Bright Pink */
+    /* border: 5px solid blue !important; */
+}
+
+@media (max-width: 768px) {
+    .fc-toolbar-chunk:nth-child(3) {
+        display: flex; /* Ensure the right chunk is a flex container */
+        flex-direction: column; /* Stack buttons vertically */
+        align-items: flex-end; /* Align items to the right */
+    }
+
+    .fc-toolbar-chunk:nth-child(3) .fc-button-group {
+        margin-top: 10px; /* Add some space between title and buttons */
+    }
+}

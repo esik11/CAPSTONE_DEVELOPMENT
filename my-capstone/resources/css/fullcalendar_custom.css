@@ -1,0 +1,64 @@
+/* Custom styles for FullCalendar */
+.fc .fc-button-primary {
+    background-color: #16a750 !important;
+    border-color: #16a750 !important;
+    color: #ffffff !important;
+}
+
+.fc .fc-button-primary:hover {
+    background-color: #128c40 !important;
+    border-color: #128c40 !important;
+}
+
+.fc-event {
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-bottom: 2px;
+    cursor: pointer;
+}
+
+/* Event background colors (FullCalendar uses `color` for background) */
+.fc-event-approved {
+    background-color: #16a750; /* Confirmed - Green accent */
+    border-color: #16a750;
+}
+
+.fc-event-pending {
+    background-color: #f97316; /* Pending - Orange */
+    border-color: #f97316;
+}
+
+.fc-event-cancelled, .fc-event-declined {
+    background-color: #ef4444; /* Canceled/Declined - Red */
+    border-color: #ef4444;
+}
+
+.fc-event-rescheduled {
+    background-color: #2563eb; /* Rescheduled - Blue */
+    border-color: #2563eb;
+}
+
+.fc-event-title,
+.fc-event-doctor,
+.fc-event-time,
+.fc-event-medical-records {
+    color: white; /* Ensure text is visible on colored backgrounds */
+}
+
+/* Hide calendar on small screens and show list */
+@media (max-width: 768px) {
+    #calendar-container {
+        display: none;
+    }
+    #appointments-list-container {
+        display: block !important;
+    }
+}
+
+/* Show calendar on larger screens */
+@media (min-width: 769px) {
+    #calendar-container {
+        display: block !important;
+    }
+}
+
