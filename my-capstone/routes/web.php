@@ -50,4 +50,12 @@ Route::middleware(['web', 'auth', 'patient'])->group(function () {
     Route::delete('/patient/profile', [\App\Http\Controllers\Patient\ProfileController::class, 'destroy'])->name('patient.profile.destroy');
 });
 
+// Doctor Routes
+Route::middleware(['web', 'auth', 'doctor'])->group(function () {
+    Route::get('/doctor/appointments', [\App\Http\Controllers\Doctor\AppointmentController::class, 'index'])->name('doctor.appointments.index');
+    Route::get('/doctor/appointments/{appointment}', [\App\Http\Controllers\Doctor\AppointmentController::class, 'show'])->name('doctor.appointments.show');
+    Route::get('/doctor/patients/{patient}/details', [\App\Http\Controllers\Doctor\PatientController::class, 'showDetails'])->name('doctor.patients.details');
+    Route::get('/doctor/patients/{patient}/medical-records', [\App\Http\Controllers\Doctor\MedicalRecordController::class, 'index'])->name('doctor.patients.medicalRecords.index');
+});
+
 require __DIR__.'/auth.php';

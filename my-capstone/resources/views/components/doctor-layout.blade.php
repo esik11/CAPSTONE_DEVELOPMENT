@@ -47,6 +47,12 @@
                         </svg>
                         Patients (EMR)
                     </a>
+                    <a href="{{ route('doctor.appointments.index') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-clinic-blue-medium flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12V12zm.375 0h.008v.008h-.008V12zm0 3.75h.008v.008h-.008V15zM12 15.75h.008v.008H12V15.75zm.375 0h.008v.008h-.008V15.75z" />
+                        </svg>
+                        Appointments
+                    </a>
                     <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-clinic-blue-medium flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375H12a1.125 1.125 0 01-1.125-1.125V1.5m6.75 10.5l3.125-3.125M12 18V5.25M15.75 18H5.25" />

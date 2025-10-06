@@ -101,6 +101,36 @@ class Patient extends Model
         return $this->hasMany(Appointment::class);
     }
 
+    public function allergies(): HasMany
+    {
+        return $this->hasMany(Allergy::class);
+    }
+
+    public function medications(): HasMany
+    {
+        return $this->hasMany(Medication::class);
+    }
+
+    public function surgicalHistories(): HasMany
+    {
+        return $this->hasMany(SurgicalHistory::class);
+    }
+
+    public function hospitalizations(): HasMany
+    {
+        return $this->hasMany(Hospitalization::class);
+    }
+
+    public function familyHistories(): HasMany
+    {
+        return $this->hasMany(FamilyHistory::class);
+    }
+
+    public function socialHistories(): HasMany
+    {
+        return $this->hasMany(SocialHistory::class);
+    }
+
     public function getAgeAttribute()
     {
         return Carbon::parse($this->date_of_birth)->age;
