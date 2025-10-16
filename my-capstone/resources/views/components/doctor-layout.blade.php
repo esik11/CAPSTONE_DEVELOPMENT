@@ -61,12 +61,6 @@
                     </a>
                     <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-clinic-blue-medium flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12v-.008zM12 18h.008v.008H12v-.008z" />
-                        </svg>
-                        Appointments
-                    </a>
-                    <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-clinic-blue-medium flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9H19.5m-16.5 5.25h6m-6 2.25h3m-3 6l3-3m-3 3v-3m0-6h.008v.008H2.25V17.25zM12.75 9h7.5A.75.75 0 0121 9.75v3.75a.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75V9.75c0-.414.336-.75.75-.75z" />
                         </svg>
                         Billing

@@ -57,13 +57,6 @@
                             <x-input-error :messages="$errors->get('middle_name')" class="mt-2" />
                         </div>
 
-                        <!-- Nickname -->
-                        <div class="mt-4">
-                            <x-input-label for="nickname" :value="__('Nickname')" />
-                            <x-text-input id="nickname" class="block mt-1 w-full" type="text" name="nickname" :value="old('nickname', $patient->nickname)" />
-                            <x-input-error :messages="$errors->get('nickname')" class="mt-2" />
-                        </div>
-
                         <!-- Date of Birth -->
                         <div class="mt-4">
                             <x-input-label for="date_of_birth" :value="__('Date of Birth')" />
@@ -71,11 +64,11 @@
                             <x-input-error :messages="$errors->get('date_of_birth')" class="mt-2" />
                         </div>
 
-                        <!-- Social Security Number -->
+                        <!-- PhilHealth Number -->
                         <div class="mt-4">
-                            <x-input-label for="social_security_number" :value="__('Social Security Number')" />
-                            <x-text-input id="social_security_number" class="block mt-1 w-full" type="text" name="social_security_number" :value="old('social_security_number', $patient->social_security_number)" />
-                            <x-input-error :messages="$errors->get('social_security_number')" class="mt-2" />
+                            <x-input-label for="philhealth_number" :value="__('PhilHealth Number')" />
+                            <x-text-input id="philhealth_number" class="block mt-1 w-full" type="text" name="philhealth_number" :value="old('philhealth_number', $patient->philhealth_number)" />
+                            <x-input-error :messages="$errors->get('philhealth_number')" class="mt-2" />
                         </div>
 
                         <!-- Gender -->
@@ -89,10 +82,6 @@
                                 <label for="gender_female" class="inline-flex items-center">
                                     <input id="gender_female" type="radio" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-clinic-green-dark shadow-sm focus:ring-clinic-green-dark dark:focus:ring-clinic-green-dark dark:focus:ring-offset-gray-800" name="gender" value="Female" {{ old('gender', $patient->gender) == 'Female' ? 'checked' : '' }}>
                                     <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Female</span>
-                                </label>
-                                <label for="gender_other" class="inline-flex items-center">
-                                    <input id="gender_other" type="radio" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-clinic-green-dark shadow-sm focus:ring-clinic-green-dark dark:focus:ring-clinic-green-dark dark:focus:ring-offset-gray-800" name="gender" value="Other" {{ old('gender', $patient->gender) == 'Other' ? 'checked' : '' }}>
-                                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Other</span>
                                 </label>
                             </div>
                             <x-input-error :messages="$errors->get('gender')" class="mt-2" />

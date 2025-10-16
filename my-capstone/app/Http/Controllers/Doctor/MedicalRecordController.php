@@ -14,3 +14,7 @@ class MedicalRecordController extends Controller
         return response()->json($medicalRecords);
     }
 }
+
+
+
+

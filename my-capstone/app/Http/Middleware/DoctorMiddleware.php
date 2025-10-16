@@ -23,3 +23,4 @@ class DoctorMiddleware
         abort(403, 'Unauthorized action.');
     }
 }
+

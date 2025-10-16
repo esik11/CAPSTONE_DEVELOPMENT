@@ -30,11 +30,11 @@
                             <div><strong>Patient ID:</strong> {{ $patient->id }}</div>
                             <div><strong>Nickname:</strong> {{ $patient->nickname ?? 'N/A' }}</div>
                             <div><strong>Date of Birth:</strong> {{ $patient->date_of_birth }}</div>
+                            <div><strong>PhilHealth Number:</strong> {{ $patient->philhealth_number ?? 'N/A' }}</div>
                             <div><strong>Gender:</strong> {{ $patient->gender }}</div>
                             <div><strong>Marital Status:</strong> {{ $patient->marital_status ?? 'N/A' }}</div>
                             <div><strong>Language:</strong> {{ $patient->language ?? 'N/A' }}</div>
                             <div><strong>Race:</strong> {{ $patient->race ?? 'N/A' }}</div>
-                            <div><strong>SSN:</strong> {{ $patient->social_security_number ?? 'N/A' }}</div>
                         </div>
                     </div>
                 </div>

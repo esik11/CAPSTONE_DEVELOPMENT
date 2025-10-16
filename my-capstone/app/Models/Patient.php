@@ -21,9 +21,8 @@ class Patient extends Model
         'first_name',
         'last_name',
         'middle_name',
-        'nickname',
+        'philhealth_number',
         'date_of_birth',
-        'social_security_number',
         'gender',
         'marital_status',
         'language',
@@ -99,36 +98,6 @@ class Patient extends Model
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
-    }
-
-    public function allergies(): HasMany
-    {
-        return $this->hasMany(Allergy::class);
-    }
-
-    public function medications(): HasMany
-    {
-        return $this->hasMany(Medication::class);
-    }
-
-    public function surgicalHistories(): HasMany
-    {
-        return $this->hasMany(SurgicalHistory::class);
-    }
-
-    public function hospitalizations(): HasMany
-    {
-        return $this->hasMany(Hospitalization::class);
-    }
-
-    public function familyHistories(): HasMany
-    {
-        return $this->hasMany(FamilyHistory::class);
-    }
-
-    public function socialHistories(): HasMany
-    {
-        return $this->hasMany(SocialHistory::class);
     }
 
     public function getAgeAttribute()
