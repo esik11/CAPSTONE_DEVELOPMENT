@@ -1,68 +1,170 @@
 <x-doctor-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('My Appointments') }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
+                    {{ __('My Appointments') }}
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage your schedule and patient appointments</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-600 dark:text-gray-400">{{ now()->format('l, F j, Y') }}</span>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="flex flex-col md:flex-row gap-6">
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-5 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm font-medium">Total Today</p>
+                            <p class="text-3xl font-bold mt-1" id="stat-total">0</p>
+                        </div>
+                        <div class="bg-white/20 rounded-lg p-3">
+                            <x-heroicon-o-calendar class="w-8 h-8" />
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-5 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-100 text-sm font-medium">Pending</p>
+                            <p class="text-3xl font-bold mt-1" id="stat-pending">0</p>
+                        </div>
+                        <div class="bg-white/20 rounded-lg p-3">
+                            <x-heroicon-o-clock class="w-8 h-8" />
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-5 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm font-medium">Approved</p>
+                            <p class="text-3xl font-bold mt-1" id="stat-approved">0</p>
+                        </div>
+                        <div class="bg-white/20 rounded-lg p-3">
+                            <x-heroicon-o-check-circle class="w-8 h-8" />
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-5 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm font-medium">Scheduled</p>
+                            <p class="text-3xl font-bold mt-1" id="stat-scheduled">0</p>
+                        </div>
+                        <div class="bg-white/20 rounded-lg p-3">
+                            <x-heroicon-o-calendar-days class="w-8 h-8" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-6">
                 <!-- Left Section: Calendar -->
-                <div class="md:w-1/2 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 font-inter">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">My Schedule</h3>
-                    <div id="doctor-calendar" class="mb-6"></div>
+                <div class="lg:w-3/5 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-5">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <x-heroicon-o-calendar class="w-6 h-6 text-blue-600" />
+                            My Schedule
+                        </h3>
+                    </div>
+                    <div id="doctor-calendar" class="mb-4"></div>
                 </div>
 
                 <!-- Right Section: Interactive Appointment Panel -->
-                <div class="md:w-1/2 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 font-inter">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Patient Appointments</h3>
-
-                    <!-- Search and Filter Bar -->
-                    <div class="mb-4 flex flex-col sm:flex-row gap-4">
-                        <input type="text" id="search-patient-name" placeholder="Search by Patient Name" class="flex-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                        <input type="date" id="filter-date" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                        <select id="filter-status" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                            <option value="">All Statuses</option>
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="declined">Declined</option>
-                            <option value="scheduled">Scheduled</option>
-                        </select>
+                <div class="lg:w-2/5 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-5">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <x-heroicon-o-user-group class="w-6 h-6 text-indigo-600" />
+                            Patient Appointments
+                        </h3>
                     </div>
 
-                    <div id="doctor-appointments-list" class="space-y-4">
+                    <!-- Search and Filter Bar -->
+                    <div class="mb-5 space-y-3">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <x-heroicon-o-magnifying-glass class="h-5 w-5 text-gray-400" />
+                            </div>
+                            <input type="text" id="search-patient-name" placeholder="Search by patient name..." class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-lg shadow-sm transition">
+                        </div>
+                        <div class="flex gap-3">
+                            <input type="date" id="filter-date" class="flex-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-lg shadow-sm transition px-3 py-2">
+                            <select id="filter-status" class="flex-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-lg shadow-sm transition px-3 py-2">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="declined">Declined</option>
+                                <option value="scheduled">Scheduled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="doctor-appointments-list" class="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                         @if ($appointments->isEmpty())
-                            <p class="text-gray-600 dark:text-gray-400">No appointments found.</p>
+                            <div class="text-center py-12">
+                                <x-heroicon-o-calendar-days class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                                <p class="text-gray-500 dark:text-gray-400 font-medium">No appointments found</p>
+                            </div>
                         @else
                             @foreach ($appointments as $appointment)
-                                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow flex flex-col space-y-3 transition-all duration-200 ease-in-out hover:shadow-lg hover:scale-[1.02]">
-                                    <div class="flex justify-between items-center">
-                                        <p class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $appointment->patient->user->name }}</p>
-                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ [
-                                            'pending' => 'bg-yellow-100 text-yellow-800',
-                                            'approved' => 'bg-green-100 text-green-800',
-                                            'declined' => 'bg-red-100 text-red-800',
-                                            'scheduled' => 'bg-blue-100 text-blue-800',
-                                        ][$appointment->status] ?? 'bg-gray-100 text-gray-800' }}">
+                                <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-750 p-4 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col space-y-3 transition-all duration-300 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-500 hover:-translate-y-1">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                                                {{ substr($appointment->patient->user->name, 0, 1) }}
+                                            </div>
+                                            <div>
+                                                <p class="text-base font-bold text-gray-900 dark:text-gray-100">{{ $appointment->patient->user->name }}</p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">Patient ID: #{{ $appointment->patient->id }}</p>
+                                            </div>
+                                        </div>
+                                        <span class="px-2.5 py-1 inline-flex text-xs font-bold rounded-lg {{ [
+                                            'pending' => 'bg-yellow-100 text-yellow-700 border border-yellow-300',
+                                            'approved' => 'bg-green-100 text-green-700 border border-green-300',
+                                            'declined' => 'bg-red-100 text-red-700 border border-red-300',
+                                            'scheduled' => 'bg-blue-100 text-blue-700 border border-blue-300',
+                                        ][$appointment->status] ?? 'bg-gray-100 text-gray-700 border border-gray-300' }}">
                                             {{ ucfirst($appointment->status) }}
                                         </span>
                                     </div>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">Date: {{ $appointment->start_time->format('M d, Y') }}</p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">Time: {{ $appointment->start_time->format('h:i A') }} - {{ $appointment->end_time->format('h:i A') }}</p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">Reason: {{ $appointment->reason }}</p>
-                                    <div class="flex space-x-2 mt-3">
-                                        <button class="inline-flex items-center px-3 py-1 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest bg-green-600 hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                            <x-heroicon-o-check class="w-4 h-4" /> <span class="ml-1">Approve</span>
+                                    
+                                    <div class="grid grid-cols-2 gap-2 text-sm">
+                                        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                            <x-heroicon-o-calendar class="w-4 h-4 text-indigo-500" />
+                                            <span>{{ $appointment->start_time->format('M d, Y') }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                            <x-heroicon-o-clock class="w-4 h-4 text-indigo-500" />
+                                            <span>{{ $appointment->start_time->format('h:i A') }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg p-2.5 border border-gray-200 dark:border-gray-600">
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1">Reason:</p>
+                                        <p class="text-sm text-gray-700 dark:text-gray-300">{{ $appointment->reason }}</p>
+                                    </div>
+                                    
+                                    <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                                        <button class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 border border-transparent rounded-lg font-semibold text-xs text-white bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-1 transition shadow-sm">
+                                            <x-heroicon-o-check class="w-4 h-4" />
+                                            <span>Approve</span>
                                         </button>
-                                        <button class="inline-flex items-center px-3 py-1 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest bg-red-600 hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                            <x-heroicon-o-x-mark class="w-4 h-4" /> <span class="ml-1">Decline</span>
+                                        <button class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 border border-transparent rounded-lg font-semibold text-xs text-white bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition shadow-sm">
+                                            <x-heroicon-o-x-mark class="w-4 h-4" />
+                                            <span>Decline</span>
                                         </button>
-                                        <button class="inline-flex items-center px-3 py-1 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                            <x-heroicon-o-pencil class="w-4 h-4" /> <span class="ml-1">Reschedule</span>
+                                        <button class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition shadow-sm">
+                                            <x-heroicon-o-pencil class="w-4 h-4" />
+                                            <span>Reschedule</span>
                                         </button>
-                                        <a href="#" class="inline-flex items-center px-3 py-1 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 view-details-button" data-appointment-id="{{ $appointment->id }}">
-                                            <x-heroicon-o-document-text class="w-4 h-4" /> <span class="ml-1">Medical Record</span>
+                                        <a href="#" class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 border border-transparent rounded-lg font-semibold text-xs text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition shadow-sm view-details-button" data-appointment-id="{{ $appointment->id }}">
+                                            <x-heroicon-o-document-text class="w-4 h-4" />
+                                            <span>View Medical Record</span>
                                         </a>
                                     </div>
                                 </div>
@@ -116,209 +218,119 @@
         </div>
     </div>
 
-    <script>
-        window.doctorAppointments = @json($appointments);
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('doctor-calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                events: window.doctorAppointments.map(appointment => ({
-                    title: `Dr. {{ Auth::user()->name }} with ${appointment.patient.user.name}`,
-                    start: appointment.start_time,
-                    end: appointment.end_time,
-                    extendedProps: {
-                        patientName: appointment.patient.user.name,
-                        reason: appointment.reason,
-                        status: appointment.status,
-                        appointmentId: appointment.id,
-                        patientId: appointment.patient.id
-                    }
-                })),
-                eventClick: function(info) {
-                    // Handle event click - perhaps open a modal for details/actions
-                    console.log('Event: ', info.event.extendedProps);
-                    alert('Appointment with ' + info.event.extendedProps.patientName + ' for ' + info.event.extendedProps.reason);
-                }
-            });
-            calendar.render();
+    <!-- Appointment Details Modal -->
+    <div id="appointment-details-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center p-4" onclick="if(event.target === this) this.classList.add('hidden')">
+        <div class="relative mx-auto w-full max-w-3xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 transform transition-all" onclick="event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-800 rounded-t-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <x-heroicon-o-document-text class="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Patient Details</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Complete medical information</p>
+                    </div>
+                </div>
+                <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg p-2 transition" onclick="document.getElementById('appointment-details-modal').classList.add('hidden')">
+                    <x-heroicon-o-x-mark class="w-6 h-6" />
+                </button>
+            </div>
 
-            // View Details Button Handler
-            document.querySelectorAll('.view-details-button').forEach(button => {
-                button.addEventListener('click', function() {
-                    const appointmentId = this.dataset.appointmentId;
-                    const appointment = window.doctorAppointments.find(app => app.id == appointmentId);
-
-                    if (appointment) {
-                        document.getElementById('modal-patient-name').textContent = appointment.patient.user.name;
-                        document.getElementById('modal-appointment-date').textContent = new Date(appointment.start_time).toLocaleDateString();
-                        document.getElementById('modal-appointment-time').textContent = `${new Date(appointment.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(appointment.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-                        document.getElementById('modal-appointment-reason').textContent = appointment.reason;
-                        document.getElementById('modal-appointment-status').textContent = appointment.status;
-                        
-                        // Placeholder for medical history and reports - will fetch via AJAX later
-                        document.getElementById('modal-medical-history').innerHTML = '<p>Loading medical history...</p>';
-                        document.getElementById('modal-uploaded-reports').innerHTML = '<p>Loading reports...</p>';
-                        
-                        // For now, let's fetch patient details and medical history via a simple AJAX call if possible
-                        // This will be expanded in later steps
-
-                        fetch(`/doctor/patients/${appointment.patient_id}/details`)
-                            .then(response => response.json())
-                            .then(data => {
-                                document.getElementById('modal-patient-contact').textContent = data.contact_number;
-                                document.getElementById('modal-patient-dob').textContent = new Date(data.date_of_birth).toLocaleDateString();
-                            })
-                            .catch(error => console.error('Error fetching patient details:', error));
-
-                        fetch(`/doctor/patients/${appointment.patient_id}/medical-records`)
-                            .then(response => response.json())
-                            .then(data => {
-                                const medicalHistoryDiv = document.getElementById('modal-medical-history');
-                                if (data.length > 0) {
-                                    medicalHistoryDiv.innerHTML = data.map(record => `
-                                        <div class="border-b border-gray-200 dark:border-gray-700 py-2">
-                                            <strong>Condition:</strong> ${record.medical_condition.name}<br>
-                                            <strong>Notes:</strong> ${record.notes || 'N/A'}<br>
-                                            <strong>Date:</strong> ${new Date(record.date).toLocaleDateString()}
-                                        </div>
-                                    `).join('');
-                                } else {
-                                    medicalHistoryDiv.innerHTML = '<p>No medical history available.</p>';
-                                }
-                            })
-                            .catch(error => console.error('Error fetching medical history:', error));
-
-                        // Fetch reports (placeholder for now)
-                        document.getElementById('appointment-details-modal').classList.remove('hidden');
-                    }
-                });
-            });
-
-            // Filtering Logic
-            const searchPatientName = document.getElementById('search-patient-name');
-            const filterDate = document.getElementById('filter-date');
-            const filterStatus = document.getElementById('filter-status');
-            const appointmentsListContainer = document.getElementById('doctor-appointments-list');
-
-            function renderAppointments(appointmentsToRender) {
-                if (appointmentsToRender.length === 0) {
-                    appointmentsListContainer.innerHTML = '<p class="text-gray-600 dark:text-gray-400">No appointments found for the selected criteria.</p>';
-                    return;
-                }
-
-                appointmentsListContainer.innerHTML = appointmentsToRender.map(appointment => {
-                    const statusClass = {
-                        'pending': 'bg-yellow-100 text-yellow-800',
-                        'approved': 'bg-green-100 text-green-800',
-                        'declined': 'bg-red-100 text-red-800',
-                        'scheduled': 'bg-blue-100 text-blue-800',
-                    }[appointment.status] || 'bg-gray-100 text-gray-800';
-
-                    return `
-                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow flex flex-col space-y-3 transition-all duration-200 ease-in-out hover:shadow-lg hover:scale-[1.02]">
-                            <div class="flex justify-between items-center">
-                                <p class="text-lg font-medium text-gray-900 dark:text-gray-100">${appointment.patient.user.name}</p>
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                                    ${appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
-                                </span>
-                            </div>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Date: ${new Date(appointment.start_time).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Time: ${new Date(appointment.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(appointment.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Reason: ${appointment.reason}</p>
-                            <div class="flex space-x-2 mt-3">
-                                <button class="inline-flex items-center px-3 py-1 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest bg-green-600 hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                    <x-heroicon-o-check class="w-4 h-4" /> <span class="ml-1">Approve</span>
-                                </button>
-                                <button class="inline-flex items-center px-3 py-1 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest bg-red-600 hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                    <x-heroicon-o-x-mark class="w-4 h-4" /> <span class="ml-1">Decline</span>
-                                </button>
-                                <button class="inline-flex items-center px-3 py-1 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                    <x-heroicon-o-pencil class="w-4 h-4" /> <span class="ml-1">Reschedule</span>
-                                </button>
-                                <a href="#" class="inline-flex items-center px-3 py-1 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 view-details-button" data-appointment-id="${appointment.id}">
-                                    <x-heroicon-o-document-text class="w-4 h-4" /> <span class="ml-1">Medical Record</span>
-                                </a>
-                            </div>
+            <!-- Modal Body -->
+            <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <!-- Patient Information Card -->
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-750 rounded-xl p-5 border border-blue-200 dark:border-gray-600">
+                    <div class="flex items-center gap-2 mb-4">
+                        <x-heroicon-o-user class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100">Patient Information</h4>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Full Name</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100" id="modal-patient-name">-</p>
                         </div>
-                    `;
-                }).join('');
+                        <div>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Contact Number</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100" id="modal-patient-contact">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Date of Birth</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100" id="modal-patient-dob">-</p>
+                        </div>
+                    </div>
+                </div>
 
-                // Re-attach event listeners for newly rendered buttons
-                document.querySelectorAll('.view-details-button').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const appointmentId = this.dataset.appointmentId;
-                        const appointment = window.doctorAppointments.find(app => app.id == appointmentId);
+                <!-- Appointment Details Card -->
+                <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-750 rounded-xl p-5 border border-purple-200 dark:border-gray-600">
+                    <div class="flex items-center gap-2 mb-4">
+                        <x-heroicon-o-calendar-days class="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100">Appointment Details</h4>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Date</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100" id="modal-appointment-date">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Time</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100" id="modal-appointment-time">-</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Reason for Visit</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100" id="modal-appointment-reason">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Status</p>
+                            <span class="inline-block px-3 py-1 text-xs font-bold rounded-lg" id="modal-appointment-status-badge">-</span>
+                        </div>
+                    </div>
+                </div>
 
-                        if (appointment) {
-                            document.getElementById('modal-patient-name').textContent = appointment.patient.user.name;
-                            document.getElementById('modal-appointment-date').textContent = new Date(appointment.start_time).toLocaleDateString();
-                            document.getElementById('modal-appointment-time').textContent = `${new Date(appointment.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(appointment.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-                            document.getElementById('modal-appointment-reason').textContent = appointment.reason;
-                            document.getElementById('modal-appointment-status').textContent = appointment.status;
-                            
-                            document.getElementById('modal-medical-history').innerHTML = '<p>Loading medical history...</p>';
-                            document.getElementById('modal-uploaded-reports').innerHTML = '<p>Loading reports...</p>';
+                <!-- Medical History Card -->
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-700 dark:to-gray-750 rounded-xl p-5 border border-green-200 dark:border-gray-600">
+                    <div class="flex items-center gap-2 mb-4">
+                        <x-heroicon-o-clipboard-document-list class="w-5 h-5 text-green-600 dark:text-green-400" />
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100">Medical History</h4>
+                    </div>
+                    <div id="modal-medical-history" class="space-y-3">
+                        <div class="flex items-center justify-center py-8">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                        </div>
+                    </div>
+                </div>
 
-                            fetch(`/doctor/patients/${appointment.patient_id}/details`)
-                                .then(response => response.json())
-                                .then(data => {
-                                    document.getElementById('modal-patient-contact').textContent = data.contact_number;
-                                    document.getElementById('modal-patient-dob').textContent = new Date(data.date_of_birth).toLocaleDateString();
-                                })
-                                .catch(error => console.error('Error fetching patient details:', error));
+                <!-- Uploaded Reports Card -->
+                <div class="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-700 dark:to-gray-750 rounded-xl p-5 border border-orange-200 dark:border-gray-600">
+                    <div class="flex items-center gap-2 mb-4">
+                        <x-heroicon-o-document-arrow-up class="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100">Uploaded Reports</h4>
+                    </div>
+                    <div id="modal-uploaded-reports" class="space-y-2">
+                        <p class="text-sm text-gray-600 dark:text-gray-400">No reports uploaded yet.</p>
+                    </div>
+                </div>
+            </div>
 
-                            fetch(`/doctor/patients/${appointment.patient_id}/medical-records`)
-                                .then(response => response.json())
-                                .then(data => {
-                                    const medicalHistoryDiv = document.getElementById('modal-medical-history');
-                                    if (data.length > 0) {
-                                        medicalHistoryDiv.innerHTML = data.map(record => `
-                                            <div class="border-b border-gray-200 dark:border-gray-700 py-2">
-                                                <strong>Condition:</strong> ${record.medical_condition.name}<br>
-                                                <strong>Notes:</strong> ${record.notes || 'N/A'}<br>
-                                                <strong>Date:</strong> ${new Date(record.date).toLocaleDateString()}
-                                            </div>
-                                        `).join('');
-                                    } else {
-                                        medicalHistoryDiv.innerHTML = '<p>No medical history available.</p>';
-                                    }
-                                })
-                                .catch(error => console.error('Error fetching medical history:', error));
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-2xl">
+                <button class="px-5 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 transition shadow-sm" onclick="document.getElementById('appointment-details-modal').classList.add('hidden')">
+                    Close
+                </button>
+                <button class="px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
+                    <span class="flex items-center gap-2">
+                        <x-heroicon-o-printer class="w-4 h-4" />
+                        Print Record
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
 
-                            document.getElementById('appointment-details-modal').classList.remove('hidden');
-                        }
-                    });
-                });
-            }
-
-            function filterAppointments() {
-                const searchText = searchPatientName.value.toLowerCase();
-                const selectedDate = filterDate.value;
-                const selectedStatus = filterStatus.value;
-
-                const filtered = window.doctorAppointments.filter(appointment => {
-                    const matchesName = appointment.patient.user.name.toLowerCase().includes(searchText);
-                    const appointmentDate = new Date(appointment.start_time).toISOString().split('T')[0];
-                    const matchesDate = !selectedDate || appointmentDate === selectedDate;
-                    const matchesStatus = !selectedStatus || appointment.status === selectedStatus;
-
-                    return matchesName && matchesDate && matchesStatus;
-                });
-
-                renderAppointments(filtered);
-            }
-
-            searchPatientName.addEventListener('input', filterAppointments);
-            filterDate.addEventListener('change', filterAppointments);
-            filterStatus.addEventListener('change', filterAppointments);
-
-            // Initial render
-            renderAppointments(window.doctorAppointments);
-        });
+    <script>
+        // Pass appointments data to JavaScript before modules load
+        window.doctorAppointments = @json($appointments);
     </script>
+
+
 </x-doctor-layout>

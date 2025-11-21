@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @import './fullcalendar_custom.css';
+@import './doctor-appointments.css';
 
 @tailwind base;
 @tailwind components;
@@ -194,6 +195,74 @@
     /* border: 5px solid blue !important; */
 }
 
+/* Calendar day badge for appointment count */
+.fc .fc-daygrid-day {
+    position: relative;
+}
+
+.fc .fc-daygrid-day .appointment-count-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: #4F46E5;
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 700;
+    border-radius: 9999px;
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+/* Calendar tooltip styles */
+.calendar-tooltip {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced event styling */
+.fc-event {
+    transition: all 0.2s ease-in-out;
+}
+
+.fc-event:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Today highlight */
+.fc .fc-day-today {
+    background-color: #EEF2FF !important;
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+    background-color: #4F46E5;
+    color: white;
+    border-radius: 50%;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
 @media (max-width: 768px) {
     .fc-toolbar-chunk:nth-child(3) {
         display: flex; /* Ensure the right chunk is a flex container */
@@ -203,5 +272,10 @@
 
     .fc-toolbar-chunk:nth-child(3) .fc-button-group {
         margin-top: 10px; /* Add some space between title and buttons */
+    }
+    
+    .calendar-tooltip {
+        max-width: 200px;
+        font-size: 0.75rem;
     }
 }

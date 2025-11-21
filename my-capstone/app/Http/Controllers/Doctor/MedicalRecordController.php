@@ -18,3 +18,6 @@ class MedicalRecordController extends Controller
 
 
 
+
+
+

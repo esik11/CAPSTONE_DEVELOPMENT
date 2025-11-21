@@ -56,6 +56,9 @@ Route::middleware(['web', 'auth', 'doctor'])->group(function () {
     Route::get('/doctor/appointments/{appointment}', [\App\Http\Controllers\Doctor\AppointmentController::class, 'show'])->name('doctor.appointments.show');
     Route::get('/doctor/patients/{patient}/details', [\App\Http\Controllers\Doctor\PatientController::class, 'showDetails'])->name('doctor.patients.details');
     Route::get('/doctor/patients/{patient}/medical-records', [\App\Http\Controllers\Doctor\MedicalRecordController::class, 'index'])->name('doctor.patients.medicalRecords.index');
+    Route::get('/doctor/e-prescription', function () {
+        return view('doctor.e-prescription.index');
+    })->name('doctor.ePrescription.index');
 });
 
 require __DIR__.'/auth.php';

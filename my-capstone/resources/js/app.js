@@ -4,6 +4,9 @@ import Alpine from 'alpinejs';
 import flatpickr from "flatpickr";
 import monthSelectPlugin from "flatpickr/dist/plugins/monthSelect/index.js";
 
+// Import doctor appointments functionality
+import './doctor-appointments.js';
+
 console.log("app.js loaded");
 console.log("flatpickr object:", flatpickr);
 console.log("monthSelectPlugin imported:", monthSelectPlugin);

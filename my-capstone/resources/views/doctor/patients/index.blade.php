@@ -1,119 +1,212 @@
 <x-doctor-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Patients') }}
-        </h2>
+        <div>
+            <h2 class="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
+                {{ __('Patients') }}
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage patient records and medical history</p>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="flex justify-end mb-4">
-                        <a href="{{ route('patients.create') }}" class="bg-clinic-blue-dark hover:bg-clinic-blue-medium text-white font-bold py-2 px-4 rounded inline-flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            @if (session('success'))
+                <div class="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 rounded-lg shadow-sm" role="alert">
+                    <div class="flex items-center gap-3">
+                        <div class="flex-shrink-0">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            Add New Patient
-                        </a>
-                    </div>
-
-                    @if (session('success'))
-                        <div class="bg-clinic-green-light border border-clinic-green-dark text-clinic-green-dark px-4 py-3 rounded relative mb-4" role="alert">
-                            <span class="block sm:inline">{{ session('success') }}</span>
                         </div>
-                    @endif
+                        <span class="text-green-800 font-medium">{{ session('success') }}</span>
+                    </div>
+                </div>
+            @endif
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-clinic-yellow-light">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Photo</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Name</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Age</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Gender</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+            <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-200">
+                <!-- Header with Search, Filter, and Add Button -->
+                <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                    <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+                        <!-- Search and Filter -->
+                        <div class="flex flex-col sm:flex-row gap-3 flex-1 w-full lg:w-auto">
+                            <div class="relative flex-1 min-w-0">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
+                                <input type="text" id="search-patient" placeholder="Search patients by name..." class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
+                            </div>
+                            <select id="filter-gender" class="border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition w-full sm:w-auto">
+                                <option value="">All Genders</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Add New Patient Button -->
+                        <div class="w-full lg:w-auto">
+                            <a href="{{ route('patients.create') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold rounded-lg shadow-lg shadow-teal-500/50 transition-all duration-200 hover:shadow-xl hover:shadow-teal-500/60 w-full lg:w-auto whitespace-nowrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Add New Patient
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gradient-to-r from-gray-100 to-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Photo</th>
+                                <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Patient Name</th>
+                                <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Age</th>
+                                <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Gender</th>
+                                <th scope="col" class="px-6 py-5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Contact</th>
+                                <th scope="col" class="px-6 py-5 text-right text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="patients-table-body">
                                 @forelse ($patients as $patient)
-                                    <tr class="cursor-pointer hover:bg-gray-50" @click="$dispatch('show-patient-details', { patientId: {{ $patient->id }} })">
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                    <tr class="hover:bg-gradient-to-r hover:from-teal-50 hover:to-emerald-50 transition-all duration-200 cursor-pointer group" @click="$dispatch('show-patient-details', { patientId: {{ $patient->id }} })">
+                                        <td class="px-6 py-5 whitespace-nowrap">
                                             @if ($patient->photo)
-                                                <img src="{{ Storage::url($patient->photo) }}" alt="Patient Photo" class="w-10 h-10 object-cover rounded-full">
+                                                <img src="{{ Storage::url($patient->photo) }}" alt="Patient Photo" class="w-12 h-12 object-cover rounded-full border-2 border-gray-200 group-hover:border-teal-400 transition-colors shadow-sm">
                                             @else
-                                                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xs">N/A</div>
+                                                <div class="w-12 h-12 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center text-gray-600 font-semibold text-sm border-2 border-gray-200 group-hover:border-teal-400 transition-colors shadow-sm">
+                                                    {{ substr($patient->first_name, 0, 1) }}{{ substr($patient->last_name, 0, 1) }}
+                                                </div>
                                             @endif
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $patient->first_name }} {{ $patient->middle_name ? $patient->middle_name . ' ' : '' }}{{ $patient->last_name }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($patient->date_of_birth)->age }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $patient->gender }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium relative" @click.stop>
-                                            <x-dropdown align="right" width="48">
-                                                <x-slot name="trigger">
-                                                    <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                                        <div>Actions</div>
-                                                        <div class="ms-1">
-                                                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                                            </svg>
-                                                        </div>
+                                        <td class="px-6 py-5">
+                                            <div class="flex items-center">
+                                                <div>
+                                                    <div class="text-sm font-semibold text-gray-900 whitespace-nowrap">{{ $patient->first_name }} {{ $patient->middle_name ? $patient->middle_name . ' ' : '' }}{{ $patient->last_name }}</div>
+                                                    <div class="text-xs text-gray-500 whitespace-nowrap">Patient ID: #{{ $patient->id }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-5 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                {{ \Carbon\Carbon::parse($patient->date_of_birth)->age }} years
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-5 whitespace-nowrap">
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium {{ $patient->gender === 'Male' ? 'bg-indigo-100 text-indigo-800' : 'bg-pink-100 text-pink-800' }}">
+                                                @if($patient->gender === 'Male')
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                                                    </svg>
+                                                @else
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                                                    </svg>
+                                                @endif
+                                                {{ $patient->gender }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-5 whitespace-nowrap text-sm text-gray-600">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                                </svg>
+                                                <span>{{ $patient->phone_number }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-5 whitespace-nowrap text-right" @click.stop>
+                                            <div class="flex items-center justify-end gap-1">
+                                                <button @click.prevent="$dispatch('show-patient-details', { patientId: {{ $patient->id }} })" class="p-2.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View Profile">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                </button>
+                                                <a href="{{ route('patients.edit', $patient) }}" class="p-2.5 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 7.125l-4.5-4.5" />
+                                                    </svg>
+                                                </a>
+                                                <a href="{{ route('patients.medicalRecords.index', $patient) }}" class="p-2.5 text-teal-600 hover:bg-teal-50 rounded-lg transition-colors" title="Medical Records">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                                    </svg>
+                                                </a>
+                                                <form method="POST" action="{{ route('patients.destroy', $patient) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this patient?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="lete">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                        </svg>
                                                     </button>
-                                                </x-slot>
-
-                                                <x-slot name="content">
-                                                    <x-dropdown-link href="#" @click.prevent="$dispatch('show-patient-details', { patientId: {{ $patient->id }} })" class="flex items-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        </svg>
-                                                        {{ __('View Profile') }}
-                                                    </x-dropdown-link>
-                                                    <x-dropdown-link href="{{ route('patients.edit', $patient) }}" class="flex items-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.4-8.4z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 12.75V12A2.25 2.25 0 0016.5 9.75H9.75A2.25 2.25 0 007.5 12v7.5A2.25 2.25 0 009.75 21h7.5A2.25 2.25 0 0019.5 18.75V15.75m-1.5-3H15.75m-12 3H12" />
-                                                        </svg>
-                                                        {{ __('Edit') }}
-                                                    </x-dropdown-link>
-                                                    <x-dropdown-link href="{{ route('patients.medicalRecords.index', $patient) }}" class="flex items-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375H12V10.5M21 4.5H10.5a2.25 2.25 0 00-2.25 2.25v2.25m-2.25 0v2.25m-2.25 0H3.75a2.25 2.25 0 00-2.25 2.25v2.25m19.5-9V7.5A2.25 2.25 0 0019.5 9h-2.25M8.25 6.75h9.75m0 0v-1.5m0 1.5l3-3m-3 3l-3-3M3.75 14.25h6.75m-6.75 0v-1.5m0 1.5l-3-3m3 3l3-3m-3 3V19.5a2.25 2.25 0 002.25 2.25h10.5a2.25 2.25 0 002.25-2.25v-2.25" />
-                                                        </svg>
-                                                        {{ __('View Medical Records') }}
-                                                    </x-dropdown-link>
-                                                    <form method="POST" action="{{ route('patients.destroy', $patient) }}" class="flex items-center">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <x-dropdown-link :href="route('patients.destroy', $patient)"
-                                                                onclick="event.preventDefault();
-                                                                            this.closest('form').submit();" class="flex items-center text-red-600 hover:text-red-900">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 me-2">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m-1.022.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m-1.022.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397M21 6.75V10.5M6 6H4.5M6 6h15M6 6v-.75A2.25 2.25 0 018.25 3h7.5A2.25 2.25 0 0118 5.25v.75M3 6h18" />
-                                                            </svg>
-                                                            {{ __('Delete') }}
-                                                        </x-dropdown-link>
-                                                    </form>
-                                                </x-slot>
-                                            </x-dropdown>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">No patients found.</td>
+                                        <td colspan="6" class="px-6 py-12 text-center">
+                                            <div class="flex flex-col items-center justify-center">
+                                                <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                                </svg>
+                                                <p class="text-gray-500 font-medium text-lg">No patients found</p>
+                                                <p class="text-gray-400 text-sm mt-1">Start by adding your first patient</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
 
-                    <div class="mt-4">
-                        {{ $patients->links() }}
-                    </div>
+                    <!-- Pagination -->
+                    @if($patients->hasPages())
+                        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                            {{ $patients->links() }}
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        // Simple client-side filtering
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-patient');
+            const genderFilter = document.getElementById('filter-gender');
+            const tableBody = document.getElementById('patients-table-body');
+            const rows = Array.from(tableBody.querySelectorAll('tr'));
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedGender = genderFilter.value;
+
+                rows.forEach(row => {
+                    const name = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+                    const gender = row.querySelector('td:nth-child(4)')?.textContent.trim() || '';
+                    
+                    const matchesSearch = name.includes(searchTerm);
+                    const matchesGender = !selectedGender || gender === selectedGender;
+
+                    if (matchesSearch && matchesGender) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            searchInput?.addEventListener('input', filterTable);
+            genderFilter?.addEventListener('change', filterTable);
+        });
+    </script>
+    @endpush
 </x-doctor-layout>
 
 <x-modal name="view-patient-details-modal" :show="false" focusable maxWidth="4xl" x-cloak>

@@ -17,3 +17,6 @@ class PatientController extends Controller
 
 
 
+
+
+
