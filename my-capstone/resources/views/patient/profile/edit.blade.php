@@ -1,12 +1,22 @@
 <x-patient-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Profile') }}
-        </h2>
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                </svg>
+            </div>
+            <div>
+                <h2 class="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
+                    {{ __('Edit Profile') }}
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Update your personal information and settings</p>
+            </div>
+        </div>
     </x-slot>
 
     
-    <div class="py-12">
+    <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             @php
                 $hasEmergencyData = $patient->emergency_last_name || $patient->emergency_first_name || $patient->emergency_relationship || $patient->emergency_address || $patient->emergency_apt_num || $patient->emergency_city || $patient->emergency_state || $patient->emergency_zip_code || $patient->emergency_home_phone || $patient->emergency_work_phone || $patient->emergency_other_phone;
@@ -14,28 +24,49 @@
                 $showModalEdit = $errors->has('emergency_last_name') || $errors->has('other_last_name') || (old('emergency_last_name') || $hasEmergencyData) || (old('other_last_name') || $hasOtherContactData);
             @endphp
 
-            <div class="bg-white overflow-hidden sm:rounded-lg p-6 rounded-xl shadow-md">
+            <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-200">
                 <form method="POST" action="{{ route('patient.profile.update') }}" enctype="multipart/form-data" onsubmit="console.log('Main form submitted!')">
                     @csrf
                     @method('patch')
 
                     <!-- Section: Personal Details -->
-                    <div class="mb-6 p-4 rounded-xl shadow-md bg-clinic-earth-light">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-gray-900 flex items-center">
-                                <x-heroicon-o-user class="w-5 h-5 mr-2 text-clinic-green-dark" /> Personal Details
-                            </h3>
-                            <div>
-                                <button type="button" x-data="" x-on:click.prevent="$dispatch('open-additional-patient-details-modal', 'patient-details-modal')" class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25 transition ease-in-out duration-150">
-                                    Edit More Details
-                                </button>
+                    <div class="mb-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-gray-900">Personal Details</h3>
+                                </div>
+                                <div>
+                                    <button type="button" x-data="" x-on:click.prevent="$dispatch('open-additional-patient-details-modal', 'patient-details-modal')" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                        </svg>
+                                        Edit More Details
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                        
+                        <div class="p-6">
 
                         <!-- Patient ID (Display Only) -->
-                        <div class="mb-4">
-                            <x-input-label :value="__('Patient ID')" />
-                            <p class="text-gray-600 dark:text-gray-400">{{ $patient->id }}</p>
+                        <div class="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <x-input-label :value="__('Patient ID')" class="text-xs text-gray-600 mb-0" />
+                                    <p class="text-lg font-bold text-gray-900">#{{ $patient->id }}</p>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -149,13 +180,22 @@
                             </div>
                             <x-input-error :messages="$errors->get('photo')" class="mt-2" />
                         </div>
+                        </div>
                     </div>
 
                     <!-- Section: Home Address -->
-                    <div class="mb-6 p-4 rounded-xl shadow-md bg-white">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                            <x-heroicon-o-map-pin class="w-5 h-5 mr-2 text-clinic-green-dark" /> Home Address
-                        </h3>
+                    <div class="mb-6">
+                        <div class="bg-gradient-to-r from-teal-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900">Home Address</h3>
+                            </div>
+                        </div>
+                        <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Region -->
                             <div>
@@ -192,13 +232,22 @@
                                 <x-input-error :messages="$errors->get('zip_code')" class="mt-2" />
                             </div>
                         </div>
+                        </div>
                     </div>
 
                     <!-- Section: Contact Information -->
-                    <div class="mb-6 p-4 rounded-xl shadow-md bg-clinic-earth-light">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                            <x-heroicon-o-phone class="w-5 h-5 mr-2 text-clinic-green-dark" /> Contact Information
-                        </h3>
+                    <div class="mb-6">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900">Contact Information</h3>
+                            </div>
+                        </div>
+                        <div class="p-6">
                         <!-- Contact Number -->
                         <div>
                             <x-input-label for="phone_number" :value="__('Contact Number')" />
@@ -212,13 +261,22 @@
                             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $patient->user->email)" autocomplete="email" />
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
+                        </div>
                     </div>
 
                     <!-- Section: Employment Details -->
-                    <div class="mb-6 p-4 rounded-xl shadow-md bg-white">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                            <x-heroicon-o-briefcase class="w-5 h-5 mr-2 text-clinic-green-dark" /> Employment Details
-                        </h3>
+                    <div class="mb-6">
+                        <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-4 border-b border-gray-200">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900">Employment Details</h3>
+                            </div>
+                        </div>
+                        <div class="p-6">
                         <!-- Employment Status -->
                         <div>
                             <x-input-label for="employment_status" :value="__('Employment Status')" class="block" />
@@ -232,54 +290,92 @@
                             </div>
                             <x-input-error :messages="$errors->get('employment_status')" class="mt-2" />
                         </div>
+                        </div>
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="flex items-center justify-end mt-6">
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-clinic-green-dark focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                    <div class="flex items-center justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
+                        <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/50 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/60">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
                             {{ __('Save Changes') }}
                         </button>
                     </div>
                 </form>
             </div>
 
-            <!-- Section: Update Password (Moved outside main form for consistent design) -->
-            <div class="mb-6 p-4 rounded-xl shadow-md bg-clinic-earth-light">
-                <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6" onsubmit="console.log('Password update form submitted!')">
-                    @csrf
-                    @method('put')
-
-                    @include('profile.partials.update-password-form')
-
-                    <div class="flex items-center gap-4">
-                        <x-primary-button>{{ __('Save Password') }}</x-primary-button>
-
-                        @if (session('status') === 'password-updated')
-                            <p
-                                x-data="{ show: true }"
-                                x-show="show"
-                                x-transition
-                                x-init="setTimeout(() => show = false, 2000)"
-                                class="text-sm text-gray-600 dark:text-gray-400"
-                            >{{ __('Saved.') }}</p>
-                        @endif
+            <!-- Section: Update Password -->
+            <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-200">
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Update Password</h3>
+                            <p class="text-xs text-gray-600">Ensure your account is using a secure password</p>
+                        </div>
                     </div>
-                </form>
+                </div>
+                <div class="p-6">
+                    <form method="post" action="{{ route('password.update') }}" class="space-y-6" onsubmit="console.log('Password update form submitted!')">
+                        @csrf
+                        @method('put')
+
+                        @include('profile.partials.update-password-form')
+
+                        <div class="flex items-center gap-4 pt-4 border-t border-gray-200">
+                            <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg shadow-lg shadow-purple-500/50 transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/60">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                {{ __('Save Password') }}
+                            </button>
+
+                            @if (session('status') === 'password-updated')
+                                <p
+                                    x-data="{ show: true }"
+                                    x-show="show"
+                                    x-transition
+                                    x-init="setTimeout(() => show = false, 2000)"
+                                    class="text-sm font-medium text-green-600"
+                                >{{ __('Saved.') }}</p>
+                            @endif
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <!-- Modal - Outside the form to prevent nesting issues -->
-            <x-modal name="patient-details-modal" focusable maxWidth="2xl" x-cloak
+            <x-modal name="patient-details-modal" focusable maxWidth="4xl" x-cloak
                 x-data="{ show: false }" {{-- Always start hidden --}}
                 x-on:open-additional-patient-details-modal.window="show = true"
                 x-show="show"
                 x-init="$el.style.opacity = '0'; $watch('show', value => { $el.style.opacity = value ? '1' : '0' })"
             >
-                
-                <x-slot name="title">
-                    {{ __('Additional Patient Details') }}
-                </x-slot>
+                <!-- Modal Header -->
+                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-bold text-white">
+                            {{ __('Additional Patient Details') }}
+                        </h2>
+                    </div>
+                    <button @click="show = false" class="text-white/80 hover:text-white hover:bg-white/10 rounded-lg p-2 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
 
-                <div>
+                <div class="bg-gradient-to-br from-gray-50 to-white">
                 <form method="POST" action="{{ route('patient.profile.update') }}" enctype="multipart/form-data" onsubmit="console.log('Modal form submitted!')">
                     @csrf
                     @method('patch')
@@ -303,12 +399,23 @@
                         <input type="hidden" name="email" value="{{ old('email', $patient->user->email) }}">
                         <input type="hidden" name="employment_status" value="{{ old('employment_status', $patient->employment_status) }}">
 
-                        <div class="p-6 max-h-96 overflow-y-auto">
+                        <div class="p-6 max-h-[70vh] overflow-y-auto">
                         <!-- Emergency/Next of Kin Contact Information -->
-                        <div class="mb-6 p-4 rounded-xl shadow-md bg-white">
-                            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                                <x-heroicon-o-heart class="w-5 h-5 mr-2 text-clinic-green-dark" /> EMERGENCY/NEXT OF KIN CONTACT INFORMATION
-                            </h3>
+                        <div class="mb-6 bg-white rounded-xl shadow-lg border border-red-200 overflow-hidden">
+                            <div class="bg-gradient-to-r from-red-50 to-rose-50 px-6 py-4 border-b border-red-200">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-900">Emergency Contact</h3>
+                                        <p class="text-xs text-gray-600">Next of Kin Information</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-6">
 
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <!-- Last Name -->
@@ -409,12 +516,25 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>                    
-                            <!-- Other Contact Information -->
-                            <div class="mb-6 p-4 rounded-xl shadow-md bg-clinic-earth-light">
-                                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                                    <x-heroicon-o-users class="w-5 h-5 mr-2 text-clinic-green-dark" /> OTHER CONTACT INFORMATION (NOT LIVING WITH PATIENT)
-                                </h3>
+                            </div>
+                            </div>
+                        </div>                    
+                        <!-- Other Contact Information -->
+                        <div class="mb-6 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                            <div class="bg-gradient-to-r from-gray-50 to-slate-50 px-6 py-4 border-b border-gray-200">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-lg flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-900">Other Contact</h3>
+                                        <p class="text-xs text-gray-600">Not Living with Patient</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-6">
                             
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <!-- Last Name -->
@@ -516,16 +636,24 @@
                                     </div>
                                 </div>
                             </div>
+                            </div>
+                        </div>
                         </div>
                     
-                        <div class="mt-6 flex justify-end">
-                            <x-secondary-button type="button" x-on:click="show = false">
+                        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+                            <button type="button" x-on:click="show = false" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
                                 {{ __('Cancel') }}
-                            </x-secondary-button>
+                            </button>
                     
-                            <x-primary-button class="ms-3" type="submit">
+                            <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg shadow-indigo-500/50 transition-all duration-200 hover:shadow-xl hover:shadow-indigo-500/60">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
                                 {{ __('Save') }}
-                            </x-primary-button>
+                            </button>
                         </div>
                     </form>
                 </div>

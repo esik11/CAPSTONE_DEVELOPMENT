@@ -6,6 +6,13 @@ import interactionPlugin from '@fullcalendar/interaction';
 
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
+    
+    // Only initialize if calendar element exists (on appointments page)
+    if (!calendarEl) {
+        console.log('Calendar element not found, skipping FullCalendar initialization');
+        return;
+    }
+    
     var appointments = window.appointments || []; // Initialize appointments here
     var currentFilteredAppointments = appointments;
 

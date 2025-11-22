@@ -4,12 +4,18 @@ import Alpine from 'alpinejs';
 import flatpickr from "flatpickr";
 import monthSelectPlugin from "flatpickr/dist/plugins/monthSelect/index.js";
 
-// Import doctor appointments functionality
-import './doctor-appointments.js';
-
 console.log("app.js loaded");
 console.log("flatpickr object:", flatpickr);
 console.log("monthSelectPlugin imported:", monthSelectPlugin);
+
+// Conditionally import doctor appointments functionality only on doctor pages
+if (document.getElementById('doctor-calendar') || document.getElementById('doctor-appointments-list')) {
+    import('./doctor-appointments.js').then(module => {
+        console.log('Doctor appointments module loaded');
+    }).catch(err => {
+        console.error('Error loading doctor appointments module:', err);
+    });
+}
 
 window.Alpine = Alpine;
 
