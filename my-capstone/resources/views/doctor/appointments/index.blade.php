@@ -1,14 +1,29 @@
 <x-doctor-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                </svg>
+            </div>
             <div>
                 <h2 class="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
                     {{ __('My Appointments') }}
                 </h2>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage your schedule and patient appointments</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Manage your schedule and patient appointments</p>
             </div>
-            <div class="flex items-center gap-3">
-                <span class="text-sm text-gray-600 dark:text-gray-400">{{ now()->format('l, F j, Y') }}</span>
+        </div>
+    </x-slot>
+
+    <x-slot name="headerActions">
+        <div class="flex items-center gap-3">
+            <div class="px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                    <span class="text-sm font-semibold text-gray-700">{{ now()->format('l, F j, Y') }}</span>
+                </div>
             </div>
         </div>
     </x-slot>
