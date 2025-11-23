@@ -45,12 +45,39 @@
     @php
         $showModalCreate = $errors->has('emergency_last_name') || $errors->has('other_last_name') || old('emergency_last_name') || old('other_last_name');
     @endphp
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-xl border border-gray-200">
-                <form method="POST" action="{{ route('patients.store') }}" enctype="multipart/form-data">
-                    @csrf
+                <div class="p-6" x-data="{ activeTab: 'personal' }">
+                    <!-- Tab Navigation -->
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="-mb-px flex flex-wrap gap-1" aria-label="Tabs">
+                            <button type="button" @click="activeTab = 'personal'" :class="activeTab === 'personal' ? 'border-teal-500 text-teal-600 bg-teal-50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="py-3 px-4 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 flex-shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                                Personal Details
+                            </button>
+                            <button type="button" @click="activeTab = 'address'" :class="activeTab === 'address' ? 'border-teal-500 text-teal-600 bg-teal-50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="py-3 px-4 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 flex-shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                </svg>
+                                Address
+                            </button>
+                            <button type="button" @click="activeTab = 'contact'" :class="activeTab === 'contact' ? 'border-teal-500 text-teal-600 bg-teal-50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="py-3 px-4 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 flex-shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                                Contact & Employment
+                            </button>
+                        </nav>
+                    </div>
 
+                    <form method="POST" action="{{ route('patients.store') }}" enctype="multipart/form-data">
+                        @csrf
+
+                        <!-- Tab Panel: Personal Details -->
+                        <div x-show="activeTab === 'personal'" x-transition class="space-y-6">
                     <!-- Section: Personal Details -->
                     <div class="mb-6 p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
                         <div class="flex justify-between items-center mb-6">
@@ -198,7 +225,10 @@
                             <x-input-error :messages="$errors->get('photo')" class="mt-2" />
                         </div>
                     </div>
+                        </div>
 
+                        <!-- Tab Panel: Address -->
+                        <div x-show="activeTab === 'address'" x-transition class="space-y-6">
                     <!-- Section: Home Address -->
                     <div class="mb-6 p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
                         <div class="flex items-center gap-3 mb-6">
@@ -249,7 +279,10 @@
                             </div>
                         </div>
                     </div>
+                        </div>
 
+                        <!-- Tab Panel: Contact & Employment -->
+                        <div x-show="activeTab === 'contact'" x-transition class="space-y-6">
                     <!-- Section: Contact Information -->
                     <div class="mb-6 p-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
                         <div class="flex items-center gap-3 mb-6">
@@ -305,25 +338,66 @@
                             <x-input-error :messages="$errors->get('employment_status')" class="mt-2" />
                         </div>
                     </div>
+                        </div>
 
-                    <x-modal name="patient-details-modal" :show="$showModalCreate" focusable title="{{ __('Additional Patient Details') }}" x-cloak
+                        <!-- Submit Button (Always Visible) -->
+                        <div class="mt-8 pt-6 border-t border-gray-200 flex items-center justify-between">
+                            <a href="{{ route('patients.index') }}" class="inline-flex items-center gap-2 px-5 py-3 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold rounded-lg transition-all duration-200">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                {{ __('Cancel') }}
+                            </a>
+                            <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold rounded-lg shadow-lg shadow-teal-500/50 transition-all duration-200 hover:shadow-xl hover:shadow-teal-500/60">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                {{ __('Add Patient') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                    <x-modal name="patient-details-modal" :show="$showModalCreate" focusable maxWidth="2xl" x-cloak
                         x-data="{ show: $showModalCreate }" x-on:open-additional-patient-details-modal.window="show = true">
-                        <div class="p-6">
+                        <!-- Modal Header -->
+                        <div class="bg-gradient-to-r from-red-600 to-orange-600 px-6 py-5 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-white">Additional Patient Details</h2>
+                                    <p class="text-sm text-white/80">Emergency and other contact information</p>
+                                </div>
+                            </div>
+                            <button @click="$dispatch('close')" class="text-white/80 hover:text-white hover:bg-white/10 rounded-lg p-2 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="p-6 max-h-[70vh] overflow-y-auto bg-gradient-to-br from-gray-50 to-white">
                             <!-- Emergency/Next of Kin Contact Information -->
-                            <div class="mb-6 p-5 border border-red-200 rounded-xl bg-gradient-to-r from-red-50 to-orange-50">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-600 rounded-lg flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-bold text-gray-900">Emergency Contact</h3>
-                                        <p class="text-xs text-gray-600">Next of kin information</p>
+                            <div class="mb-6 bg-white rounded-xl shadow-lg border border-red-200 overflow-hidden">
+                                <div class="bg-gradient-to-r from-red-50 to-orange-50 px-6 py-4 border-b border-red-200">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-600 rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-900">Emergency Contact</h3>
+                                            <p class="text-xs text-gray-600">Next of kin information</p>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="p-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <!-- Last Name -->
                                     <div>
                                         <x-input-label for="emergency_last_name" :value="__('Last Name')" />
@@ -341,12 +415,20 @@
                                     <!-- Relationship to Patient -->
                                     <div>
                                         <x-input-label for="emergency_relationship" :value="__('Relationship to Patient')" />
-                                        <x-text-input id="emergency_relationship" class="block mt-1 w-full" type="text" name="emergency_relationship" :value="old('emergency_relationship')" />
+                                        <x-text-input id="emergency_relationship" class="block mt-1 w-full" type="text" name="emergency_relationship" :value="old('emergency_relationship')" placeholder="e.g., Spouse, Parent, Sibling" />
                                         <x-input-error :messages="$errors->get('emergency_relationship')" class="mt-2" />
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
+                                    <div class="mt-6">
+                                        <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                            Address
+                                        </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                                     <!-- Region -->
                                     <div>
                                         <x-input-label for="emergency_region" :value="__('Region')" />
@@ -405,21 +487,26 @@
                                         <x-input-error :messages="$errors->get('emergency_other_phone')" class="mt-2" />
                                     </div>
                                 </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Section: Other Contact Information (Not Living with Patient) -->
-                            <div class="mb-6 p-5 border border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-slate-50">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-lg flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-bold text-gray-900">Other Contact</h3>
-                                        <p class="text-xs text-gray-600">Additional contact not living with patient</p>
+                            <div class="mb-6 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                                <div class="bg-gradient-to-r from-gray-50 to-slate-50 px-6 py-4 border-b border-gray-200">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-900">Other Contact</h3>
+                                            <p class="text-xs text-gray-600">Additional contact not living with patient</p>
+                                        </div>
                                     </div>
                                 </div>
+                                <div class="p-6">
 
                                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
                                     <!-- Region -->
@@ -494,10 +581,11 @@
                                         </div>
                                     </div>
                                 </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+                        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
                             <button type="button" x-on:click="$dispatch('close')" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold rounded-lg transition-all duration-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -513,22 +601,6 @@
                             </button>
                         </div>
                     </x-modal>
-
-                    <div class="flex items-center justify-between p-6 bg-gray-50 border-t border-gray-200">
-                        <a href="{{ route('patients.index') }}" class="inline-flex items-center gap-2 px-5 py-3 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold rounded-lg transition-all duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            {{ __('Cancel') }}
-                        </a>
-                        <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold rounded-lg shadow-lg shadow-teal-500/50 transition-all duration-200 hover:shadow-xl hover:shadow-teal-500/60">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                            </svg>
-                            {{ __('Add Patient') }}
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

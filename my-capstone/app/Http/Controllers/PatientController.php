@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Patient;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
@@ -98,6 +99,13 @@ class PatientController extends Controller
      */
     public function show(Patient $patient): View
     {
+        // Log patient profile view
+        AuditLog::log(
+            $patient,
+            'viewed',
+            'Patient profile viewed'
+        );
+
         return view('doctor.patients.show', compact('patient'));
     }
 
@@ -200,6 +208,55 @@ class PatientController extends Controller
      */
     public function getPatientDetails(Patient $patient): JsonResponse
     {
+        // Log patient details access
+        AuditLog::log(
+            $patient,
+            'accessed',
+            'Patient details accessed via modal'
+        );
+
         return response()->json($patient);
+    }
+
+    /**
+     * Toggle patient status (active/inactive).
+     */
+    public function toggleStatus(Patient $patient): RedirectResponse
+    {
+        $newStatus = $patient->status === 'active' ? 'inactive' : 'active';
+        $patient->update(['status' => $newStatus]);
+
+        AuditLog::log(
+            $patient,
+            'status_changed',
+            "Patient status changed to {$newStatus}"
+        );
+
+        return redirect()->back()
+            ->with('success', "Patient status changed to {$newStatus}.");
+    }
+
+    /**
+     * Get audit logs for a patient.
+     */
+    public function auditLogs(Patient $patient): JsonResponse
+    {
+        $logs = $patient->auditLogs()
+            ->with('user:id,name')
+            ->latest()
+            ->take(50)
+            ->get()
+            ->map(function ($log) {
+                return [
+                    'id' => $log->id,
+                    'action' => $log->action,
+                    'description' => $log->description,
+                    'user_name' => $log->user ? $log->user->name : 'System',
+                    'created_at' => $log->created_at->format('M d, Y h:i A'),
+                    'created_at_human' => $log->created_at->diffForHumans(),
+                ];
+            });
+
+        return response()->json($logs);
     }
 }

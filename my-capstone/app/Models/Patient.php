@@ -80,6 +80,7 @@ class Patient extends Model
         'other_province',
         'other_barangay',
         'user_id',
+        'status',
     ];
 
     /**
@@ -103,6 +104,66 @@ class Patient extends Model
     public function getAgeAttribute()
     {
         return Carbon::parse($this->date_of_birth)->age;
+    }
+
+    /**
+     * Get the audit logs for the patient.
+     */
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class, 'auditable_id')
+            ->where('auditable_type', self::class)
+            ->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get the latest audit log.
+     */
+    public function latestAuditLog()
+    {
+        return $this->auditLogs()->latest()->first();
+    }
+
+    /**
+     * Boot the model and add event listeners for audit logging.
+     */
+    protected static function booted()
+    {
+        static::created(function ($patient) {
+            AuditLog::log(
+                $patient,
+                'created',
+                'Patient record created'
+            );
+        });
+
+        static::updated(function ($patient) {
+            $changes = $patient->getChanges();
+            $original = $patient->getOriginal();
+            
+            // Remove timestamps from changes
+            unset($changes['updated_at'], $changes['created_at']);
+            
+            if (!empty($changes)) {
+                $oldValues = array_intersect_key($original, $changes);
+                
+                AuditLog::log(
+                    $patient,
+                    'updated',
+                    'Patient record updated',
+                    $oldValues,
+                    $changes
+                );
+            }
+        });
+
+        static::deleted(function ($patient) {
+            AuditLog::log(
+                $patient,
+                'deleted',
+                'Patient record deleted'
+            );
+        });
     }
 }
 

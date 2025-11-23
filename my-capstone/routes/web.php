@@ -24,6 +24,8 @@ Route::middleware('auth')->group(function () {
     // EMR - Patients Routes
     Route::resource('patients', PatientController::class);
     Route::get('patients/{patient}/details', [PatientController::class, 'getPatientDetails'])->name('patients.details');
+    Route::post('patients/{patient}/toggle-status', [PatientController::class, 'toggleStatus'])->name('patients.toggleStatus');
+    Route::get('patients/{patient}/audit-logs', [PatientController::class, 'auditLogs'])->name('patients.auditLogs');
     Route::get('patients/{patient}/medical-records', [\App\Http\Controllers\MedicalRecordController::class, 'index'])->name('patients.medicalRecords.index');
     Route::get('patients/{patient}/medical-records/create', [\App\Http\Controllers\MedicalRecordController::class, 'create'])->name('patients.medicalRecords.create');
     Route::post('patients/{patient}/medical-records', [\App\Http\Controllers\MedicalRecordController::class, 'store'])->name('patients.medicalRecords.store');
