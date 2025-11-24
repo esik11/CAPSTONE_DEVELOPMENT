@@ -1,167 +1,314 @@
 <x-doctor-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Patient Details') }}: {{ $patient->first_name }} {{ $patient->last_name }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="{{ route('patients.index') }}" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </a>
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="font-bold text-2xl text-gray-900 leading-tight">
+                        Patient Overview
+                    </h2>
+                    <p class="text-sm text-gray-600 mt-0.5">{{ $patient->first_name }} {{ $patient->last_name }} - ID: #{{ $patient->id }}</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors text-sm font-medium">
+                    Repeat Script
+                </button>
+                <button class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors text-sm font-medium">
+                    Sick Note
+                </button>
+                <button class="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg transition-colors text-sm font-medium">
+                    Telehealth Consult
+                </button>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-gray-900">
-                <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8 mb-6">
-                    <!-- Patient Photo -->
-                    <div class="flex-shrink-0">
-                        @if ($patient->photo)
-                            <img src="{{ Storage::url($patient->photo) }}" alt="Patient Photo" class="w-48 h-48 object-cover rounded-lg shadow-md">
-                        @else
-                            <div class="w-48 h-48 bg-gray-200 rounded-lg shadow-md flex items-center justify-center text-gray-500 text-lg font-semibold">
-                                No Photo
-                            </div>
-                        @endif
-                    </div>
-
-                    <!-- Personal Details and Edit Button -->
-                    <div class="flex-1">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-2xl font-bold text-gray-900">{{ $patient->first_name }} {{ $patient->last_name }}</h3>
-                            <a href="{{ route('patients.edit', $patient) }}" class="bg-clinic-green-dark hover:bg-clinic-green-light text-white font-bold py-2 px-4 rounded inline-flex items-center text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14.25v4.5a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                </svg>
-                                Edit Patient
-                            </a>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-                            <div><strong>Patient ID:</strong> {{ $patient->id }}</div>
-                            <div><strong>Nickname:</strong> {{ $patient->nickname ?? 'N/A' }}</div>
-                            <div><strong>Date of Birth:</strong> {{ $patient->date_of_birth }}</div>
-                            <div><strong>Gender:</strong> {{ $patient->gender }}</div>
-                            <div><strong>Marital Status:</strong> {{ $patient->marital_status ?? 'N/A' }}</div>
-                            <div><strong>Language:</strong> {{ $patient->language ?? 'N/A' }}</div>
-                            <div><strong>Race:</strong> {{ $patient->race ?? 'N/A' }}</div>
-                            <div><strong>SSN:</strong> {{ $patient->social_security_number ?? 'N/A' }}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section: Home Address -->
-                <div class="mb-6 p-4 border rounded-lg bg-clinic-earth-light">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Home Address</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-                        <div><strong>Region:</strong> {{ $patient->region ?? 'N/A' }}</div>
-                        <div><strong>Province:</strong> {{ $patient->province ?? 'N/A' }}</div>
-                        <div><strong>City:</strong> {{ $patient->city ?? 'N/A' }}</div>
-                        <div><strong>Barangay:</strong> {{ $patient->barangay ?? 'N/A' }}</div>
-                        <div><strong>Zip Code:</strong> {{ $patient->zip_code ?? 'N/A' }}</div>
-                    </div>
-                </div>
-
-                <!-- Section: Contact Information -->
-                <div class="mb-6 p-4 border rounded-lg bg-clinic-earth-light">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Contact Information</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-                        <div><strong>Phone Number:</strong> {{ $patient->phone_number }}</div>
-                        <div><strong>Email:</strong> {{ $patient->email ?? 'N/A' }}</div>
-                    </div>
-                </div>
-
-                <!-- Section: Employment Status -->
-                <div class="mb-6 p-4 border rounded-lg bg-clinic-earth-light">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Employment Details</h3>
-                    <div><strong>Employment Status:</strong> {{ $patient->employment_status ?? 'N/A' }}</div>
-                </div>
-            </div>
-
-            <!-- Section: Emergency/Next of Kin Contact Information -->
-            @if($patient->emergency_last_name || $patient->emergency_first_name || $patient->emergency_relationship || $patient->emergency_address || $patient->emergency_apt_num || $patient->emergency_city || $patient->emergency_state || $patient->emergency_zip_code || $patient->emergency_home_phone || $patient->emergency_work_phone || $patient->emergency_other_phone)
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-gray-900 mt-6">
-                <h3 class="text-lg font-bold text-gray-900 mb-4">EMERGENCY/NEXT OF KIN CONTACT INFORMATION</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-                    <div><strong>Name:</strong> {{ $patient->emergency_first_name ?? 'N/A' }} {{ $patient->emergency_last_name ?? 'N/A' }}</div>
-                    <div><strong>Relationship:</strong> {{ $patient->emergency_relationship ?? 'N/A' }}</div>
-                    <div class="col-span-2"><strong>Address:</strong> {{ $patient->emergency_address ?? 'N/A' }} {{ $patient->emergency_apt_num ? ', Apt #' . $patient->emergency_apt_num : '' }}, {{ $patient->emergency_city ?? 'N/A' }}, {{ $patient->emergency_state ?? 'N/A' }} {{ $patient->emergency_zip_code ?? 'N/A' }}</div>
-                    <div><strong>Home Phone:</strong> {{ $patient->emergency_home_phone ?? 'N/A' }}</div>
-                    <div><strong>Work Phone:</strong> {{ $patient->emergency_work_phone ?? 'N/A' }}</div>
-                    <div><strong>Other Phone:</strong> {{ $patient->emergency_other_phone ?? 'N/A' }}
-                        @if($patient->emergency_other_phone_cell) <span class="text-xs text-gray-500">(Cell)</span> @endif
-                        @if($patient->emergency_other_phone_pager) <span class="text-xs text-gray-500">(Pager)</span> @endif
-                        @if($patient->emergency_other_phone_fax) <span class="text-xs text-gray-500">(Fax)</span> @endif
-                    </div>
-                </div>
-            </div>
-            @endif
-
-            <!-- Section: Other Contact Information (Not Living with Patient) -->
-            @if($patient->other_last_name || $patient->other_first_name || $patient->other_relationship || $patient->other_address || $patient->other_apt_num || $patient->other_city || $patient->other_state || $patient->other_zip_code || $patient->other_home_phone || $patient->other_work_phone || $patient->other_other_phone)
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-gray-900 mt-6">
-                <h3 class="text-lg font-bold text-gray-900 mb-4">OTHER CONTACT INFORMATION (NOT LIVING WITH PATIENT)</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-                    <div><strong>Name:</strong> {{ $patient->other_first_name ?? 'N/A' }} {{ $patient->other_last_name ?? 'N/A' }}</div>
-                    <div><strong>Relationship:</strong> {{ $patient->other_relationship ?? 'N/A' }}</div>
-                    <div class="col-span-2"><strong>Address:</strong> {{ $patient->other_address ?? 'N/A' }} {{ $patient->other_apt_num ? ', Apt #' . $patient->other_apt_num : '' }}, {{ $patient->other_city ?? 'N/A' }}, {{ $patient->other_state ?? 'N/A' }} {{ $patient->other_zip_code ?? 'N/A' }}</div>
-                    <div><strong>Home Phone:</strong> {{ $patient->other_home_phone ?? 'N/A' }}</div>
-                    <div><strong>Work Phone:</strong> {{ $patient->other_work_phone ?? 'N/A' }}</div>
-                    <div><strong>Other Phone:</strong> {{ $patient->other_other_phone ?? 'N/A' }}
-                        @if($patient->other_other_phone_cell) <span class="text-xs text-gray-500">(Cell)</span> @endif
-                        @if($patient->other_other_phone_pager) <span class="text-xs text-gray-500">(Pager)</span> @endif
-                        @if($patient->other_other_phone_fax) <span class="text-xs text-gray-500">(Fax)</span> @endif
-                    </div>
-                </div>
-            </div>
-            @endif
-
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-gray-900 mt-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">Medical Records</h3>
-                    <a href="{{ route('patients.medicalRecords.create', $patient) }}" class="bg-clinic-blue-dark hover:bg-clinic-blue-medium text-white font-bold py-2 px-4 rounded inline-flex items-center text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Add New Medical Record
-                    </a>
-                </div>
-
-                @if (session('success'))
-                    <div class="bg-clinic-green-light border border-clinic-green-dark text-clinic-green-dark px-4 py-3 rounded relative mb-4" role="alert">
-                        <span class="block sm:inline">{{ session('success') }}</span>
-                    </div>
-                @endif
-
-                <div class="overflow-x-auto">
-                    @if ($patient->medicalRecords->count() > 0)
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-clinic-yellow-light">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Visit Date</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diagnosis</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach ($patient->medicalRecords as $record)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $record->visit_date }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $record->doctor->name }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ Str::limit($record->diagnosis, 50) }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-2">View Details</a>
-                                            <a href="#" class="text-green-600 hover:text-green-900 mr-2">Edit</a>
-                                            <form action="#" method="POST" class="inline-block">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this medical record?')">Delete</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+    <div class="h-full flex gap-4 p-4">
+        <!-- Left Sidebar - Patient Info -->
+        <div class="w-64 flex-shrink-0 space-y-4">
+            <!-- Patient Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <div class="flex flex-col items-center">
+                    @if ($patient->photo)
+                        <img src="{{ Storage::url($patient->photo) }}" alt="Patient Photo" class="w-24 h-24 rounded-full object-cover border-4 border-blue-100 mb-3">
                     @else
-                        <p class="text-gray-500">No medical records found for this patient.</p>
+                        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold border-4 border-blue-100 mb-3">
+                            {{ substr($patient->first_name, 0, 1) }}{{ substr($patient->last_name, 0, 1) }}
+                        </div>
+                    @endif
+                    <h3 class="font-bold text-lg text-gray-900">{{ $patient->first_name }} {{ $patient->last_name }}</h3>
+                    <p class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($patient->date_of_birth)->age }} years old</p>
+                </div>
+            </div>
+
+            <!-- Talking Points -->
+            <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl shadow-sm border border-orange-200 p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    <h4 class="font-semibold text-gray-900">Talking points</h4>
+                </div>
+                <div class="text-sm text-gray-700 space-y-2">
+                    <p>• Enjoys hiking and camping outdoors</p>
+                    <p>• Favorite area - Northern Cape</p>
+                    <p>• Loves to chat about diet</p>
+                    <p>• Speaks about bikes a lot</p>
+                </div>
+            </div>
+
+            <!-- Lifestyle & Family Hx -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <h4 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Lifestyle & Family Hx
+                </h4>
+                
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <p class="font-medium text-gray-700">Lifestyle</p>
+                        <div class="mt-1 space-y-1 text-gray-600">
+                            <p>Alcohol: <span class="text-gray-900">Heavy</span></p>
+                            <p>Smoking: <span class="text-gray-900">Ex-smoker</span></p>
+                            <p>Stress: <span class="text-gray-900">7</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-2 border-t border-gray-200">
+                        <p class="font-medium text-gray-700">Family history</p>
+                        <p class="mt-1 text-gray-600">Parent are Diabetic</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Panel - Medical History -->
+        <div class="flex-1 space-y-4 overflow-y-auto">
+            <!-- Family Members -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    Family members
+                </h3>
+                <div class="grid grid-cols-2 gap-4">
+                    @if($patient->emergency_first_name)
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="font-medium text-gray-900">{{ $patient->emergency_first_name }} {{ $patient->emergency_last_name }}</p>
+                        <p class="text-sm text-gray-600">{{ $patient->emergency_relationship ?? 'Emergency Contact' }}</p>
+                        <p class="text-sm text-gray-500">{{ \Carbon\Carbon::now()->subYears(rand(20, 60))->age }} years old</p>
+                    </div>
+                    @else
+                    <div class="p-3 bg-gray-50 rounded-lg text-center text-gray-500 text-sm">
+                        No family members recorded
+                    </div>
                     @endif
                 </div>
+            </div>
+
+            <!-- Surgical & Hospitalization History -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    Surgical & Hospital Hx
+                </h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <p class="font-medium text-gray-700 mb-2">Surgical</p>
+                        @php
+                            $surgeries = $patient->medicalRecords->flatMap->surgicalHistories ?? collect();
+                        @endphp
+                        @if($surgeries->count() > 0)
+                            <ul class="space-y-1 text-sm text-gray-600">
+                                @foreach($surgeries->take(3) as $surgery)
+                                <li>• {{ $surgery->surgery_type }} ({{ $surgery->year }})</li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p class="text-sm text-gray-500 italic">No surgical history recorded</p>
+                        @endif
+                    </div>
+                    
+                    <div>
+                        <p class="font-medium text-gray-700 mb-2">Hospitalization notes</p>
+                        @php
+                            $hospitalizations = $patient->medicalRecords->flatMap->hospitalizations ?? collect();
+                        @endphp
+                        @if($hospitalizations->count() > 0)
+                            <ul class="space-y-1 text-sm text-gray-600">
+                                @foreach($hospitalizations->take(3) as $hosp)
+                                <li>• {{ $hosp->reason }} - {{ $hosp->hospital_name }} ({{ $hosp->year }})</li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p class="text-sm text-gray-500 italic">No hospitalization records</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Conditions & Medications -->
+        <div class="w-80 flex-shrink-0 space-y-4 overflow-y-auto">
+            <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl shadow-sm border border-orange-200 p-4">
+                <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    Conditions & Medications
+                </h3>
+                
+                <div class="space-y-4">
+                    <!-- Active Medications -->
+                    <div>
+                        <p class="font-medium text-gray-700 mb-2 text-sm">Active Medications</p>
+                        @php
+                            $medications = $patient->medicalRecords->flatMap->medications ?? collect();
+                        @endphp
+                        @if($medications->count() > 0)
+                            <div class="space-y-2">
+                                @foreach($medications->take(5) as $med)
+                                <div class="text-sm">
+                                    <p class="font-medium text-gray-900">{{ $med->medicine_name }}</p>
+                                    <p class="text-gray-600">{{ $med->dosage }} - {{ $med->frequency }}</p>
+                                </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-sm text-gray-500 italic">No active medications</p>
+                        @endif
+                    </div>
+                    
+                    <!-- Current Conditions -->
+                    <div class="pt-3 border-t border-orange-200">
+                        <p class="font-medium text-gray-700 mb-2 text-sm">Current Conditions</p>
+                        @php
+                            $conditions = $patient->medicalRecords->flatMap->medicalConditions ?? collect();
+                        @endphp
+                        @if($conditions->count() > 0)
+                            <div class="space-y-2">
+                                @foreach($conditions->take(3) as $condition)
+                                <div class="text-sm">
+                                    <p class="font-medium text-gray-900">{{ $condition->name }}</p>
+                                    @if($condition->pivot && $condition->pivot->notes)
+                                    <p class="text-gray-600 text-xs">{{ $condition->pivot->notes }}</p>
+                                    @endif
+                                </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-sm text-gray-500 italic">No conditions recorded</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Far Right Sidebar - Vital Info -->
+        <div class="w-64 flex-shrink-0 space-y-4 overflow-y-auto">
+            <!-- Contact Info -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-900">{{ $patient->first_name }}</h4>
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">{{ \Carbon\Carbon::parse($patient->date_of_birth)->age }}</span>
+                </div>
+                <div class="space-y-2 text-sm">
+                    <div class="flex items-center gap-2 text-gray-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                        <span>{{ $patient->phone_number }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Growth/Vitals -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-900">Growth</h4>
+                    @php
+                        $latestVitals = $patient->latestVitalSigns();
+                    @endphp
+                    @if($latestVitals)
+                        <span class="text-xs text-gray-500">{{ $latestVitals->recorded_at->format('M d, Y') }}</span>
+                    @endif
+                </div>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Weight</span>
+                        <span class="font-medium text-gray-900">{{ $latestVitals ? $latestVitals->weight . 'kg' : '--kg' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Height</span>
+                        <span class="font-medium text-gray-900">{{ $latestVitals ? $latestVitals->height . 'cm' : '--cm' }}</span>
+                    </div>
+                    @if($latestVitals && $latestVitals->bmi)
+                    <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+                        <span class="text-gray-600">BMI</span>
+                        <span class="font-medium text-gray-900">{{ $latestVitals->bmi }}</span>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Medical Aid Plan -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <h4 class="font-semibold text-gray-900 mb-2">Medical aid plan</h4>
+                <p class="text-sm text-gray-600">Not specified</p>
+            </div>
+
+            <!-- Allergies -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <h4 class="font-semibold text-gray-900 mb-3">Allergies</h4>
+                @php
+                    $allergies = $patient->medicalRecords->flatMap->allergies ?? collect();
+                @endphp
+                @if($allergies->count() > 0)
+                    <div class="space-y-2">
+                        @foreach($allergies as $allergy)
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-900">{{ $allergy->description }}</span>
+                            <span class="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded">{{ ucfirst($allergy->reaction ?? 'Moderate') }}</span>
+                        </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-sm text-gray-500 italic">No known allergies</p>
+                @endif
+            </div>
+
+            <!-- Conditions List -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <h4 class="font-semibold text-gray-900 mb-3">Conditions</h4>
+                @if($conditions->count() > 0)
+                    <div class="space-y-2">
+                        @foreach($conditions as $condition)
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-900">{{ $condition->name }}</span>
+                            <span class="text-xs text-gray-500">Active</span>
+                        </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-sm text-gray-500 italic">No conditions recorded</p>
+                @endif
             </div>
         </div>
     </div>

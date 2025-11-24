@@ -22,3 +22,4 @@ class MedicalRecordController extends Controller
 
 
 
+

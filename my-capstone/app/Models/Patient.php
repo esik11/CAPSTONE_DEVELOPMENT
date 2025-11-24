@@ -125,6 +125,22 @@ class Patient extends Model
     }
 
     /**
+     * Get the vital signs for the patient.
+     */
+    public function vitalSigns(): HasMany
+    {
+        return $this->hasMany(VitalSign::class);
+    }
+
+    /**
+     * Get the latest vital signs for the patient.
+     */
+    public function latestVitalSigns()
+    {
+        return $this->vitalSigns()->latest('recorded_at')->first();
+    }
+
+    /**
      * Boot the model and add event listeners for audit logging.
      */
     protected static function booted()

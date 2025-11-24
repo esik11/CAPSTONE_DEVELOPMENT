@@ -106,6 +106,20 @@ class PatientController extends Controller
             'Patient profile viewed'
         );
 
+        // Load all necessary relationships for the patient overview
+        $patient->load([
+            'medicalRecords.surgicalHistories',
+            'medicalRecords.hospitalizations',
+            'medicalRecords.medications',
+            'medicalRecords.allergies',
+            'medicalRecords.familyHistories',
+            'medicalRecords.socialHistories',
+            'medicalRecords.medicalConditions',
+            'vitalSigns' => function($query) {
+                $query->latest('recorded_at')->limit(10);
+            }
+        ]);
+
         return view('doctor.patients.show', compact('patient'));
     }
 

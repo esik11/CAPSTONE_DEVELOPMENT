@@ -145,7 +145,7 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200" id="patients-table-body">
                                     @forelse ($patients as $patient)
-                                        <tr class="hover:bg-gradient-to-r hover:from-teal-50 hover:to-emerald-50 transition-all duration-200 cursor-pointer group" @click="$dispatch('show-patient-details', { patientId: {{ $patient->id }} })">
+                                        <tr class="hover:bg-gradient-to-r hover:from-teal-50 hover:to-emerald-50 transition-all duration-200 cursor-pointer group" onclick="window.location='{{ route('patients.show', $patient) }}'">
                                             <td class="px-4 py-3 whitespace-nowrap">
                                                 @if ($patient->photo)
                                                     <img src="{{ Storage::url($patient->photo) }}" alt="Patient Photo" class="w-12 h-12 object-cover rounded-full border-2 border-gray-200 group-hover:border-teal-400 transition-colors shadow-sm">
