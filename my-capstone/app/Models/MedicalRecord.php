@@ -26,6 +26,7 @@ class MedicalRecord extends Model
         'history_of_present_illness',
         'review_of_systems',
         'consent_signed',
+        'talking_points',
     ];
 
     /**

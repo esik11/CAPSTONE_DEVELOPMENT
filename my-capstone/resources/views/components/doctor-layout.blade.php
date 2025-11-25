@@ -26,6 +26,7 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @livewireStyles
     </head>
     <body class="font-sans antialiased">
         <div class="flex h-screen bg-clinic-blue-light">
@@ -216,6 +217,8 @@
                 });
             });
         </script>
+        
+        @livewireScripts
     </body>
 </html>
 

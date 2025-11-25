@@ -12,9 +12,17 @@ class SocialHistory extends Model
 
     protected $fillable = [
         'medical_record_id',
+        'parents_status',
+        'parents_comments',
         'smoking',
+        'smoking_years',
+        'smoking_daily_cigarettes',
+        'smoking_comments',
         'alcohol',
+        'alcohol_comments',
         'drug_use',
+        'drug_type',
+        'drug_comments',
         'diet_exercise',
         'occupation',
         'living_situation',

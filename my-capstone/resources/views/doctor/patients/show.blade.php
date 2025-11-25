@@ -34,7 +34,7 @@
         </div>
     </x-slot>
 
-    <div class="h-full flex gap-4 p-4">
+    <div class="h-full flex gap-4 p-4" x-data="{}"
         <!-- Left Sidebar - Patient Info -->
         <div class="w-64 flex-shrink-0 space-y-4">
             <!-- Patient Card -->
@@ -53,23 +53,15 @@
             </div>
 
             <!-- Talking Points -->
-            <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl shadow-sm border border-orange-200 p-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                    <h4 class="font-semibold text-gray-900">Talking points</h4>
-                </div>
-                <div class="text-sm text-gray-700 space-y-2">
-                    <p>• Enjoys hiking and camping outdoors</p>
-                    <p>• Favorite area - Northern Cape</p>
-                    <p>• Loves to chat about diet</p>
-                    <p>• Speaks about bikes a lot</p>
-                </div>
+            <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl shadow-sm border border-orange-200">
+                <livewire:doctor.patient.talking-points :patient="$patient" />
             </div>
 
             <!-- Lifestyle & Family Hx -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div
+                @click="window.Livewire.dispatch('openModal')"
+                class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 cursor-pointer hover:shadow-md transition-shadow duration-200"
+            >
                 <h4 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -78,21 +70,38 @@
                 </h4>
                 
                 <div class="space-y-3 text-sm">
+                    @php
+                        $socialHistory = $patient->medicalRecords->flatMap->socialHistories->first();
+                    @endphp
+                    
                     <div>
                         <p class="font-medium text-gray-700">Lifestyle</p>
                         <div class="mt-1 space-y-1 text-gray-600">
-                            <p>Alcohol: <span class="text-gray-900">Heavy</span></p>
-                            <p>Smoking: <span class="text-gray-900">Ex-smoker</span></p>
-                            <p>Stress: <span class="text-gray-900">7</span></p>
+                            <p>Alcohol: <span class="text-gray-900">{{ $socialHistory?->alcohol ?? 'Not recorded' }}</span></p>
+                            <p>Smoking: <span class="text-gray-900">{{ $socialHistory?->smoking ?? 'Not recorded' }}</span></p>
+                            <p>Drug use: <span class="text-gray-900">{{ $socialHistory?->drug_use ?? 'Not recorded' }}</span></p>
                         </div>
                     </div>
                     
                     <div class="pt-2 border-t border-gray-200">
                         <p class="font-medium text-gray-700">Family history</p>
-                        <p class="mt-1 text-gray-600">Parent are Diabetic</p>
+                        @php
+                            $familyHistories = $patient->medicalRecords->flatMap->familyHistories;
+                        @endphp
+                        @if($familyHistories->count() > 0)
+                            <ul class="mt-1 space-y-1 text-gray-600">
+                                @foreach($familyHistories->take(3) as $history)
+                                <li>{{ $history->relative }}: {{ $history->condition }}</li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p class="mt-1 text-gray-600">No family history recorded</p>
+                        @endif
                     </div>
                 </div>
             </div>
+
+            <livewire:doctor.patient.lifestyle-family-history-modal :patient="$patient" />
         </div>
 
         <!-- Center Panel - Medical History -->
