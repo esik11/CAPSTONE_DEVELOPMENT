@@ -99,6 +99,22 @@ class MedicalRecord extends Model
     {
         return $this->belongsToMany(MedicalCondition::class, 'patient_conditions', 'medical_record_id', 'condition_id')->withPivot(['status', 'notes']);
     }
+
+    /**
+     * Get the vital signs for the medical record.
+     */
+    public function vitalSigns(): HasMany
+    {
+        return $this->hasMany(VitalSign::class);
+    }
+
+    /**
+     * Get the latest vital signs for the medical record.
+     */
+    public function latestVitalSigns(): HasOne
+    {
+        return $this->hasOne(VitalSign::class)->latestOfMany('recorded_at');
+    }
 }
 
 

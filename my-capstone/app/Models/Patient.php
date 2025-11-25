@@ -117,15 +117,7 @@ class Patient extends Model
     }
 
     /**
-     * Get the latest audit log.
-     */
-    public function latestAuditLog()
-    {
-        return $this->auditLogs()->latest()->first();
-    }
-
-    /**
-     * Get the vital signs for the patient.
+     * Get all vital signs for the patient.
      */
     public function vitalSigns(): HasMany
     {
@@ -137,7 +129,15 @@ class Patient extends Model
      */
     public function latestVitalSigns()
     {
-        return $this->vitalSigns()->latest('recorded_at')->first();
+        return $this->hasOne(VitalSign::class)->latestOfMany('recorded_at');
+    }
+
+    /**
+     * Get the latest audit log.
+     */
+    public function latestAuditLog()
+    {
+        return $this->auditLogs()->latest()->first();
     }
 
     /**

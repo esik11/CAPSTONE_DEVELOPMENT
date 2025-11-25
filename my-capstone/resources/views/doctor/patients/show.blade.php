@@ -242,9 +242,9 @@
             <!-- Growth/Vitals -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                 <div class="flex items-center justify-between mb-3">
-                    <h4 class="font-semibold text-gray-900">Growth</h4>
+                    <h4 class="font-semibold text-gray-900">Latest Vitals</h4>
                     @php
-                        $latestVitals = $patient->latestVitalSigns();
+                        $latestVitals = $patient->latestVitalSigns;
                     @endphp
                     @if($latestVitals)
                         <span class="text-xs text-gray-500">{{ $latestVitals->recorded_at->format('M d, Y') }}</span>
@@ -253,16 +253,22 @@
                 <div class="space-y-3 text-sm">
                     <div class="flex justify-between items-center">
                         <span class="text-gray-600">Weight</span>
-                        <span class="font-medium text-gray-900">{{ $latestVitals ? $latestVitals->weight . 'kg' : '--kg' }}</span>
+                        <span class="font-medium text-gray-900">{{ $latestVitals ? $latestVitals->weight . ' kg' : '--' }}</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-gray-600">Height</span>
-                        <span class="font-medium text-gray-900">{{ $latestVitals ? $latestVitals->height . 'cm' : '--cm' }}</span>
+                        <span class="font-medium text-gray-900">{{ $latestVitals ? $latestVitals->height . ' cm' : '--' }}</span>
                     </div>
                     @if($latestVitals && $latestVitals->bmi)
                     <div class="flex justify-between items-center pt-2 border-t border-gray-200">
                         <span class="text-gray-600">BMI</span>
                         <span class="font-medium text-gray-900">{{ $latestVitals->bmi }}</span>
+                    </div>
+                    @endif
+                    @if($latestVitals && ($latestVitals->systolic || $latestVitals->diastolic))
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Blood Pressure</span>
+                        <span class="font-medium text-gray-900">{{ $latestVitals->systolic }}/{{ $latestVitals->diastolic }}</span>
                     </div>
                     @endif
                 </div>
