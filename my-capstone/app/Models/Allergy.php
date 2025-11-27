@@ -12,13 +12,14 @@ class Allergy extends Model
 
     protected $fillable = [
         'medical_record_id',
-        'allergy_type',
-        'description',
-        'reaction',
+        'allergen_name',
+        'type',
+        'severity',
     ];
 
     protected $casts = [
-        'allergy_type' => 'string',
+        'type' => 'string',
+        'severity' => 'string',
     ];
 
     public function medicalRecord(): BelongsTo

@@ -113,17 +113,31 @@ class SurgicalHospitalHistoryModal extends Component
                 continue;
             }
 
+            // Check if this surgery type exists in common procedures
+            $surgeryName = trim($history['surgery_type']);
+            $existsInCommon = CommonSurgicalProcedure::where('name', $surgeryName)->exists();
+            
+            // If it's a new custom surgery, add it to common procedures
+            if (!$existsInCommon) {
+                CommonSurgicalProcedure::create([
+                    'name' => $surgeryName,
+                    'category' => 'Custom',
+                    'description' => 'Custom procedure added by doctor',
+                    'is_active' => true,
+                ]);
+            }
+
             if ($history['id']) {
                 $medicalRecord->surgicalHistories()
                     ->where('id', $history['id'])
                     ->update([
-                        'surgery_type' => $history['surgery_type'],
+                        'surgery_type' => $surgeryName,
                         'year' => $history['year'],
                         'notes' => $history['notes'],
                     ]);
             } else {
                 $medicalRecord->surgicalHistories()->create([
-                    'surgery_type' => $history['surgery_type'],
+                    'surgery_type' => $surgeryName,
                     'year' => $history['year'],
                     'notes' => $history['notes'],
                 ]);

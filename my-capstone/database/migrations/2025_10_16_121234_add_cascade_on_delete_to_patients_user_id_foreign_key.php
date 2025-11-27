@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('patients', function (Blueprint $table) {
-            // Drop the existing user_id column along with its foreign key constraint
+            // Drop the existing foreign key constraint first
+            $table->dropForeign(['user_id']);
+            // Then drop the column
             $table->dropColumn('user_id');
         });
 

@@ -210,24 +210,9 @@
             </div>
 
             <!-- Allergies -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                <h4 class="font-semibold text-gray-900 mb-3">Allergies</h4>
-                @php
-                    $allergies = $patient->medicalRecords->flatMap->allergies ?? collect();
-                @endphp
-                @if($allergies->count() > 0)
-                    <div class="space-y-2">
-                        @foreach($allergies as $allergy)
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-900">{{ $allergy->description }}</span>
-                            <span class="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded">{{ ucfirst($allergy->reaction ?? 'Moderate') }}</span>
-                        </div>
-                        @endforeach
-                    </div>
-                @else
-                    <p class="text-sm text-gray-500 italic">No known allergies</p>
-                @endif
-            </div>
+            <livewire:doctor.patient.allergy-card :patient="$patient" />
+            
+            <livewire:doctor.patient.allergy-modal :patient="$patient" />
 
             <!-- Conditions List -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">

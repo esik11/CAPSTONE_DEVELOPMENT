@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('allergies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('medical_record_id')->constrained()->onDelete('cascade');
-            $table->enum('allergy_type', ['drug', 'food', 'environment', 'other']);
-            $table->string('description');
-            $table->text('reaction')->nullable();
+            $table->string('allergen_name');
+            $table->enum('type', ['medication', 'non_medication']);
+            $table->enum('severity', ['mild', 'moderate', 'severe'])->nullable();
             $table->timestamps();
         });
     }
