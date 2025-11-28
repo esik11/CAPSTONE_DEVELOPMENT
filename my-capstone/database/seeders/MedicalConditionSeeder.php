@@ -13,37 +13,42 @@ class MedicalConditionSeeder extends Seeder
      */
     public function run(): void
     {
-        $conditions = [
-            "Abnormal EKG",
-            "Anemia",
-            "Angina Pectoris",
+        // Top 10 most common conditions
+        $commonConditions = [
+            "Diabetes Type II",
+            "Hypertension (High Blood Pressure)",
             "Asthma",
+            "Dyslipidemia (High Cholesterol)",
+            "Depression",
+            "Hypothyroidism (Underactive Thyroid)",
+            "Osteoporosis",
+            "Migraines",
+            "Diabetes Type I",
+            "Anemia",
+        ];
+
+        // All other conditions
+        $otherConditions = [
+            "Abnormal EKG",
+            "Angina Pectoris",
             "Bone Disease",
             "Breast Lump",
             "Cancer",
             "Coronary Artery Disease (Heart Disease)",
             "Decreased Libido",
-            "Depression",
-            "Diabetes Type I",
-            "Diabetes Type II",
-            "Dyslipidemia (High Cholesterol)",
             "Emphysema",
             "Endocrine Disorder",
             "Gallbladder Disease",
             "Heart Attack",
             "Hepatitis",
-            "Hypertension (High Blood Pressure)",
             "Hyperthyroidism (Overactive Thyroid)",
-            "Hypothyroidism (Underactive Thyroid)",
             "Impotence/ED",
             "Infertility",
             "Kidney Disease",
             "Kidney Stones",
             "Meningitis",
             "Mental Illness",
-            "Migraines",
             "Nipple Discharge",
-            "Osteoporosis",
             "Phlebitis",
             "Postmenopausal Bleeding",
             "Seizures",
@@ -55,8 +60,20 @@ class MedicalConditionSeeder extends Seeder
             "Tuberculosis",
         ];
 
-        foreach ($conditions as $condition) {
-            MedicalCondition::create(['condition_name' => $condition]);
+        // Create common conditions
+        foreach ($commonConditions as $condition) {
+            MedicalCondition::create([
+                'condition_name' => $condition,
+                'is_common' => true,
+            ]);
+        }
+
+        // Create other conditions
+        foreach ($otherConditions as $condition) {
+            MedicalCondition::create([
+                'condition_name' => $condition,
+                'is_common' => false,
+            ]);
         }
     }
 }

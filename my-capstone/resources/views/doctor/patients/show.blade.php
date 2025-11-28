@@ -1,4 +1,4 @@
-<x-doctor-layout>
+<x-patient-overview-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -7,16 +7,20 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                    </svg>
-                </div>
+                
+                @if ($patient->photo)
+                    <img src="{{ Storage::url($patient->photo) }}" alt="Patient Photo" class="w-12 h-12 rounded-full object-cover border-2 border-blue-200">
+                @else
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-lg font-bold border-2 border-blue-200">
+                        {{ substr($patient->first_name, 0, 1) }}{{ substr($patient->last_name, 0, 1) }}
+                    </div>
+                @endif
+                
                 <div>
-                    <h2 class="font-bold text-2xl text-gray-900 leading-tight">
-                        Patient Overview
+                    <h2 class="font-bold text-xl text-gray-900">
+                        {{ $patient->first_name }} {{ $patient->last_name }}
                     </h2>
-                    <p class="text-sm text-gray-600 mt-0.5">{{ $patient->first_name }} {{ $patient->last_name }} - ID: #{{ $patient->id }}</p>
+                    <p class="text-sm text-gray-600">{{ \Carbon\Carbon::parse($patient->date_of_birth)->age }} years old • ID: #{{ $patient->id }}</p>
                 </div>
             </div>
             
@@ -34,37 +38,105 @@
         </div>
     </x-slot>
 
-    <div class="h-full flex gap-4 p-4" x-data="{}"
-        <!-- Left Sidebar - Patient Info -->
-        <div class="w-64 flex-shrink-0 space-y-4">
-            <!-- Patient Card -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                <div class="flex flex-col items-center">
-                    @if ($patient->photo)
-                        <img src="{{ Storage::url($patient->photo) }}" alt="Patient Photo" class="w-24 h-24 rounded-full object-cover border-4 border-blue-100 mb-3">
-                    @else
-                        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold border-4 border-blue-100 mb-3">
-                            {{ substr($patient->first_name, 0, 1) }}{{ substr($patient->last_name, 0, 1) }}
-                        </div>
-                    @endif
-                    <h3 class="font-bold text-lg text-gray-900">{{ $patient->first_name }} {{ $patient->last_name }}</h3>
-                    <p class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($patient->date_of_birth)->age }} years old</p>
-                </div>
+    <div class="h-full flex" x-data="{ sidebarOpen: true }">
+        <!-- Patient Sidebar -->
+        <div 
+            x-show="sidebarOpen"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="-translate-x-full"
+            x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="-translate-x-full"
+            class="w-64 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto">
+            
+            <div class="p-4 border-b border-gray-200">
+                <h3 class="font-semibold text-gray-900 text-sm uppercase tracking-wide">Patient Sections</h3>
             </div>
+            
+            <nav class="p-2 space-y-1">
+                <a href="#overview" 
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer bg-blue-50 text-blue-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span class="font-medium text-sm">Overview</span>
+                </a>
+                
+                <a href="#conditions" 
+                   @click.prevent="$dispatch('openConditionModal')"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <span class="font-medium text-sm">Conditions</span>
+                </a>
+                
+                <a href="#medications" 
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                    <span class="font-medium text-sm">Medications</span>
+                </a>
+                
+                <a href="#allergies" 
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <span class="font-medium text-sm">Allergies</span>
+                </a>
+                
+                <a href="#family-history" 
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <span class="font-medium text-sm">Family History</span>
+                </a>
+                
+                <a href="#vitals" 
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span class="font-medium text-sm">Vitals</span>
+                </a>
+                
+                <a href="#surgical-history" 
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    <span class="font-medium text-sm">Surgical History</span>
+                </a>
+            </nav>
+        </div>
 
+        <!-- Toggle Sidebar Button -->
+        <button 
+            @click="sidebarOpen = !sidebarOpen"
+            class="absolute left-0 top-1/2 -translate-y-1/2 bg-white border border-gray-200 rounded-r-lg p-2 shadow-lg hover:bg-gray-50 transition-colors z-10"
+            :class="sidebarOpen ? 'ml-64' : 'ml-0'">
+            <svg x-show="!sidebarOpen" class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            <svg x-show="sidebarOpen" class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </button>
+
+        <!-- Center Content -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-4">
             <!-- Talking Points -->
             <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl shadow-sm border border-orange-200">
                 <livewire:doctor.patient.talking-points :patient="$patient" />
             </div>
 
-            <!-- Lifestyle & Family Hx -->
+            <!-- Lifestyle & Family History -->
             <livewire:doctor.patient.lifestyle-family-history-card :patient="$patient" />
 
-            <livewire:doctor.patient.lifestyle-family-history-modal :patient="$patient" />
-        </div>
-
-        <!-- Center Panel - Medical History -->
-        <div class="flex-1 space-y-4 overflow-y-auto">
             <!-- Family Members -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                 <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -73,85 +145,22 @@
                     </svg>
                     Family members
                 </h3>
-                <div class="grid grid-cols-2 gap-4">
-                    @if($patient->emergency_first_name)
-                    <div class="p-3 bg-gray-50 rounded-lg">
-                        <p class="font-medium text-gray-900">{{ $patient->emergency_first_name }} {{ $patient->emergency_last_name }}</p>
-                        <p class="text-sm text-gray-600">{{ $patient->emergency_relationship ?? 'Emergency Contact' }}</p>
-                        <p class="text-sm text-gray-500">{{ \Carbon\Carbon::now()->subYears(rand(20, 60))->age }} years old</p>
-                    </div>
-                    @else
-                    <div class="p-3 bg-gray-50 rounded-lg text-center text-gray-500 text-sm">
-                        No family members recorded
-                    </div>
-                    @endif
+                @if($patient->emergency_first_name)
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <p class="font-medium text-gray-900">{{ $patient->emergency_first_name }} {{ $patient->emergency_last_name }}</p>
+                    <p class="text-sm text-gray-600">{{ $patient->emergency_relationship ?? 'Emergency Contact' }}</p>
                 </div>
+                @else
+                <p class="text-sm text-gray-500 italic text-center py-4">No family members recorded</p>
+                @endif
             </div>
 
-            <!-- Surgical & Hospitalization History -->
+            <!-- Surgical & Hospital History -->
             <livewire:doctor.patient.surgical-hospital-history-card :patient="$patient" />
-
-            <livewire:doctor.patient.surgical-hospital-history-modal :patient="$patient" />
         </div>
 
-        <!-- Right Panel - Conditions & Medications -->
-        <div class="w-80 flex-shrink-0 space-y-4 overflow-y-auto">
-            <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl shadow-sm border border-orange-200 p-4">
-                <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                    Conditions & Medications
-                </h3>
-                
-                <div class="space-y-4">
-                    <!-- Active Medications -->
-                    <div>
-                        <p class="font-medium text-gray-700 mb-2 text-sm">Active Medications</p>
-                        @php
-                            $medications = $patient->medicalRecords->flatMap->medications ?? collect();
-                        @endphp
-                        @if($medications->count() > 0)
-                            <div class="space-y-2">
-                                @foreach($medications->take(5) as $med)
-                                <div class="text-sm">
-                                    <p class="font-medium text-gray-900">{{ $med->medicine_name }}</p>
-                                    <p class="text-gray-600">{{ $med->dosage }} - {{ $med->frequency }}</p>
-                                </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <p class="text-sm text-gray-500 italic">No active medications</p>
-                        @endif
-                    </div>
-                    
-                    <!-- Current Conditions -->
-                    <div class="pt-3 border-t border-orange-200">
-                        <p class="font-medium text-gray-700 mb-2 text-sm">Current Conditions</p>
-                        @php
-                            $conditions = $patient->medicalRecords->flatMap->medicalConditions ?? collect();
-                        @endphp
-                        @if($conditions->count() > 0)
-                            <div class="space-y-2">
-                                @foreach($conditions->take(3) as $condition)
-                                <div class="text-sm">
-                                    <p class="font-medium text-gray-900">{{ $condition->name }}</p>
-                                    @if($condition->pivot && $condition->pivot->notes)
-                                    <p class="text-gray-600 text-xs">{{ $condition->pivot->notes }}</p>
-                                    @endif
-                                </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <p class="text-sm text-gray-500 italic">No conditions recorded</p>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Far Right Sidebar - Vital Info -->
-        <div class="w-64 flex-shrink-0 space-y-4 overflow-y-auto">
+        <!-- Right Sidebar - Executive Summary -->
+        <div class="w-80 flex-shrink-0 bg-white border-l border-gray-200 overflow-y-auto p-6 space-y-4">
             <!-- Contact Info -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                 <div class="flex items-center justify-between mb-3">
@@ -168,7 +177,7 @@
                 </div>
             </div>
 
-            <!-- Growth/Vitals -->
+            <!-- Latest Vitals -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                 <div class="flex items-center justify-between mb-3">
                     <h4 class="font-semibold text-gray-900">Latest Vitals</h4>
@@ -203,33 +212,92 @@
                 </div>
             </div>
 
-            <!-- Medical Aid Plan -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                <h4 class="font-semibold text-gray-900 mb-2">Medical aid plan</h4>
-                <p class="text-sm text-gray-600">Not specified</p>
+            <!-- Conditions & Medications -->
+            <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl shadow-sm border border-orange-200 p-4">
+                <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    Conditions & Medications
+                </h3>
+                
+                <div class="space-y-4">
+                    <!-- Active Medications -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="font-medium text-gray-700 text-sm">Active Medications</p>
+                            <button 
+                                @click="$dispatch('openMedicationModal')"
+                                class="text-green-600 hover:text-green-700 text-xs font-medium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                            </button>
+                        </div>
+                        @php
+                            $medications = $patient->medicalRecords->flatMap->medications ?? collect();
+                        @endphp
+                        @if($medications->count() > 0)
+                            <div class="space-y-2">
+                                @foreach($medications->take(5) as $med)
+                                <div class="text-sm">
+                                    <p class="font-medium text-gray-900">{{ $med->medicine_name }}</p>
+                                    <p class="text-gray-600">{{ $med->dosage }} - {{ $med->frequency }}</p>
+                                </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-sm text-gray-500 italic">No active medications</p>
+                        @endif
+                    </div>
+                    
+                    <!-- Current Conditions -->
+                    <div class="pt-3 border-t border-orange-200">
+                        <livewire:doctor.patient.conditions-display :patient="$patient" :showInSummary="true" :key="'conditions-summary-'.$patient->id" />
+                    </div>
+                </div>
             </div>
 
             <!-- Allergies -->
-            <livewire:doctor.patient.allergy-card :patient="$patient" />
-            
-            <livewire:doctor.patient.allergy-modal :patient="$patient" />
-
-            <!-- Conditions List -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                <h4 class="font-semibold text-gray-900 mb-3">Conditions</h4>
-                @if($conditions->count() > 0)
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-900">Allergies</h4>
+                    <button 
+                        @click="$dispatch('openAllergyModal')"
+                        class="text-orange-600 hover:text-orange-700 text-sm font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </button>
+                </div>
+                @php
+                    $allergies = $patient->medicalRecords->flatMap->allergies ?? collect();
+                @endphp
+                @if($allergies->count() > 0)
                     <div class="space-y-2">
-                        @foreach($conditions as $condition)
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-900">{{ $condition->name }}</span>
-                            <span class="text-xs text-gray-500">Active</span>
+                        @foreach($allergies as $allergy)
+                        <div class="p-2 bg-orange-50 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-900">{{ $allergy->allergen_name }}</span>
+                                <span class="px-2 py-0.5 bg-orange-100 text-orange-800 text-xs rounded font-medium">{{ ucfirst($allergy->severity) }}</span>
+                            </div>
+                            <span class="text-xs text-gray-600">{{ ucfirst(str_replace('_', ' ', $allergy->type)) }}</span>
                         </div>
                         @endforeach
                     </div>
                 @else
-                    <p class="text-sm text-gray-500 italic">No conditions recorded</p>
+                    <p class="text-sm text-gray-500 italic">No known allergies</p>
                 @endif
             </div>
+
+
         </div>
     </div>
-</x-doctor-layout>
+
+    <!-- Modals -->
+    <livewire:doctor.patient.allergy-modal :patient="$patient" />
+    <livewire:doctor.patient.medication-modal :patient="$patient" />
+    <livewire:doctor.patient.condition-modal :patient="$patient" />
+    <livewire:doctor.patient.lifestyle-family-history-modal :patient="$patient" />
+    <livewire:doctor.patient.surgical-hospital-history-modal :patient="$patient" />
+</x-patient-overview-layout>
