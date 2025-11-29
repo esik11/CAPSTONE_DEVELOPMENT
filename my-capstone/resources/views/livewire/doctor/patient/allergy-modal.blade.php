@@ -59,35 +59,65 @@
                     <form wire:submit.prevent="save" class="space-y-6">
                         <!-- Medication Allergies Section -->
                         <div class="border-b border-gray-200 pb-6">
-                            <h4 class="text-lg font-medium text-gray-900 mb-4">Medication Allergies</h4>
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-lg font-medium text-gray-900">Medication Allergies</h4>
+                            </div>
+                            
+                            <!-- Add Custom Medication Allergy -->
+                            <div class="mb-4 flex gap-2">
+                                <input 
+                                    type="text" 
+                                    wire:model="newMedicationAllergy"
+                                    placeholder="Add custom medication allergy..."
+                                    class="flex-1 rounded-lg border-gray-300 focus:border-orange-500 focus:ring-orange-500 text-sm"
+                                >
+                                <button 
+                                    type="button"
+                                    wire:click="addCustomMedicationAllergy"
+                                    class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium">
+                                    Add
+                                </button>
+                            </div>
+                            @error('newMedicationAllergy')
+                                <p class="text-sm text-red-600 mb-2">{{ $message }}</p>
+                            @enderror
+                            
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                @foreach(['Penicillin', 'Sulphur', 'Aspirin', 'Sulfonamides'] as $allergen)
-                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                @foreach($medicationAllergies as $allergen => $severity)
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200" wire:key="med-{{ $loop->index }}">
                                     <div class="flex items-start gap-3">
                                         <input 
                                             type="checkbox" 
-                                            id="med_{{ $allergen }}"
-                                            wire:model.live="medicationAllergies.{{ $allergen }}"
-                                            value="mild"
-                                            @if($medicationAllergies[$allergen]) checked @endif
-                                            @change="if(!$event.target.checked) $wire.set('medicationAllergies.{{ $allergen }}', null)"
+                                            id="med_{{ $loop->index }}"
+                                            @if($severity) checked @endif
+                                            @change="if($event.target.checked) { $wire.set('medicationAllergies.{{ $allergen }}', 'mild') } else { $wire.set('medicationAllergies.{{ $allergen }}', null) }"
                                             class="mt-1 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
                                         <div class="flex-1">
-                                            <label for="med_{{ $allergen }}" class="block text-sm font-medium text-gray-900 mb-2">
-                                                {{ $allergen }}
-                                            </label>
-                                            @if($medicationAllergies[$allergen])
+                                            <div class="flex items-center justify-between mb-2">
+                                                <label for="med_{{ $loop->index }}" class="block text-sm font-medium text-gray-900">
+                                                    {{ $allergen }}
+                                                </label>
+                                                @if(!in_array($allergen, ['Penicillin', 'Sulphur', 'Aspirin', 'Sulfonamides']))
+                                                <button 
+                                                    type="button"
+                                                    wire:click="removeAllergy('medication', '{{ $allergen }}')"
+                                                    class="text-red-600 hover:text-red-700 text-xs">
+                                                    Remove
+                                                </button>
+                                                @endif
+                                            </div>
+                                            @if($severity)
                                             <div class="space-y-1 ml-1">
                                                 <label class="flex items-center">
-                                                    <input type="radio" wire:model.live="medicationAllergies.{{ $allergen }}" value="mild" class="text-orange-600 focus:ring-orange-500">
+                                                    <input type="radio" name="med_severity_{{ $allergen }}" wire:model.live="medicationAllergies.{{ $allergen }}" value="mild" class="text-orange-600 focus:ring-orange-500">
                                                     <span class="ml-2 text-sm text-gray-700">Mild</span>
                                                 </label>
                                                 <label class="flex items-center">
-                                                    <input type="radio" wire:model.live="medicationAllergies.{{ $allergen }}" value="moderate" class="text-orange-600 focus:ring-orange-500">
+                                                    <input type="radio" name="med_severity_{{ $allergen }}" wire:model.live="medicationAllergies.{{ $allergen }}" value="moderate" class="text-orange-600 focus:ring-orange-500">
                                                     <span class="ml-2 text-sm text-gray-700">Moderate</span>
                                                 </label>
                                                 <label class="flex items-center">
-                                                    <input type="radio" wire:model.live="medicationAllergies.{{ $allergen }}" value="severe" class="text-orange-600 focus:ring-orange-500">
+                                                    <input type="radio" name="med_severity_{{ $allergen }}" wire:model.live="medicationAllergies.{{ $allergen }}" value="severe" class="text-orange-600 focus:ring-orange-500">
                                                     <span class="ml-2 text-sm text-gray-700">Severe</span>
                                                 </label>
                                             </div>
@@ -101,35 +131,137 @@
 
                         <!-- Non-Medication Allergies Section -->
                         <div>
-                            <h4 class="text-lg font-medium text-gray-900 mb-4">Non-Medication Allergies</h4>
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-lg font-medium text-gray-900">Non-Medication Allergies</h4>
+                            </div>
+                            
+                            <!-- Add Custom Non-Medication Allergy -->
+                            <div class="mb-4 flex gap-2">
+                                <input 
+                                    type="text" 
+                                    wire:model="newNonMedicationAllergy"
+                                    placeholder="Add custom non-medication allergy..."
+                                    class="flex-1 rounded-lg border-gray-300 focus:border-orange-500 focus:ring-orange-500 text-sm"
+                                >
+                                <button 
+                                    type="button"
+                                    wire:click="addCustomNonMedicationAllergy"
+                                    class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium">
+                                    Add
+                                </button>
+                            </div>
+                            @error('newNonMedicationAllergy')
+                                <p class="text-sm text-red-600 mb-2">{{ $message }}</p>
+                            @enderror
+                            
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                @foreach(['Dust', 'Pollen', 'Latex', 'Elastoplast'] as $allergen)
-                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                @foreach($nonMedicationAllergies as $allergen => $severity)
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200" wire:key="non-med-{{ $loop->index }}">
                                     <div class="flex items-start gap-3">
                                         <input 
                                             type="checkbox" 
-                                            id="non_med_{{ $allergen }}"
-                                            wire:model.live="nonMedicationAllergies.{{ $allergen }}"
-                                            value="mild"
-                                            @if($nonMedicationAllergies[$allergen]) checked @endif
-                                            @change="if(!$event.target.checked) $wire.set('nonMedicationAllergies.{{ $allergen }}', null)"
+                                            id="non_med_{{ $loop->index }}"
+                                            @if($severity) checked @endif
+                                            @change="if($event.target.checked) { $wire.set('nonMedicationAllergies.{{ $allergen }}', 'mild') } else { $wire.set('nonMedicationAllergies.{{ $allergen }}', null) }"
                                             class="mt-1 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
                                         <div class="flex-1">
-                                            <label for="non_med_{{ $allergen }}" class="block text-sm font-medium text-gray-900 mb-2">
-                                                {{ $allergen }}
-                                            </label>
-                                            @if($nonMedicationAllergies[$allergen])
+                                            <div class="flex items-center justify-between mb-2">
+                                                <label for="non_med_{{ $loop->index }}" class="block text-sm font-medium text-gray-900">
+                                                    {{ $allergen }}
+                                                </label>
+                                                @if(!in_array($allergen, ['Dust', 'Pollen', 'Latex', 'Elastoplast']))
+                                                <button 
+                                                    type="button"
+                                                    wire:click="removeAllergy('non_medication', '{{ $allergen }}')"
+                                                    class="text-red-600 hover:text-red-700 text-xs">
+                                                    Remove
+                                                </button>
+                                                @endif
+                                            </div>
+                                            @if($severity)
                                             <div class="space-y-1 ml-1">
                                                 <label class="flex items-center">
-                                                    <input type="radio" wire:model.live="nonMedicationAllergies.{{ $allergen }}" value="mild" class="text-orange-600 focus:ring-orange-500">
+                                                    <input type="radio" name="non_med_severity_{{ $allergen }}" wire:model.live="nonMedicationAllergies.{{ $allergen }}" value="mild" class="text-orange-600 focus:ring-orange-500">
                                                     <span class="ml-2 text-sm text-gray-700">Mild</span>
                                                 </label>
                                                 <label class="flex items-center">
-                                                    <input type="radio" wire:model.live="nonMedicationAllergies.{{ $allergen }}" value="moderate" class="text-orange-600 focus:ring-orange-500">
+                                                    <input type="radio" name="non_med_severity_{{ $allergen }}" wire:model.live="nonMedicationAllergies.{{ $allergen }}" value="moderate" class="text-orange-600 focus:ring-orange-500">
                                                     <span class="ml-2 text-sm text-gray-700">Moderate</span>
                                                 </label>
                                                 <label class="flex items-center">
-                                                    <input type="radio" wire:model.live="nonMedicationAllergies.{{ $allergen }}" value="severe" class="text-orange-600 focus:ring-orange-500">
+                                                    <input type="radio" name="non_med_severity_{{ $allergen }}" wire:model.live="nonMedicationAllergies.{{ $allergen }}" value="severe" class="text-orange-600 focus:ring-orange-500">
+                                                    <span class="ml-2 text-sm text-gray-700">Severe</span>
+                                                </label>
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- Food Allergies Section -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-lg font-medium text-gray-900">Food Allergies</h4>
+                            </div>
+                            
+                            <!-- Add Custom Food Allergy -->
+                            <div class="mb-4 flex gap-2">
+                                <input 
+                                    type="text" 
+                                    wire:model="newFoodAllergy"
+                                    placeholder="Add custom food allergy..."
+                                    class="flex-1 rounded-lg border-gray-300 focus:border-orange-500 focus:ring-orange-500 text-sm"
+                                >
+                                <button 
+                                    type="button"
+                                    wire:click="addCustomFoodAllergy"
+                                    class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium">
+                                    Add
+                                </button>
+                            </div>
+                            @error('newFoodAllergy')
+                                <p class="text-sm text-red-600 mb-2">{{ $message }}</p>
+                            @enderror
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach($foodAllergies as $allergen => $severity)
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200" wire:key="food-{{ $loop->index }}">
+                                    <div class="flex items-start gap-3">
+                                        <input 
+                                            type="checkbox" 
+                                            id="food_{{ $loop->index }}"
+                                            @if($severity) checked @endif
+                                            @change="if($event.target.checked) { $wire.set('foodAllergies.{{ $allergen }}', 'mild') } else { $wire.set('foodAllergies.{{ $allergen }}', null) }"
+                                            class="mt-1 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                        <div class="flex-1">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <label for="food_{{ $loop->index }}" class="block text-sm font-medium text-gray-900">
+                                                    {{ $allergen }}
+                                                </label>
+                                                @if(!in_array($allergen, ['Dairy', 'Fish']))
+                                                <button 
+                                                    type="button"
+                                                    wire:click="removeAllergy('food', '{{ $allergen }}')"
+                                                    class="text-red-600 hover:text-red-700 text-xs">
+                                                    Remove
+                                                </button>
+                                                @endif
+                                            </div>
+                                            @if($severity)
+                                            <div class="space-y-1 ml-1">
+                                                <label class="flex items-center">
+                                                    <input type="radio" name="food_severity_{{ $allergen }}" wire:model.live="foodAllergies.{{ $allergen }}" value="mild" class="text-orange-600 focus:ring-orange-500">
+                                                    <span class="ml-2 text-sm text-gray-700">Mild</span>
+                                                </label>
+                                                <label class="flex items-center">
+                                                    <input type="radio" name="food_severity_{{ $allergen }}" wire:model.live="foodAllergies.{{ $allergen }}" value="moderate" class="text-orange-600 focus:ring-orange-500">
+                                                    <span class="ml-2 text-sm text-gray-700">Moderate</span>
+                                                </label>
+                                                <label class="flex items-center">
+                                                    <input type="radio" name="food_severity_{{ $allergen }}" wire:model.live="foodAllergies.{{ $allergen }}" value="severe" class="text-orange-600 focus:ring-orange-500">
                                                     <span class="ml-2 text-sm text-gray-700">Severe</span>
                                                 </label>
                                             </div>
