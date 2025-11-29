@@ -119,7 +119,9 @@ class MedicationModal extends Component
 
         session()->flash('message', 'Medications updated successfully!');
         $this->closeModal();
-        $this->dispatch('refresh-medication-data');
+        
+        // Dispatch browser event to refresh medications display
+        $this->js('window.dispatchEvent(new CustomEvent("medications-updated"))');
     }
 
     public function closeModal()

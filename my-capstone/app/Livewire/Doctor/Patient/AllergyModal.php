@@ -179,13 +179,11 @@ class AllergyModal extends Component
 
         session()->flash('message', 'Allergies updated successfully!');
         
-        // Dispatch event globally to all components
-        $this->dispatch('allergiesUpdated')->self();
+        // Close modal first
+        $this->isOpen = false;
         
-        // Small delay to ensure event is processed
-        $this->js('setTimeout(() => { Livewire.dispatch("allergiesUpdated") }, 100)');
-        
-        $this->closeModal();
+        // Dispatch browser event to refresh allergies display
+        $this->js('window.dispatchEvent(new CustomEvent("allergies-updated"))');
     }
 
     public function closeModal()

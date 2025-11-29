@@ -1,6 +1,8 @@
 @if($showInSummary)
     {{-- Summary View (for Conditions & Medications card) - Only Pinned --}}
-    <div wire:key="conditions-summary-{{ $refreshKey }}">
+    <div wire:key="conditions-summary-{{ $refreshKey }}" 
+         x-data 
+         @conditions-updated.window="$wire.$refresh()">
         <div class="flex items-center justify-between mb-2">
             <p class="font-medium text-gray-700 text-sm flex items-center gap-1">
                 <svg class="w-4 h-4 text-yellow-600 fill-current" viewBox="0 0 24 24">

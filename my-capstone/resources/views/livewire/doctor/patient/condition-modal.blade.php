@@ -109,7 +109,7 @@
                     </div>
 
                     <form wire:submit.prevent="save" class="space-y-4">
-                        <div class="max-h-96 overflow-y-auto pr-2 space-y-4">
+                        <div class="max-h-96 overflow-y-auto pr-2 space-y-4" wire:key="conditions-list-{{ count($patientConditions) }}-{{ count($availableConditions) }}">
                             <!-- Patient's Existing Conditions -->
                             @if($patientConditions->count() > 0)
                             <div>
@@ -121,7 +121,7 @@
                                 </h4>
                                 <div class="space-y-2">
                                     @foreach($patientConditions as $condition)
-                                    <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                    <div class="p-3 bg-blue-50 rounded-lg border border-blue-200" wire:key="patient-cond-{{ $condition->id }}">
                                         <div class="flex items-start gap-3">
                                             <input 
                                                 type="checkbox" 
@@ -200,7 +200,7 @@
                                 @endif
                                 <div class="space-y-2">
                                     @foreach($availableConditions as $condition)
-                                    <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="p-3 bg-gray-50 rounded-lg border border-gray-200" wire:key="avail-cond-{{ $condition->id }}">
                                         <div class="flex items-start gap-3">
                                             <input 
                                                 type="checkbox" 

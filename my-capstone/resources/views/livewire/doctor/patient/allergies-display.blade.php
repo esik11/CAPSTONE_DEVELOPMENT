@@ -1,4 +1,7 @@
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4" wire:key="allergies-{{ $refreshKey }}">
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4" 
+     wire:key="allergies-{{ $refreshKey }}"
+     x-data 
+     @allergies-updated.window="$wire.$refresh()">
     <div class="flex items-center justify-between mb-3">
         <h4 class="font-semibold text-gray-900">Allergies</h4>
         <button 

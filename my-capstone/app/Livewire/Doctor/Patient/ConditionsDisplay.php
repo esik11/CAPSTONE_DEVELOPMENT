@@ -15,8 +15,14 @@ class ConditionsDisplay extends Component
     #[On('conditionsUpdated')]
     public function refreshConditions()
     {
+        // Force reload patient to get absolutely fresh data
+        $this->patient = Patient::find($this->patient->id);
+        
         // Increment the refresh key to force a re-render
         $this->refreshKey++;
+        
+        // Force Livewire to re-render this component
+        $this->render();
     }
 
     public function render()

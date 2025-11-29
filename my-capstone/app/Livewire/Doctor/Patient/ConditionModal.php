@@ -42,14 +42,16 @@ class ConditionModal extends Component
             'condition_name' => $this->newConditionName,
         ]);
         
-        // Auto-select it
+        // Auto-select it with all required fields
         $this->selectedConditions[$newCondition->id] = [
             'selected' => true,
             'status' => true,
             'notes' => '',
+            'is_pinned' => false,
         ];
         
         $this->newConditionName = '';
+        
         session()->flash('condition_added', 'Custom condition added successfully!');
     }
     
@@ -145,13 +147,20 @@ class ConditionModal extends Component
 
         // Sync conditions (this will add new, update existing, and remove unselected)
         $medicalRecord->medicalConditions()->sync($syncData);
+        
+        // Force database commit
+        \DB::statement('SELECT 1');
 
         session()->flash('message', 'Conditions updated successfully!');
         
-        // Dispatch event globally to refresh all condition displays
-        $this->dispatch('conditionsUpdated');
+        // Close modal first
+        $this->isOpen = false;
         
-        $this->closeModal();
+        // Reset after closing
+        $this->reset(['selectedConditions', 'searchTerm', 'newConditionName', 'showAllConditions']);
+        
+        // Dispatch browser event using Alpine
+        $this->js('window.dispatchEvent(new CustomEvent("conditions-updated"))');
     }
 
     public function closeModal()
