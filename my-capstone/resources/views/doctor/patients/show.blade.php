@@ -34,6 +34,9 @@
                 <button class="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg transition-colors text-sm font-medium">
                     Telehealth Consult
                 </button>
+                    <button class="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg transition-colors text-sm font-medium">
+                    Start Consult
+                </button>
             </div>
         </div>
     </x-slot>
