@@ -78,6 +78,14 @@ class MedicalRecord extends Model
     }
 
     /**
+     * Get the gynae history for the medical record.
+     */
+    public function gynaeHistory()
+    {
+        return $this->hasOne(GynaeHistory::class);
+    }
+
+    /**
      * Get the family histories for the medical record.
      */
     public function familyHistories(): HasMany

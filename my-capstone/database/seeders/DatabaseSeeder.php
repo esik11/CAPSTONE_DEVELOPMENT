@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MedicalConditionSeeder::class,
             CommonSurgicalProcedureSeeder::class,
+            ComplaintTemplateSeeder::class,
+            VisitTypeTemplateSeeder::class,
         ]);
 
         User::factory()->create([

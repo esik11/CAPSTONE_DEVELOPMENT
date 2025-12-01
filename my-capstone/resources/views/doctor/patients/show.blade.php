@@ -114,6 +114,16 @@
                     </svg>
                     <span class="font-medium text-sm">Surgical History</span>
                 </a>
+                
+                @if(strtolower($patient->gender) === 'female')
+                <a href="#gynae" 
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span class="font-medium text-sm">Gynae</span>
+                </a>
+                @endif
             </nav>
         </div>
 
@@ -160,6 +170,133 @@
 
             <!-- Surgical & Hospital History -->
             <livewire:doctor.patient.surgical-hospital-history-card :patient="$patient" />
+            
+            @if(strtolower($patient->gender) === 'female')
+            <!-- Gynecological History -->
+            <div id="gynae" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-gray-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Gynecological History
+                    </h3>
+                    <button 
+                        @click="$dispatch('openGynaeModal')"
+                        class="text-pink-600 hover:text-pink-700 text-sm font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                    </button>
+                </div>
+                @php
+                    $gynaeHistory = $patient->medicalRecords->first()?->gynaeHistory;
+                @endphp
+                @if($gynaeHistory && ($gynaeHistory->contraception || $gynaeHistory->age_at_menarche || $gynaeHistory->number_of_pregnancies || $gynaeHistory->pregnancy_complications))
+                    <div class="space-y-4">
+                        @if($gynaeHistory->contraception)
+                            @php
+                                $methods = json_decode($gynaeHistory->contraception, true);
+                            @endphp
+                            <div>
+                                <p class="text-sm font-medium text-gray-700 mb-2">Contraception:</p>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($methods as $method)
+                                    <span class="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded">{{ ucwords(str_replace('_', ' ', $method)) }}</span>
+                                    @endforeach
+                                </div>
+                                @if($gynaeHistory->contraception_comments)
+                                <p class="text-xs text-gray-600 mt-2">{{ $gynaeHistory->contraception_comments }}</p>
+                                @endif
+                            </div>
+                        @endif
+                        
+                        @if($gynaeHistory->age_at_menarche || $gynaeHistory->last_menstrual_period || $gynaeHistory->menstrual_issues)
+                            <div class="border-t border-gray-100 pt-3">
+                                <p class="text-sm font-medium text-gray-700 mb-2">Menstrual History:</p>
+                                <div class="space-y-2 text-sm">
+                                    @if($gynaeHistory->age_at_menarche)
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Age at Menarche:</span>
+                                        <span class="font-medium text-gray-900">{{ $gynaeHistory->age_at_menarche }} years</span>
+                                    </div>
+                                    @endif
+                                    @if($gynaeHistory->last_menstrual_period)
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Last Period:</span>
+                                        <span class="font-medium text-gray-900">{{ $gynaeHistory->last_menstrual_period->format('M d, Y') }}</span>
+                                    </div>
+                                    @endif
+                                    @if($gynaeHistory->cycle_regularity)
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Cycle:</span>
+                                        <span class="font-medium text-gray-900">{{ ucfirst($gynaeHistory->cycle_regularity) }}@if($gynaeHistory->cycle_length_days) ({{ $gynaeHistory->cycle_length_days }} days)@endif</span>
+                                    </div>
+                                    @endif
+                                    @if($gynaeHistory->menstrual_issues)
+                                        @php
+                                            $issues = json_decode($gynaeHistory->menstrual_issues, true);
+                                        @endphp
+                                        @if(count($issues) > 0)
+                                        <div class="mt-2">
+                                            <span class="text-gray-600 text-xs">Issues:</span>
+                                            <div class="flex flex-wrap gap-1 mt-1">
+                                                @foreach($issues as $issue)
+                                                <span class="px-2 py-0.5 bg-orange-100 text-orange-800 text-xs rounded">{{ ucwords(str_replace('_', ' ', $issue)) }}</span>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        @endif
+                                    @endif
+                                    @if($gynaeHistory->menstrual_comments)
+                                    <p class="text-xs text-gray-600 mt-2">{{ $gynaeHistory->menstrual_comments }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                        
+                        @if($gynaeHistory->number_of_pregnancies !== null || $gynaeHistory->number_of_children !== null)
+                            <div class="border-t border-gray-100 pt-3">
+                                <p class="text-sm font-medium text-gray-700 mb-2">Pregnancy History:</p>
+                                <div class="grid grid-cols-2 gap-3 text-sm">
+                                    @if($gynaeHistory->number_of_pregnancies !== null)
+                                    <div>
+                                        <span class="text-gray-600">Pregnancies:</span>
+                                        <span class="font-medium text-gray-900 ml-1">{{ $gynaeHistory->number_of_pregnancies }}</span>
+                                    </div>
+                                    @endif
+                                    @if($gynaeHistory->number_of_children !== null)
+                                    <div>
+                                        <span class="text-gray-600">Children:</span>
+                                        <span class="font-medium text-gray-900 ml-1">{{ $gynaeHistory->number_of_children }}</span>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                        
+                        @if($gynaeHistory->pregnancy_complications)
+                            @php
+                                $complications = json_decode($gynaeHistory->pregnancy_complications, true);
+                            @endphp
+                            <div class="border-t border-gray-100 pt-3">
+                                <p class="text-sm font-medium text-gray-700 mb-2">Pregnancy Complications:</p>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($complications as $complication)
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">{{ ucwords(str_replace('_', ' ', $complication)) }}</span>
+                                    @endforeach
+                                </div>
+                                @if($gynaeHistory->pregnancy_complications_comments)
+                                <p class="text-xs text-gray-600 mt-2">{{ $gynaeHistory->pregnancy_complications_comments }}</p>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                @else
+                    <p class="text-sm text-gray-500 italic text-center py-4">No gynae history recorded</p>
+                @endif
+            </div>
+            @endif
         </div>
 
         <!-- Right Sidebar - Executive Summary -->
@@ -238,6 +375,10 @@
             <!-- Allergies -->
             <livewire:doctor.patient.allergies-display :patient="$patient" :key="'allergies-'.$patient->id" />
 
+            <!-- Gynae History (Female Only) -->
+            @if(strtolower($patient->gender) === 'female')
+                <livewire:doctor.patient.gynae-display :patient="$patient" :key="'gynae-'.$patient->id" />
+            @endif
 
         </div>
     </div>
@@ -248,4 +389,7 @@
     <livewire:doctor.patient.condition-modal :patient="$patient" />
     <livewire:doctor.patient.lifestyle-family-history-modal :patient="$patient" />
     <livewire:doctor.patient.surgical-hospital-history-modal :patient="$patient" />
+    @if(strtolower($patient->gender) === 'female')
+    <livewire:doctor.patient.gynae-modal :patient="$patient" />
+    @endif
 </x-patient-overview-layout>
