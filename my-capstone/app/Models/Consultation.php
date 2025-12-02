@@ -31,6 +31,36 @@ class Consultation extends Model
         'previous_episodes_details',
         'review_of_systems',
         'associated_symptoms',
+        // Vital signs
+        'temperature',
+        'pulse_rate',
+        'blood_pressure',
+        'respiratory_rate',
+        'spo2',
+        'weight',
+        'height',
+        'waist_circumference',
+        // Examination fields
+        'general_appearance',
+        'heent_exam',
+        'heent_findings',
+        'cardiovascular_exam',
+        'cardiovascular_findings',
+        'respiratory_exam',
+        'respiratory_findings',
+        'abdominal_exam',
+        'abdominal_findings',
+        'neurological_exam',
+        'neurological_findings',
+        'musculoskeletal_exam',
+        'musculoskeletal_findings',
+        'skin_exam',
+        'skin_findings',
+        'examination_notes',
+        // Diagnosis & Prescription
+        'diagnoses',
+        'prescriptions',
+        'diagnosis_notes',
     ];
 
     protected $casts = [
@@ -41,6 +71,15 @@ class Consultation extends Model
         'review_of_systems' => 'array',
         'associated_symptoms' => 'array',
         'previous_episodes' => 'boolean',
+        'cardiovascular_findings' => 'array',
+        'respiratory_findings' => 'array',
+        'abdominal_findings' => 'array',
+        'neurological_findings' => 'array',
+        'musculoskeletal_findings' => 'array',
+        'heent_findings' => 'array',
+        'skin_findings' => 'array',
+        'diagnoses' => 'array',
+        'prescriptions' => 'array',
     ];
 
     // Relationships

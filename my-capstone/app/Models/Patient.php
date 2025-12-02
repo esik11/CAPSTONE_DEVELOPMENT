@@ -147,6 +147,39 @@ class Patient extends Model
     }
 
     /**
+     * Get patient conditions through medical record.
+     */
+    public function conditions()
+    {
+        if (!$this->medicalRecord) {
+            return collect();
+        }
+        return $this->medicalRecord->medicalConditions();
+    }
+
+    /**
+     * Get patient medications through medical record.
+     */
+    public function medications()
+    {
+        if (!$this->medicalRecord) {
+            return collect();
+        }
+        return $this->medicalRecord->medications();
+    }
+
+    /**
+     * Get patient allergies through medical record.
+     */
+    public function allergies()
+    {
+        if (!$this->medicalRecord) {
+            return collect();
+        }
+        return $this->medicalRecord->allergies;
+    }
+
+    /**
      * Boot the model and add event listeners for audit logging.
      */
     protected static function booted()

@@ -61,6 +61,13 @@ Route::middleware(['web', 'auth', 'doctor'])->group(function () {
     Route::get('/doctor/e-prescription', function () {
         return view('doctor.e-prescription.index');
     })->name('doctor.ePrescription.index');
+    
+    // Consultation Routes
+    Route::get('/patients/{patient}/consultation/start', [\App\Http\Controllers\ConsultationController::class, 'start'])->name('consultations.start');
+    Route::get('/consultations/{consultation}', [\App\Http\Controllers\ConsultationController::class, 'show'])->name('consultations.show');
+    Route::post('/consultations/{consultation}/save-draft', [\App\Http\Controllers\ConsultationController::class, 'saveDraft'])->name('consultations.saveDraft');
+    Route::post('/consultations/{consultation}/continue', [\App\Http\Controllers\ConsultationController::class, 'continue'])->name('consultations.continue');
+    Route::delete('/consultations/{consultation}', [\App\Http\Controllers\ConsultationController::class, 'destroy'])->name('consultations.destroy');
 });
 
 require __DIR__.'/auth.php';
