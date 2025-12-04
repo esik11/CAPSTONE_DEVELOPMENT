@@ -57,9 +57,15 @@ class PatientSidebar extends Component
 
     public function refreshConditions()
     {
-        $this->activeConditions = $this->patient->medicalRecord
-            ? $this->patient->medicalRecord->medicalConditions()
+        // Get the latest medical record (same logic as patient overview)
+        $latestMedicalRecord = \App\Models\MedicalRecord::where('patient_id', $this->patient->id)
+            ->latest()
+            ->first();
+        
+        $this->activeConditions = $latestMedicalRecord
+            ? $latestMedicalRecord->medicalConditions()
                 ->wherePivot('status', 'active')
+                ->orderByPivot('is_pinned', 'desc')
                 ->get()
             : collect();
     }

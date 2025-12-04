@@ -121,54 +121,89 @@
     <!-- Active Conditions -->
     <div class="bg-white rounded-lg shadow p-4">
         <div class="flex justify-between items-center mb-3">
-            <h3 class="text-sm font-semibold text-gray-900">Conditions</h3>
+            <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-1">
+                <svg class="w-4 h-4 text-yellow-600 fill-current" viewBox="0 0 24 24">
+                    <path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" />
+                </svg>
+                Pinned Conditions
+            </h3>
             <button wire:click="openConditionModal" 
                     class="text-xs text-blue-600 hover:text-blue-700 font-medium">
                 + Add
             </button>
         </div>
-        @if($activeConditions && $activeConditions->count() > 0)
+        @php
+            $medicalRecord = \App\Models\MedicalRecord::where('patient_id', $patient->id)->latest()->first();
+            $pinnedConditions = collect();
+            if ($medicalRecord) {
+                $pinnedConditions = \App\Models\MedicalCondition::whereHas('medicalRecords', function ($query) use ($medicalRecord) {
+                    $query->where('medical_record_id', $medicalRecord->id)
+                          ->where('status', 'active')
+                          ->where('is_pinned', 1);
+                })
+                ->with(['medicalRecords' => function ($query) use ($medicalRecord) {
+                    $query->where('medical_record_id', $medicalRecord->id);
+                }])
+                ->get()
+                ->map(function ($condition) use ($medicalRecord) {
+                    $pivot = \DB::table('patient_conditions')
+                        ->where('medical_record_id', $medicalRecord->id)
+                        ->where('condition_id', $condition->id)
+                        ->first();
+                    if ($pivot) {
+                        $condition->pivot = $pivot;
+                    }
+                    return $condition;
+                });
+            }
+        @endphp
+        @if($pinnedConditions->count() > 0)
             <div class="space-y-2">
-                @foreach($activeConditions as $condition)
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-900">{{ $condition->condition_name }}</span>
-                        @if($condition->pivot->is_pinned)
-                            <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        @endif
+                @foreach($pinnedConditions as $condition)
+                    <div class="text-sm p-2 bg-yellow-50 rounded border border-yellow-200">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900">{{ $condition->condition_name }}</p>
+                                @if($condition->pivot && $condition->pivot->notes)
+                                    <p class="text-gray-600 text-xs mt-1">{{ $condition->pivot->notes }}</p>
+                                @endif
+                            </div>
+                            <span class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800">
+                                Active
+                            </span>
+                        </div>
                     </div>
                 @endforeach
             </div>
         @else
-            <p class="text-sm text-gray-500">No active conditions</p>
+            <p class="text-sm text-gray-500 italic">No pinned conditions</p>
         @endif
     </div>
 
     <!-- Active Medications -->
     <div class="bg-white rounded-lg shadow p-4">
         <div class="flex justify-between items-center mb-3">
-            <h3 class="text-sm font-semibold text-gray-900">Medications</h3>
+            <h3 class="text-sm font-semibold text-gray-900">Active Medications</h3>
             <button wire:click="openMedicationModal" 
                     class="text-xs text-blue-600 hover:text-blue-700 font-medium">
                 + Add
             </button>
         </div>
-        @if($activeMedications && $activeMedications->count() > 0)
+        @php
+            $medicalRecord = \App\Models\MedicalRecord::where('patient_id', $patient->id)->latest()->first();
+            $medications = $medicalRecord ? $medicalRecord->medications : collect();
+        @endphp
+        @if($medications->count() > 0)
             <div class="space-y-2">
-                @foreach($activeMedications as $medication)
+                @foreach($medications->take(5) as $med)
                     <div class="text-sm">
-                        <p class="text-gray-900 font-medium">{{ $medication->medicine_name }}</p>
-                        @if($medication->dosage || $medication->frequency)
-                            <p class="text-xs text-gray-500">
-                                {{ $medication->dosage ?? 'N/A' }} - {{ $medication->frequency ?? 'N/A' }}
-                            </p>
-                        @endif
+                        <p class="font-medium text-gray-900">{{ $med->medicine_name }}</p>
+                        <p class="text-gray-600 text-xs">{{ $med->dosage }} - {{ $med->frequency }}</p>
                     </div>
                 @endforeach
             </div>
         @else
-            <p class="text-sm text-gray-500">No active medications</p>
+            <p class="text-sm text-gray-500 italic">No active medications</p>
         @endif
     </div>
 

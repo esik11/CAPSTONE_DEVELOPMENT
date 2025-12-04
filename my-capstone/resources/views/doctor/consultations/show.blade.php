@@ -72,8 +72,11 @@
                         class="px-1 py-4 text-sm font-medium border-b-2 {{ $consultation->current_section === 'diagnosis' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                         Diagnosis & Prescribe
                     </button>
-                    <button class="px-1 py-4 text-sm font-medium border-b-2 border-transparent text-gray-400 cursor-not-allowed" disabled>
-                        Plan
+                    <button 
+                        @click="if (!navigating) { navigating = true; Livewire.dispatch('save-and-navigate', { section: 'plan' }); }"
+                        :disabled="navigating"
+                        class="px-1 py-4 text-sm font-medium border-b-2 {{ $consultation->current_section === 'plan' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                        Plan & Notes
                     </button>
                 </div>
             </div>
@@ -94,6 +97,10 @@
                     
                     @if($consultation->current_section === 'diagnosis')
                         <livewire:doctor.consultation.diagnosis-prescribe-form :consultation="$consultation" />
+                    @endif
+                    
+                    @if($consultation->current_section === 'plan')
+                        <livewire:doctor.consultation.plan-form :consultation="$consultation" />
                     @endif
                 </div>
 
@@ -181,6 +188,11 @@
     </div>
 
     </div>
+
+    <!-- Modals -->
+    <livewire:doctor.patient.condition-modal :patient="$consultation->patient" />
+    <livewire:doctor.patient.medication-modal :patient="$consultation->patient" />
+    <livewire:doctor.patient.allergy-modal :patient="$consultation->patient" />
 
     @livewireScripts
     

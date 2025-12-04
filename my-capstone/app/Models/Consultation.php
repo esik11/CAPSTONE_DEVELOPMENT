@@ -61,6 +61,11 @@ class Consultation extends Model
         'diagnoses',
         'prescriptions',
         'diagnosis_notes',
+        // Plan & Notes
+        'treatment_plan',
+        'patient_education',
+        'followup_instructions',
+        'doctor_notes',
     ];
 
     protected $casts = [

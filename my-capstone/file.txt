@@ -1,0 +1,78 @@
+CHAPTER I – INTRODUCTION
+This chapter presents an overview of the completed project, including the context, purpose, description, objectives, scope, and limitations of the proposed online integrated clinic information system with billing, and E-prescription modules for SalamatDoc Family Clinic.
+PROJECT CONTEXT
+	The increasing reliance on online platforms and digital healthcare solutions globally reflects a significant shift in how medical information and services are managed and delivered. According to the World Health Organization (WHO, 2021), countries worldwide are adopting robust digital health strategies to enable remote access and real-time communication between healthcare providers and patients, emphasizing the global importance of digital transformation in healthcare.
+This transformation has been dramatically accelerated by the COVID-19 pandemic. Global and national health authorities observed that telemedicine became vital for maintaining patient care and minimizing infection risks, with providers rapidly adopting video consultations and other virtual care technologies during the crisis (Centers for Disease Control and Prevention [CDC], 2022; Ohannessian et al., 2020). Telemedicine was especially effective in improving access for vulnerable populations and reducing care barriers throughout the pandemic (Kichloo et al., 2020). Internationally, leading health systems such as the Mayo Clinic in the United States have utilized integrated EMRs combined with telehealth platforms to deliver safer, more efficient care.
+In the Philippines, efforts to digitize healthcare delivery have been bolstered by national eHealth strategies and frameworks (Philippine Department of Health [DOH], 2020). The Philippine National eHealth Strategic Framework and Plan outlines the government's commitment to using technology to improve healthcare outcomes. Several telehealth platforms have emerged nationally to meet growing demand, including KonsultaMD, Medifi, NowServing, EzConsult, and DocKoTo, which offer various online consultation and electronic prescription services. Locally in General Santos City, the SM Foundation launched DigiKonsulta, a telemedicine initiative providing online consultations and health support to community members—reflecting increased local adoption of digital health services (SM Foundation, 2023; DOH, 2020).
+Despite these advances, many small clinics like SalamatDoc Clinic in General Santos City continue to depend on manual processes such as paper records and unintegrated tools, resulting in inefficiencies and communication gaps (YCP Solidiance, 2022; Tunga et al., 2017). The clinic’s reliance on manual handling of patient records, billing, and prescription management often leads to frequent errors, delays, and dissatisfaction among both staff and patients. Without a centralized EMR system, clinics face problems like data redundancy, incomplete or outdated details, and a heightened risk of medical errors—challenges echoed by findings in studies comparing manual and electronic recordkeeping (Bates et al., 1995; Ross et al., 2016). Manual retrieval of records can slow down consultations and delay treatment decisions, diverting valuable time from patient care (Bates et al., 1995).
+Additionally, manual billing processes introduce errors; incorrect charges and delayed claims may directly impact clinic revenue and result in disputes with patients (Elation Health, 2024). Paper-based prescriptions increase the risks of illegibility, medication errors, and difficulties in coordinating with pharmacies, as emphasized by recent research (Ross et al., 2016). The absence of an integrated communication platform further complicates efficient appointment scheduling, delivery of test results, and patient reminders—often resulting in missed appointments and inadequate follow-up care (WHO, 2021).
+These challenges collectively highlight the need for an integrated, automated system to improve accuracy, efficiency, and patient outcomes in clinical practice. In response, the proposed online integrated clinic information system for SalamatDoc Clinic will introduce core modules for EMR, billing, and e-prescriptions. By automating patient data management, billing, and electronic prescribing, the system aims to minimize manual workload, reduce errors, and foster both operational efficiency and patient satisfaction (HIMSS, 2022).
+Implementing such a system not only facilitates compliance with healthcare regulations regarding record keeping and data privacy but also creates a more organized, patient-centered environment (WHO, 2021; DOH, 2020). The model aligns with global best practices and mirrors transitions seen in similar clinics adapting to digital platforms. Furthermore, this approach may serve as a template for other small clinics in resource-constrained settings where manual processes persist (YCP Solidiance, 2022).
+	The following statement of the problem outlined the significant challenges that highlight the need for a more effective and secure computerized and modernized solution. The researcher conducted a personal and virtual interview with the Doctor Dr. Paolo S. Mabanglo, MD. Where the following problems were identified:
+•	Patient information and medical records are manually encoded leading to inaccurate data.
+•	There is no proper system for scheduling and documenting telemedicine or virtual consultations.
+•	Billing and payment tracking for both in-clinic and online visits are handled manually causing errors.
+•	Reports such as consultation logs, billing summaries, and prescriptions are generated manually and prone to error.
+•	Patients have limited or no online access to their medical records, prescriptions, appointment bookings, or payment history.
+
+PURPOSE AND DESCRIPTION OF THE STUDY
+The SalamatDoc Family Clinic is located at Aparente Street, Purok Malakas, Barangay San Isidro, General Santos City. The clinic started its operations in April 2023 and has been serving the community for almost 2 years. Currently, the clinic relies on manual processes to manage patient medical records, billing, prescriptions, and appointment. scheduling, which often results in inefficiencies, delayed services, and increased workload for the doctor.
+The purpose of this study is to develop an online integrated clinic information system with telemedicine capabilities designed to improve clinical operations and reduce the workload of the doctor. The proposed system will automate and centralize patient record management, electronic prescriptions, billing and payment transactions, appointment scheduling for both in-clinic and telemedicine visits, and generate important reports.
+The implementation of a computerized clinic information system marks a significant transformation in how SalamatDoc Family Clinic manages patient information and clinical workflows. By transitioning from manual and fragmented processes to a unified digital platform, the clinic can ensure more accurate and timely access to patient records, reduce errors associated with paper-based systems, streamline billing and appointment management, and improve communication between doctors and patients.
+This shift not only addresses the current challenges of inefficiency and manual workload but also supports compliance with health data regulations and enhances overall patient satisfaction. Ultimately, the integrated system aims to provide a more organized, professional, and patient-centered healthcare experience while allowing the clinic to focus on delivering quality medical care.
+
+
+
+
+
+OBJECTIVES OF THE STUDY
+	The primary objective of this study is to develop an online integrated clinic information system with telemedicine features that will enhance the efficiency and quality of clinical operations at SalamatDoc Family Clinic. The system aims to address existing challenges and improve the overall experience for the doctor and patients.
+Specifically, the objectives of the study are to:
+•	Implement an accurate and centralized patient information and medical record management system
+•	Establish a proper scheduling and documentation system for telemedicine and virtual consultations
+•	Automate billing and payment tracking for both in-clinic and online visits to reduce errors and delays
+•	Generate consultation logs, billing summaries, and prescription reports automatically and efficiently
+•	Provide patients with convenient online access to their medical records, prescriptions, appointment statuses, and payment history
+
+
+SCOPE AND LIMITATION OF THE PROJECT
+
+	The study focused on developing an online integrated clinic information system with billing, and E-prescription modules for SalamatDoc Family Clinic
+SCOPE OF THE PROJECT
+	The scope of the study includes:
+•	Patient Information and Record Management
+o	Patient Profiles
+o	Consultation Notes
+o	Medical History
+o	Prescriptions
+•	Telemedicine Features
+o	Allows online scheduling of virtual consultations
+o	 Logs details of video consultations
+o	Saves doctor’s remarks and diagnosis from teleconsultations
+•	Billing and Transaction
+o	Handles patient registration for both online and in-clinic visits
+o	Tracks consultation fees and payment records
+o	Appointment management (in-clinic and telemedicine)
+•	Reports
+o	Generates daily consultation logs
+o	Provides billing summaries
+o	Lists all issued prescriptions
+o	Shows active and inactive patient records
+•	User Management
+o	The doctor manages all user accounts and system access
+o	The doctor can view and update patient records, write notes, and give prescriptions
+o	Patients can log in to see their records, book appointments, and view past consultations
+o	Each user has limited access based on their role
+•	Patient Dashboard
+o	Let’s patients view their medical records and prescriptions
+o	Allows booking and managing appointments
+o	Shows previous consultation summaries
+o	Displays consultation charges and payment history
+
+LIMITATION OF THE PROJECT
+	The project does not cover the following:
+•	The system does not support online payment processing (e.g., GCash, credit/debit cards).
+•	The system does not integrate with government healthcare services (e.g., PhilHealth).
+•	The system does not include inventory management for medical supplies or equipment.
+•	The system is designed for desktop and laptop use and does not support mobile devices such as smartphones or tablets.
+•	The system is focused solely on internal clinic operations

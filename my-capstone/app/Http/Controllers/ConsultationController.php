@@ -81,10 +81,15 @@ class ConsultationController extends Controller
             ->latest()
             ->first();
 
-        // Get patient's active conditions through medical record
-        $activeConditions = $consultation->patient->medicalRecord 
-            ? $consultation->patient->medicalRecord->medicalConditions()
+        // Get patient's active conditions through medical record (use latest medical record)
+        $latestMedicalRecord = \App\Models\MedicalRecord::where('patient_id', $consultation->patient_id)
+            ->latest()
+            ->first();
+            
+        $activeConditions = $latestMedicalRecord
+            ? $latestMedicalRecord->medicalConditions()
                 ->wherePivot('status', 'active')
+                ->orderByPivot('is_pinned', 'desc')
                 ->get()
             : collect();
 

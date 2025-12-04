@@ -106,7 +106,8 @@ class MedicalRecord extends Model
      */
     public function medicalConditions(): BelongsToMany
     {
-        return $this->belongsToMany(MedicalCondition::class, 'patient_conditions', 'medical_record_id', 'condition_id')->withPivot(['status', 'notes']);
+        return $this->belongsToMany(MedicalCondition::class, 'patient_conditions', 'medical_record_id', 'condition_id')
+            ->withPivot(['status', 'notes', 'is_pinned']);
     }
 
     /**

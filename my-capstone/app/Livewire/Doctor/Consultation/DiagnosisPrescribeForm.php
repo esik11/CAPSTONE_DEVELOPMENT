@@ -21,6 +21,20 @@ class DiagnosisPrescribeForm extends Component
     // Diagnosis notes
     public $diagnosisNotes = '';
     
+    // Medicine search
+    public $medicineSearch = '';
+    public $medicineResults = [];
+    public $selectedPrescriptions = [];
+    
+    // Prescription edit modal
+    public $showPrescriptionModal = false;
+    public $editingIndex = null;
+    public $editDosage = '';
+    public $editDuration = '';
+    public $editQuantity = '';
+    public $editInstructions = '';
+    public $editAdditionalInstructions = '';
+    
     // Auto-save tracking
     public $lastSaved = null;
     public $isSaving = false;
@@ -34,6 +48,7 @@ class DiagnosisPrescribeForm extends Component
         // Load existing data
         $this->selectedDiagnoses = $consultation->diagnoses ?? [];
         $this->diagnosisNotes = $consultation->diagnosis_notes ?? '';
+        $this->selectedPrescriptions = $consultation->prescriptions ?? [];
     }
 
     public function updatedDiagnosisSearch()
@@ -42,6 +57,15 @@ class DiagnosisPrescribeForm extends Component
             $this->diagnosisResults = Icd10Code::search($this->diagnosisSearch, 10)->toArray();
         } else {
             $this->diagnosisResults = [];
+        }
+    }
+
+    public function updatedMedicineSearch()
+    {
+        if (strlen($this->medicineSearch) >= 2) {
+            $this->medicineResults = \App\Models\Medicine::search($this->medicineSearch, 10)->toArray();
+        } else {
+            $this->medicineResults = [];
         }
     }
 
@@ -88,6 +112,107 @@ class DiagnosisPrescribeForm extends Component
         $this->selectedDiagnoses[$index]['is_primary'] = true;
     }
 
+    public function addPrescription($medicineId, $medicineName, $strength, $form)
+    {
+        // Check if already added
+        $exists = collect($this->selectedPrescriptions)->contains('medicine_id', $medicineId);
+        
+        if (!$exists) {
+            $this->selectedPrescriptions[] = [
+                'medicine_id' => $medicineId,
+                'medicine_name' => $medicineName,
+                'strength' => $strength,
+                'form' => $form,
+                'dosage' => '1 tablet, 3x daily', // Default
+                'duration' => '7 days', // Default
+                'quantity' => 21, // Auto-calculated
+                'instructions' => 'After meals', // Default
+                'additional_instructions' => '', // Optional notes
+            ];
+            
+            // Clear search
+            $this->medicineSearch = '';
+            $this->medicineResults = [];
+        }
+    }
+
+    public function removePrescription($index)
+    {
+        unset($this->selectedPrescriptions[$index]);
+        $this->selectedPrescriptions = array_values($this->selectedPrescriptions);
+    }
+
+    public function editPrescription($index)
+    {
+        $this->editingIndex = $index;
+        $prescription = $this->selectedPrescriptions[$index];
+        
+        $this->editDosage = $prescription['dosage'];
+        $this->editDuration = $prescription['duration'];
+        $this->editQuantity = $prescription['quantity'];
+        $this->editInstructions = $prescription['instructions'];
+        $this->editAdditionalInstructions = $prescription['additional_instructions'] ?? '';
+        
+        $this->showPrescriptionModal = true;
+    }
+
+    public function setDosage($dosage)
+    {
+        $this->editDosage = $dosage;
+        $this->calculateQuantity();
+    }
+
+    public function setDuration($duration)
+    {
+        $this->editDuration = $duration;
+        $this->calculateQuantity();
+    }
+
+    public function setInstructions($instructions)
+    {
+        $this->editInstructions = $instructions;
+    }
+
+    public function calculateQuantity()
+    {
+        // Simple calculation: extract number from dosage and multiply by days
+        preg_match('/(\d+)\s*(?:tablet|capsule|dose).*?(\d+)x/', $this->editDosage, $dosageMatches);
+        preg_match('/(\d+)/', $this->editDuration, $durationMatches);
+        
+        if (!empty($dosageMatches) && !empty($durationMatches)) {
+            $perDose = (int)$dosageMatches[1];
+            $timesPerDay = (int)$dosageMatches[2];
+            $days = (int)$durationMatches[1];
+            
+            $this->editQuantity = $perDose * $timesPerDay * $days;
+        }
+    }
+
+    public function savePrescriptionEdit()
+    {
+        if ($this->editingIndex !== null) {
+            $this->selectedPrescriptions[$this->editingIndex]['dosage'] = $this->editDosage;
+            $this->selectedPrescriptions[$this->editingIndex]['duration'] = $this->editDuration;
+            $this->selectedPrescriptions[$this->editingIndex]['quantity'] = $this->editQuantity;
+            $this->selectedPrescriptions[$this->editingIndex]['instructions'] = $this->editInstructions;
+            $this->selectedPrescriptions[$this->editingIndex]['additional_instructions'] = $this->editAdditionalInstructions;
+        }
+        
+        $this->closePrescriptionModal();
+        $this->saveDraft();
+    }
+
+    public function closePrescriptionModal()
+    {
+        $this->showPrescriptionModal = false;
+        $this->editingIndex = null;
+        $this->editDosage = '';
+        $this->editDuration = '';
+        $this->editQuantity = '';
+        $this->editInstructions = '';
+        $this->editAdditionalInstructions = '';
+    }
+
     public function saveDraft()
     {
         $this->isSaving = true;
@@ -95,6 +220,7 @@ class DiagnosisPrescribeForm extends Component
         $this->consultation->update([
             'diagnoses' => $this->selectedDiagnoses,
             'diagnosis_notes' => $this->diagnosisNotes,
+            'prescriptions' => $this->selectedPrescriptions,
         ]);
         
         $this->lastSaved = now()->format('H:i:s');
