@@ -1,8 +1,7 @@
 import './bootstrap';
 
-import Alpine from 'alpinejs';
-window.Alpine = Alpine;
-Alpine.start();
+// Alpine is automatically loaded by Livewire v3
+// Do not manually import or start Alpine here
 
 import flatpickr from "flatpickr";
 import monthSelectPlugin from "flatpickr/dist/plugins/monthSelect/index.js";
