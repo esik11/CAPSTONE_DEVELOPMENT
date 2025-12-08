@@ -31,9 +31,16 @@
     <body class="font-sans antialiased">
         <div class="flex h-screen bg-clinic-blue-light">
             <!-- Sidebar -->
-            <div class="w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white flex-shrink-0 shadow-2xl">
+            <div id="sidebar" class="w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white flex-shrink-0 shadow-2xl transition-all duration-300 ease-in-out relative">
+                <!-- Toggle Button -->
+                <button id="sidebar-toggle" class="absolute -right-3 top-24 z-50 w-6 h-6 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform duration-200">
+                    <svg id="toggle-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-4 h-4 text-white transition-transform duration-300">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+
                 <!-- Logo Section -->
-                <div class="h-20 flex items-center justify-center border-b border-gray-700/50 bg-gradient-to-r from-teal-600/20 to-emerald-600/20">
+                <div class="h-20 flex items-center justify-center border-b border-gray-700/50 bg-gradient-to-r from-teal-600/20 to-emerald-600/20 overflow-hidden">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
@@ -92,15 +99,6 @@
                             </svg>
                         </div>
                         <span class="font-medium">My Schedule</span>
-                    </a>
-
-                    <a href="{{ route('doctor.ePrescription.index') }}" class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('doctor.ePrescription.*') ? 'bg-gradient-to-r from-teal-600 to-emerald-600 shadow-lg shadow-teal-500/50' : 'hover:bg-gray-800/50 hover:translate-x-1' }}">
-                        <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ request()->routeIs('doctor.ePrescription.*') ? 'bg-white/20' : 'bg-gray-800 group-hover:bg-gray-700' }} transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                            </svg>
-                        </div>
-                        <span class="font-medium">E-Prescription</span>
                     </a>
 
                     <p class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 mt-6">Other</p>
@@ -213,6 +211,42 @@
                             }
                             document.getElementById('age').value = age;
                         }
+                    }
+                });
+
+                // Sidebar toggle functionality
+                const sidebar = document.getElementById('sidebar');
+                const toggleBtn = document.getElementById('sidebar-toggle');
+                const toggleIcon = document.getElementById('toggle-icon');
+                let isCollapsed = false;
+
+                toggleBtn.addEventListener('click', function() {
+                    isCollapsed = !isCollapsed;
+                    
+                    if (isCollapsed) {
+                        // Collapse sidebar
+                        sidebar.classList.remove('w-72');
+                        sidebar.classList.add('w-20');
+                        toggleIcon.style.transform = 'rotate(180deg)';
+                        
+                        // Hide text elements
+                        sidebar.querySelectorAll('span, p, h1, h2').forEach(el => {
+                            el.style.opacity = '0';
+                            el.style.display = 'none';
+                        });
+                    } else {
+                        // Expand sidebar
+                        sidebar.classList.remove('w-20');
+                        sidebar.classList.add('w-72');
+                        toggleIcon.style.transform = 'rotate(0deg)';
+                        
+                        // Show text elements with delay
+                        setTimeout(() => {
+                            sidebar.querySelectorAll('span, p, h1, h2').forEach(el => {
+                                el.style.display = '';
+                                el.style.opacity = '1';
+                            });
+                        }, 150);
                     }
                 });
             });

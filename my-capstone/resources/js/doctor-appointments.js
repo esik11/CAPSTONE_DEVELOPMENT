@@ -35,10 +35,16 @@ function updateStats() {
         new Date(apt.start_time).toDateString() === today
     );
     
-    document.getElementById('stat-total').textContent = todayAppointments.length;
-    document.getElementById('stat-pending').textContent = appointments.filter(a => a.status === 'pending').length;
-    document.getElementById('stat-approved').textContent = appointments.filter(a => a.status === 'approved').length;
-    document.getElementById('stat-scheduled').textContent = appointments.filter(a => a.status === 'scheduled').length;
+    // Only update if elements exist (for backward compatibility)
+    const statTotal = document.getElementById('stat-total');
+    const statPending = document.getElementById('stat-pending');
+    const statApproved = document.getElementById('stat-approved');
+    const statScheduled = document.getElementById('stat-scheduled');
+    
+    if (statTotal) statTotal.textContent = todayAppointments.length;
+    if (statPending) statPending.textContent = appointments.filter(a => a.status === 'pending').length;
+    if (statApproved) statApproved.textContent = appointments.filter(a => a.status === 'approved' || a.status === 'confirmed').length;
+    if (statScheduled) statScheduled.textContent = appointments.filter(a => a.status === 'scheduled').length;
 }
 
 // Initialize FullCalendar
@@ -48,12 +54,16 @@ function initCalendar() {
 
     const calendar = new Calendar(calendarEl, {
         plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
-        initialView: 'dayGridMonth',
+        initialView: 'timeGridDay', // Start with day view (timeline)
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,listWeek'
+            right: 'timeGridWeek,timeGridDay'
         },
+        slotMinTime: '08:00:00', // Start at 8 AM
+        slotMaxTime: '20:00:00', // End at 8 PM
+        slotDuration: '00:30:00', // 30-minute slots
+        allDaySlot: false, // Hide all-day slot
         height: 'auto',
         eventDisplay: 'block',
         displayEventTime: true,
@@ -259,10 +269,16 @@ function initFiltering() {
     const filterStatus = document.getElementById('filter-status');
     const appointmentsListContainer = document.getElementById('doctor-appointments-list');
 
+    // Only initialize if elements exist
+    if (!appointmentsListContainer) {
+        console.log('Appointments list container not found, skipping filtering initialization');
+        return;
+    }
+
     function filterAppointments() {
-        const searchText = searchPatientName.value.toLowerCase();
-        const selectedDate = filterDate.value;
-        const selectedStatus = filterStatus.value;
+        const searchText = searchPatientName?.value.toLowerCase() || '';
+        const selectedDate = filterDate?.value || '';
+        const selectedStatus = filterStatus?.value || '';
 
         const filtered = window.doctorAppointments.filter(appointment => {
             const matchesName = appointment.patient.user.name.toLowerCase().includes(searchText);
@@ -276,9 +292,9 @@ function initFiltering() {
         renderAppointments(filtered, appointmentsListContainer);
     }
 
-    searchPatientName.addEventListener('input', filterAppointments);
-    filterDate.addEventListener('change', filterAppointments);
-    filterStatus.addEventListener('change', filterAppointments);
+    if (searchPatientName) searchPatientName.addEventListener('input', filterAppointments);
+    if (filterDate) filterDate.addEventListener('change', filterAppointments);
+    if (filterStatus) filterStatus.addEventListener('change', filterAppointments);
 
     // Initial render
     renderAppointments(window.doctorAppointments, appointmentsListContainer);

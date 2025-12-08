@@ -174,13 +174,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Close modal functionality
-    document.getElementById('close-modal-button').addEventListener('click', function() {
-        document.getElementById('appointment-details-modal').classList.add('hidden');
-    });
+    const closeModalButton = document.getElementById('close-modal-button');
+    const appointmentModal = document.getElementById('appointment-details-modal');
+    
+    if (closeModalButton && appointmentModal) {
+        closeModalButton.addEventListener('click', function() {
+            appointmentModal.classList.add('hidden');
+        });
+    }
 
     function renderAppointmentList(filteredAppointments) {
         const container = document.getElementById('appointments-list-container');
         const noAppointmentsMessage = document.getElementById('no-appointments-message');
+        
+        // Check if elements exist (they won't exist on patient appointment create page)
+        if (!container || !noAppointmentsMessage) {
+            return;
+        }
+        
         container.innerHTML = ''; // Clear existing content
 
         if (filteredAppointments.length === 0) {

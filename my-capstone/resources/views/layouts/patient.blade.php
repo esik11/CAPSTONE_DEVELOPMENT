@@ -14,7 +14,11 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/fullcalendar.js'])
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        @if(request()->routeIs('patient.appointments.index'))
+            @vite(['resources/js/fullcalendar.js'])
+        @endif
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
@@ -24,31 +28,40 @@
         <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
     </head>
     <body class="font-inter antialiased">
-        <div class="flex h-screen bg-gray-50">
+        <div class="flex h-screen bg-gray-50" x-data="{ sidebarOpen: {{ request()->routeIs('patient.appointments.create') ? 'false' : 'true' }} }" @toggle-sidebar.window="sidebarOpen = !sidebarOpen">
             <!-- Sidebar -->
-            <div class="w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white flex-shrink-0 shadow-2xl">
+            <div class="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white flex-shrink-0 shadow-2xl transition-all duration-300 ease-in-out overflow-hidden z-40"
+                 :style="sidebarOpen ? 'width: 288px' : 'width: 80px'">
                 <!-- Logo Section -->
-                <div class="h-20 flex items-center justify-center border-b border-gray-700/50 bg-gradient-to-r from-blue-600/20 to-indigo-600/20">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
+                <div class="h-20 flex items-center justify-between px-4 border-b border-gray-700/50 bg-gradient-to-r from-blue-600/20 to-indigo-600/20">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                             </svg>
                         </div>
-                        <div>
+                        <div x-show="sidebarOpen" x-transition class="whitespace-nowrap">
                             <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Salamat Doc</h1>
                             <p class="text-xs text-gray-400">Patient Portal</p>
                         </div>
                     </div>
+                    <button @click="sidebarOpen = !sidebarOpen" 
+                            onclick="if(!window.Alpine) { const sidebar = this.closest('[x-data]'); if(sidebar) { const open = sidebar.querySelector('[x-show]').style.display !== 'none'; sidebar.style.width = open ? '80px' : '288px'; } }"
+                            class="p-2 hover:bg-gray-700/50 rounded-lg transition-colors flex-shrink-0">
+                        <svg class="w-5 h-5 transition-transform" :class="{ 'rotate-180': !sidebarOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                        </svg>
+                    </button>
                 </div>
 
                 <!-- User Profile Section -->
                 <div class="px-4 py-6 border-b border-gray-700/50">
-                    <div class="flex items-center gap-3 p-3 bg-gradient-to-r from-gray-800/50 to-gray-700/30 rounded-xl border border-gray-700/50">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-lg font-bold shadow-lg">
+                    <div class="flex items-center gap-3 p-3 bg-gradient-to-r from-gray-800/50 to-gray-700/30 rounded-xl border border-gray-700/50"
+                         :class="sidebarOpen ? '' : 'justify-center'">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-lg font-bold shadow-lg flex-shrink-0">
                             {{ substr(Auth::user()->name, 0, 1) }}
                         </div>
-                        <div class="flex-1 min-w-0">
+                        <div x-show="sidebarOpen" x-transition class="flex-1 min-w-0">
                             <p class="text-sm font-semibold text-white truncate">{{ Auth::user()->name }}</p>
                             <p class="text-xs text-gray-400 truncate">{{ Auth::user()->email }}</p>
                         </div>
@@ -56,15 +69,19 @@
                 </div>
                 <!-- Navigation -->
                 <nav class="px-3 py-6 space-y-1">
-                    <p class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Main Menu</p>
+                    <p x-show="sidebarOpen" x-transition class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Main Menu</p>
                     
-                    <a href="{{ route('patient.dashboard') }}" class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('patient.dashboard') ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/50' : 'hover:bg-gray-800/50 hover:translate-x-1' }}">
-                        <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ request()->routeIs('patient.dashboard') ? 'bg-white/20' : 'bg-gray-800 group-hover:bg-gray-700' }} transition-colors">
+                    <a href="{{ route('patient.dashboard') }}" class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('patient.dashboard') ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/50' : 'hover:bg-gray-800/50 hover:translate-x-1' }}"
+                       :class="sidebarOpen ? '' : 'justify-center'" x-data="{ tooltip: false }" @mouseenter="tooltip = !sidebarOpen" @mouseleave="tooltip = false">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ request()->routeIs('patient.dashboard') ? 'bg-white/20' : 'bg-gray-800 group-hover:bg-gray-700' }} transition-colors flex-shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                             </svg>
                         </div>
-                        <span class="font-medium">Dashboard</span>
+                        <span x-show="sidebarOpen" x-transition class="font-medium whitespace-nowrap">Dashboard</span>
+                        <div x-show="tooltip" x-transition class="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg whitespace-nowrap z-50">
+                            Dashboard
+                        </div>
                     </a>
 
                     <div x-data="{ open: {{ request()->routeIs('patient.profile.*') ? 'true' : 'false' }} }">
@@ -101,39 +118,42 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('patient.appointments.index') }}" class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('patient.appointments.*') ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/50' : 'hover:bg-gray-800/50 hover:translate-x-1' }}">
-                        <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ request()->routeIs('patient.appointments.*') ? 'bg-white/20' : 'bg-gray-800 group-hover:bg-gray-700' }} transition-colors">
+                    <a href="{{ route('patient.appointments.index') }}" class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('patient.appointments.*') ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/50' : 'hover:bg-gray-800/50 hover:translate-x-1' }}"
+                       :class="sidebarOpen ? '' : 'justify-center'">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ request()->routeIs('patient.appointments.*') ? 'bg-white/20' : 'bg-gray-800 group-hover:bg-gray-700' }} transition-colors flex-shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                             </svg>
                         </div>
-                        <span class="font-medium">Appointments</span>
+                        <span x-show="sidebarOpen" x-transition class="font-medium whitespace-nowrap">Appointments</span>
                     </a>
 
-                    <a href="{{ route('patient.prescriptions.index') }}" class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('patient.prescriptions.*') ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/50' : 'hover:bg-gray-800/50 hover:translate-x-1' }}">
-                        <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ request()->routeIs('patient.prescriptions.*') ? 'bg-white/20' : 'bg-gray-800 group-hover:bg-gray-700' }} transition-colors">
+                    <a href="{{ route('patient.prescriptions.index') }}" class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('patient.prescriptions.*') ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/50' : 'hover:bg-gray-800/50 hover:translate-x-1' }}"
+                       :class="sidebarOpen ? '' : 'justify-center'">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ request()->routeIs('patient.prescriptions.*') ? 'bg-white/20' : 'bg-gray-800 group-hover:bg-gray-700' }} transition-colors flex-shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                             </svg>
                         </div>
-                        <span class="font-medium">Prescriptions</span>
+                        <span x-show="sidebarOpen" x-transition class="font-medium whitespace-nowrap">Prescriptions</span>
                     </a>
 
-                    <p class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 mt-6">Other</p>
+                    <p x-show="sidebarOpen" x-transition class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 mt-6">Other</p>
 
-                    <a href="{{ route('patient.billing.index') }}" class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('patient.billing.*') ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/50' : 'hover:bg-gray-800/50 hover:translate-x-1' }}">
-                        <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ request()->routeIs('patient.billing.*') ? 'bg-white/20' : 'bg-gray-800 group-hover:bg-gray-700' }} transition-colors">
+                    <a href="{{ route('patient.billing.index') }}" class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('patient.billing.*') ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/50' : 'hover:bg-gray-800/50 hover:translate-x-1' }}"
+                       :class="sidebarOpen ? '' : 'justify-center'">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-lg {{ request()->routeIs('patient.billing.*') ? 'bg-white/20' : 'bg-gray-800 group-hover:bg-gray-700' }} transition-colors flex-shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
                             </svg>
                         </div>
-                        <span class="font-medium">Billing</span>
+                        <span x-show="sidebarOpen" x-transition class="font-medium whitespace-nowrap">Billing</span>
                     </a>
                 </nav>
             </div>
 
             <!-- Main Content -->
-            <div class="flex-1 flex flex-col overflow-hidden">
+            <div class="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out">
                 <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
                     <div class="px-6 py-4">
                         <!-- Header Content -->

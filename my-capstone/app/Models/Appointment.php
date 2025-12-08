@@ -20,11 +20,17 @@ class Appointment extends Model
         'urgency_priority',
         'file_path',
         'consent',
+        'checked_in_at',
+        'consultation_started_at',
+        'completed_at',
     ];
 
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
+        'checked_in_at' => 'datetime',
+        'consultation_started_at' => 'datetime',
+        'completed_at' => 'datetime',
     ];
 
     public function patient(): BelongsTo

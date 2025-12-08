@@ -2,6 +2,7 @@
 
 @import './fullcalendar_custom.css';
 @import './doctor-appointments.css';
+@import './patient-appointments.css';
 
 @tailwind base;
 @tailwind components;

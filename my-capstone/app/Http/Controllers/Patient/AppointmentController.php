@@ -37,12 +37,12 @@ class AppointmentController extends Controller
         try {
             $validatedData = $request->validate([
                 'doctor_id' => 'required|exists:users,id',
-                'appointment_date' => 'required|date',
-                'appointment_time' => 'required|date_format:H:i',
-                'symptoms_complaint' => 'nullable|string',
-                'appointment_mode' => 'required|in:online,walk-in,follow-up',
+                'appointment_date' => 'required|date|after_or_equal:today',
+                'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i|after:start_time',
+                'symptoms_complaint' => 'required|string|min:10',
+                'appointment_mode' => 'required|in:in-clinic,telemedicine',
                 'urgency_priority' => 'required|in:routine,urgent,emergency',
-                'file_upload' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
                 'consent' => 'accepted',
             ]);
 
@@ -65,8 +65,8 @@ class AppointmentController extends Controller
             }
 
             // Combine date and time to create start_time and end_time
-            $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $validatedData['appointment_date'] . ' ' . $validatedData['appointment_time']);
-            $endDateTime = $startDateTime->copy()->addMinutes(30);
+            $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $validatedData['appointment_date'] . ' ' . $validatedData['start_time']);
+            $endDateTime = Carbon::createFromFormat('Y-m-d H:i', $validatedData['appointment_date'] . ' ' . $validatedData['end_time']);
 
             // Handle file upload
             $filePath = null;
@@ -86,6 +86,7 @@ class AppointmentController extends Controller
                 'appointment_mode' => $validatedData['appointment_mode'],
                 'urgency_priority' => $validatedData['urgency_priority'],
                 'file_path' => $filePath,
+                'consent' => true, // Consent is validated as 'accepted', so it's always true here
                 'status' => 'pending',
             ]);
 
@@ -101,8 +102,14 @@ class AppointmentController extends Controller
             return redirect()->route('patient.appointments.index')
                 ->with(['success' => 'Appointment request submitted successfully.', 'bookingDetails' => $bookingDetails]);
         } catch (ValidationException $e) {
+            \Log::error('Appointment Validation Error:', ['errors' => $e->errors(), 'input' => $request->all()]);
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
+            \Log::error('Appointment Creation Error:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->all()
+            ]);
             return redirect()->back()->with('error', 'Failed to book appointment. ' . $e->getMessage())->withInput();
         }
     }

@@ -56,6 +56,13 @@ Route::middleware(['web', 'auth', 'patient'])->group(function () {
 Route::middleware(['web', 'auth', 'doctor'])->group(function () {
     Route::get('/doctor/appointments', [\App\Http\Controllers\Doctor\AppointmentController::class, 'index'])->name('doctor.appointments.index');
     Route::get('/doctor/appointments/{appointment}', [\App\Http\Controllers\Doctor\AppointmentController::class, 'show'])->name('doctor.appointments.show');
+    
+    // Appointment Actions
+    Route::post('/doctor/appointments/{appointment}/approve', [\App\Http\Controllers\Doctor\AppointmentController::class, 'approve'])->name('doctor.appointments.approve');
+    Route::post('/doctor/appointments/{appointment}/decline', [\App\Http\Controllers\Doctor\AppointmentController::class, 'decline'])->name('doctor.appointments.decline');
+    Route::post('/doctor/appointments/{appointment}/check-in', [\App\Http\Controllers\Doctor\AppointmentController::class, 'checkIn'])->name('doctor.appointments.checkIn');
+    Route::get('/doctor/appointments/{appointment}/start-consultation', [\App\Http\Controllers\Doctor\AppointmentController::class, 'startConsultation'])->name('doctor.appointments.startConsultation');
+    
     Route::get('/doctor/patients/{patient}/details', [\App\Http\Controllers\Doctor\PatientController::class, 'showDetails'])->name('doctor.patients.details');
     Route::get('/doctor/patients/{patient}/medical-records', [\App\Http\Controllers\Doctor\MedicalRecordController::class, 'index'])->name('doctor.patients.medicalRecords.index');
     Route::get('/doctor/e-prescription', function () {

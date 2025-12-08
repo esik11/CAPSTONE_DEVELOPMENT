@@ -1,5 +1,9 @@
 import './bootstrap';
 
+import Alpine from 'alpinejs';
+window.Alpine = Alpine;
+Alpine.start();
+
 import flatpickr from "flatpickr";
 import monthSelectPlugin from "flatpickr/dist/plugins/monthSelect/index.js";
 
@@ -15,9 +19,6 @@ if (document.getElementById('doctor-calendar') || document.getElementById('docto
         console.error('Error loading doctor appointments module:', err);
     });
 }
-
-// Note: Alpine.js is already included with Livewire v3
-// No need to import it separately to avoid conflicts
 
 window.initializeFlatpickr = () => {
     flatpickr(".flatpickr", {
