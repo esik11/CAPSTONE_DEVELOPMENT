@@ -13,6 +13,7 @@ class Consultation extends Model
         'appointment_id',
         'consultation_date',
         'consultation_time',
+        'consultation_mode',
         'status',
         'current_section',
         'selected_complaints',
@@ -66,26 +67,88 @@ class Consultation extends Model
         'patient_education',
         'followup_instructions',
         'doctor_notes',
+        'followup_date',
+        'referral_details',
     ];
 
     protected $casts = [
         'consultation_date' => 'date',
         'consultation_time' => 'datetime:H:i',
-        'selected_complaints' => 'array',
-        'template_responses' => 'array',
-        'review_of_systems' => 'array',
-        'associated_symptoms' => 'array',
+        'selected_complaints' => 'encrypted:array',
+        'template_responses' => 'encrypted:array',
+        'symptom_notes_auto' => 'encrypted',
+        'symptom_notes_manual' => 'encrypted',
+        'symptom_notes_final' => 'encrypted',
+        'aggravating_factors' => 'encrypted',
+        'relieving_factors' => 'encrypted',
         'previous_episodes' => 'boolean',
-        'cardiovascular_findings' => 'array',
-        'respiratory_findings' => 'array',
-        'abdominal_findings' => 'array',
-        'neurological_findings' => 'array',
-        'musculoskeletal_findings' => 'array',
-        'heent_findings' => 'array',
-        'skin_findings' => 'array',
-        'diagnoses' => 'array',
-        'prescriptions' => 'array',
+        'previous_episodes_details' => 'encrypted',
+        'review_of_systems' => 'encrypted:array',
+        'associated_symptoms' => 'encrypted:array',
+        'cardiovascular_findings' => 'encrypted:array',
+        'respiratory_findings' => 'encrypted:array',
+        'abdominal_findings' => 'encrypted:array',
+        'neurological_findings' => 'encrypted:array',
+        'musculoskeletal_findings' => 'encrypted:array',
+        'heent_findings' => 'encrypted:array',
+        'skin_findings' => 'encrypted:array',
+        'examination_notes' => 'encrypted',
+        'diagnoses' => 'encrypted:array',
+        'prescriptions' => 'encrypted:array',
+        'diagnosis_notes' => 'encrypted',
+        'treatment_plan' => 'encrypted',
+        'patient_education' => 'encrypted',
+        'followup_instructions' => 'encrypted',
+        'doctor_notes' => 'encrypted',
+        'followup_date' => 'date',
+        'referral_details' => 'encrypted',
     ];
+
+    /**
+     * Boot the model and add event listeners for audit logging.
+     */
+    protected static function booted()
+    {
+        static::created(function ($consultation) {
+            $patientName = $consultation->patient ? ($consultation->patient->first_name . ' ' . $consultation->patient->last_name) : 'Patient ID: ' . $consultation->patient_id;
+            AuditLog::log(
+                $consultation,
+                'created',
+                'Consultation record started for patient: ' . $patientName,
+                null,
+                $consultation->toArray()
+            );
+        });
+
+        static::updated(function ($consultation) {
+            $changes = $consultation->getChanges();
+            $original = $consultation->getOriginal();
+            
+            unset($changes['updated_at'], $changes['created_at']);
+            
+            if (!empty($changes)) {
+                $oldValues = array_intersect_key($original, $changes);
+                $patientName = $consultation->patient ? ($consultation->patient->first_name . ' ' . $consultation->patient->last_name) : 'Patient ID: ' . $consultation->patient_id;
+                
+                AuditLog::log(
+                    $consultation,
+                    'updated',
+                    'Consultation record updated for patient: ' . $patientName,
+                    $oldValues,
+                    $changes
+                );
+            }
+        });
+
+        static::deleted(function ($consultation) {
+            $patientName = $consultation->patient ? ($consultation->patient->first_name . ' ' . $consultation->patient->last_name) : 'Patient ID: ' . $consultation->patient_id;
+            AuditLog::log(
+                $consultation,
+                'deleted',
+                'Consultation record deleted for patient: ' . $patientName
+            );
+        });
+    }
 
     // Relationships
     public function patient(): BelongsTo
@@ -103,6 +166,11 @@ class Consultation extends Model
         return $this->belongsTo(Appointment::class);
     }
 
+    public function billing()
+    {
+        return $this->hasOne(Billing::class);
+    }
+
     // Helper methods
     public function isDraft(): bool
     {
@@ -117,5 +185,10 @@ class Consultation extends Model
     public function markAsCompleted(): void
     {
         $this->update(['status' => 'completed']);
+    }
+
+    public function referral()
+    {
+        return $this->hasOne(Referral::class);
     }
 }

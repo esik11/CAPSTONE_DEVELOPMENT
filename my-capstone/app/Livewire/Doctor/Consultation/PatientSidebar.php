@@ -7,14 +7,17 @@ use Livewire\Component;
 
 class PatientSidebar extends Component
 {
-    public Patient $patient;
-    public $consultation = null;
+    public ?Patient $patient = null;
+    public ?\App\Models\Consultation $consultation = null;
     public $latestVitals;
     public $activeConditions;
     public $activeMedications;
     public $allergies;
     public $recentConsultations;
-    public $activeView = 'consultation'; // Default to consultation view during active consultation
+    public $diagnosticTests;
+    public $activeView = 'consultation';
+    public ?\App\Models\Consultation $viewingConsultation = null; // For reviewing past consultations
+    public ?\App\Models\DiagnosticTest $viewingLab = null; // For reviewing lab details
 
     protected $listeners = [
         'condition-added' => 'refreshConditions',
@@ -23,6 +26,7 @@ class PatientSidebar extends Component
         'vitals-updated' => 'refreshVitals',
         'switch-sidebar-view' => 'switchView',
         'consultation-updated' => 'refreshConsultation',
+        'lab-added' => 'refreshLabs',
     ];
 
     public function switchView($view)
@@ -30,22 +34,39 @@ class PatientSidebar extends Component
         $this->activeView = $view;
     }
 
-    public function mount(
-        Patient $patient,
-        $consultation = null,
-        $latestVitals = null,
-        $activeConditions = null,
-        $activeMedications = null,
-        $allergies = null,
-        $recentConsultations = null
-    ) {
+    public function mount(Patient $patient, $consultation = null) {
         $this->patient = $patient;
         $this->consultation = $consultation;
-        $this->latestVitals = $latestVitals;
-        $this->activeConditions = $activeConditions;
-        $this->activeMedications = $activeMedications;
-        $this->allergies = $allergies;
-        $this->recentConsultations = $recentConsultations;
+        
+        // Auto-load critical data for real-world clinical context
+        $this->refreshVitals();
+        $this->refreshConditions();
+        $this->refreshAllergies();
+        $this->refreshMedications();
+        $this->refreshRecentConsultations();
+        $this->refreshLabs();
+    }
+
+    public function refreshRecentConsultations()
+    {
+        $this->recentConsultations = $this->patient->consultations()
+            ->where('status', 'completed')
+            ->where('id', '!=', $this->consultation?->id)
+            ->latest('consultation_date')
+            ->take(5)
+            ->get();
+    }
+    
+    public function viewPastConsultation($id)
+    {
+        $this->viewingConsultation = \App\Models\Consultation::find($id);
+        $this->activeView = 'history_detail';
+    }
+
+    public function closeHistoryDetail()
+    {
+        $this->viewingConsultation = null;
+        $this->activeView = 'executive';
     }
     
     public function refreshConsultation()
@@ -79,9 +100,7 @@ class PatientSidebar extends Component
 
     public function refreshAllergies()
     {
-        $this->allergies = $this->patient->medicalRecord
-            ? $this->patient->medicalRecord->allergies
-            : collect();
+        $this->allergies = $this->patient->allergies;
     }
 
     public function refreshVitals()
@@ -104,6 +123,25 @@ class PatientSidebar extends Component
     public function openAllergyModal()
     {
         $this->dispatch('open-allergy-modal', patientId: $this->patient->id);
+    }
+
+    public function refreshLabs()
+    {
+        $this->diagnosticTests = $this->patient->diagnosticTests()
+            ->latest('requested_at')
+            ->get();
+    }
+
+    public function viewLabDetail($id)
+    {
+        $this->viewingLab = \App\Models\DiagnosticTest::find($id);
+        $this->activeView = 'lab_detail';
+    }
+
+    public function closeLabDetail()
+    {
+        $this->viewingLab = null;
+        $this->activeView = 'labs';
     }
 
     public function render()

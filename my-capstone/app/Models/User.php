@@ -22,9 +22,19 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'middle_name',
+        'last_name',
         'email',
         'password',
         'role',
+        'specialization',
+        'license_number',
+        'ptr_number',
+        's2_number',
+        'contact_number',
+        'clinic_address',
+        'profile_photo_path',
     ];
 
     /**
@@ -50,8 +60,75 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Dynamically generate the full name with "Dr." prefix for doctors.
+     * Overrides the default 'name' attribute when first/last names are present.
+     */
+    public function getNameAttribute($value)
+    {
+        if (!empty($this->first_name) || !empty($this->last_name)) {
+            $prefix = $this->isDoctor() ? 'Dr. ' : '';
+            $middle = !empty($this->middle_name) ? ' ' . substr($this->middle_name, 0, 1) . '. ' : ' ';
+            $fullName = trim($prefix . $this->first_name . $middle . $this->last_name);
+            return preg_replace('/\s+/', ' ', $fullName);
+        }
+        
+        return $value;
+    }
+
     public function patient(): HasOne
     {
         return $this->hasOne(Patient::class);
+    }
+
+    /**
+     * Check if user is a doctor
+     */
+    public function isDoctor(): bool
+    {
+        return $this->role === 'doctor';
+    }
+
+    /**
+     * Check if user is a patient
+     */
+    public function isPatient(): bool
+    {
+        return $this->role === 'patient';
+    }
+
+    /**
+     * Check if user is an assistant
+     */
+    public function isAssistant(): bool
+    {
+        return $this->role === 'assistant';
+    }
+
+    /**
+     * Check if user has a specific role
+     */
+    public function hasRole(string $role): bool
+    {
+        if (is_array($role)) {
+            return in_array($this->role, $role);
+        }
+        return $this->role === $role;
+    }
+
+    /**
+     * Get the availabilities for the doctor.
+     */
+    public function availabilities(): HasMany
+    {
+        return $this->hasMany(DoctorAvailability::class, 'doctor_id');
+    }
+    
+    /**
+     * Get the audit logs for the user.
+     */
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class);
     }
 }

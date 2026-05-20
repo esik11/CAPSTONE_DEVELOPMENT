@@ -32,7 +32,7 @@ class LifestyleFamilyHistoryModal extends Component
     // Family history
     public $familyHistories = [];
 
-    #[On('openModal')]
+    #[On('open-lifestyle-family-history-modal')]
     public function openModal()
     {
         $this->loadData();

@@ -47,6 +47,22 @@
                                 @endforeach
                             </div>
                         @endif
+
+                        <!-- Common Diagnoses Leverage -->
+                        @if(empty($diagnosisSearch))
+                            <div class="mt-4">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Quick Select Common Diagnoses</p>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($commonDiagnoses as $cd)
+                                        <button type="button" 
+                                                wire:click="addDiagnosis('{{ $cd['code'] }}', '{{ $cd['description'] }}')"
+                                                class="px-3 py-1.5 text-xs bg-teal-50 text-teal-700 border border-teal-100 rounded-lg hover:bg-teal-100 hover:border-teal-200 transition-all">
+                                            + {{ $cd['description'] }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Selected Diagnoses -->
@@ -138,24 +154,70 @@
                                 @endforeach
                             </div>
                         @endif
+
+                        <!-- Common Medicines Leverage -->
+                        @if(empty($medicineSearch))
+                            <div class="mt-4">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Quick Select Common Medicines</p>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($commonMedicines as $cm)
+                                        <button type="button" 
+                                                wire:click="addPrescription({{ $cm['id'] }}, '{{ $cm['name'] }}', '{{ $cm['strength'] }}', '{{ $cm['form'] }}')"
+                                                class="px-3 py-1.5 text-xs bg-orange-50 text-orange-700 border border-orange-100 rounded-lg hover:bg-orange-100 hover:border-orange-200 transition-all">
+                                            + {{ $cm['name'] }} {{ $cm['strength'] }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
+
+                    <!-- Clinical Safety Alerts -->
+                    @if(!empty($allergyWarnings))
+                        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 animate-pulse">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-bold text-red-800 uppercase tracking-wider">Clinical Safety Alert</h3>
+                                    <div class="mt-1 text-sm text-red-700">
+                                        <p>One or more medications conflict with the patient's known allergies. Please review carefully.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Selected Prescriptions -->
                     @if(!empty($selectedPrescriptions))
                         <div>
-                            <h3 class="text-sm font-semibold text-gray-900 mb-3">Prescription List ({{ count($selectedPrescriptions) }})</h3>
-                            <div class="space-y-2">
+                            <h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-tight">Prescription List ({{ count($selectedPrescriptions) }})</h3>
+                            <div class="space-y-3">
                                 @foreach($selectedPrescriptions as $index => $prescription)
                                     <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 hover:border-blue-300 transition-colors">
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
-                                                <h4 class="font-semibold text-gray-900 text-sm">
+                                                <h4 class="font-semibold text-gray-900 text-sm flex items-center gap-2">
                                                     {{ $prescription['medicine_name'] }}
                                                     @if($prescription['strength'])
                                                         {{ $prescription['strength'] }}
                                                     @endif
                                                     <span class="text-gray-600 font-normal">({{ $prescription['form'] }})</span>
+
+                                                    @if(isset($allergyWarnings[$prescription['medicine_id']]))
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800 animate-bounce">
+                                                            ⚠️ ALLERGY ALERT
+                                                        </span>
+                                                    @endif
                                                 </h4>
+                                                @if(isset($allergyWarnings[$prescription['medicine_id']]))
+                                                    <p class="text-[10px] font-black text-red-600 uppercase mt-0.5">
+                                                        Warning: {{ $allergyWarnings[$prescription['medicine_id']]['message'] }}
+                                                    </p>
+                                                @endif
                                                 <p class="text-xs text-gray-700 mt-1">
                                                     {{ $prescription['dosage'] }} • {{ $prescription['duration'] }} • {{ $prescription['instructions'] }}
                                                 </p>
@@ -347,10 +409,19 @@
             @if($lastSaved)
                 <span class="text-xs text-gray-500">Last saved: {{ $lastSaved }}</span>
             @endif
-            <button type="button" wire:click="completeConsultation" 
-                    class="px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700">
-                Complete Consultation ✓
+            <button type="button" wire:click="continueToPlan" 
+                    class="px-4 py-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-700">
+                Continue to Plan →
             </button>
         </div>
     </div>
 </div>
+
+
+@script
+<script>
+    $wire.on('redirect-to-summary', (event) => {
+        window.location.href = event.url;
+    });
+</script>
+@endscript

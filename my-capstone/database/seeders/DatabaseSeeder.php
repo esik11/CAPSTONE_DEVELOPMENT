@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             CommonSurgicalProcedureSeeder::class,
             ComplaintTemplateSeeder::class,
             VisitTypeTemplateSeeder::class,
+            AssistantUserSeeder::class,
         ]);
 
         User::factory()->create([

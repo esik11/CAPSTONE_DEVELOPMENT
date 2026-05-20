@@ -28,55 +28,55 @@
     </div>
 
     <!-- Latest Vitals -->
-    @if($latestVitals)
+    @if($consultation->blood_pressure || $consultation->pulse_rate || $consultation->temperature || $consultation->weight)
         <div class="bg-white rounded-lg shadow p-4">
-            <h3 class="text-sm font-semibold text-gray-900 mb-3">Latest Vitals</h3>
+            <h3 class="text-sm font-semibold text-gray-900 mb-3">Today's Vitals</h3>
             <div class="grid grid-cols-2 gap-3 text-sm">
-                @if($latestVitals->blood_pressure_systolic && $latestVitals->blood_pressure_diastolic)
+                @if($consultation->blood_pressure)
                     <div>
                         <span class="text-gray-500 block">BP</span>
-                        <span class="font-medium text-gray-900">{{ $latestVitals->blood_pressure_systolic }}/{{ $latestVitals->blood_pressure_diastolic }}</span>
+                        <span class="font-medium text-gray-900">{{ $consultation->blood_pressure }} mmHg</span>
                     </div>
                 @endif
-                @if($latestVitals->heart_rate)
+                @if($consultation->pulse_rate)
                     <div>
                         <span class="text-gray-500 block">HR</span>
-                        <span class="font-medium text-gray-900">{{ $latestVitals->heart_rate }} bpm</span>
+                        <span class="font-medium text-gray-900">{{ $consultation->pulse_rate }} bpm</span>
                     </div>
                 @endif
-                @if($latestVitals->temperature)
+                @if($consultation->temperature)
                     <div>
                         <span class="text-gray-500 block">Temp</span>
-                        <span class="font-medium text-gray-900">{{ $latestVitals->temperature }}°C</span>
+                        <span class="font-medium text-gray-900">{{ $consultation->temperature }}°C</span>
                     </div>
                 @endif
-                @if($latestVitals->respiratory_rate)
+                @if($consultation->respiratory_rate)
                     <div>
                         <span class="text-gray-500 block">RR</span>
-                        <span class="font-medium text-gray-900">{{ $latestVitals->respiratory_rate }}/min</span>
+                        <span class="font-medium text-gray-900">{{ $consultation->respiratory_rate }}/min</span>
                     </div>
                 @endif
-                @if($latestVitals->weight)
+                @if($consultation->weight)
                     <div>
                         <span class="text-gray-500 block">Weight</span>
-                        <span class="font-medium text-gray-900">{{ $latestVitals->weight }} kg</span>
+                        <span class="font-medium text-gray-900">{{ $consultation->weight }} kg</span>
                     </div>
                 @endif
-                @if($latestVitals->height)
+                @if($consultation->height)
                     <div>
                         <span class="text-gray-500 block">Height</span>
-                        <span class="font-medium text-gray-900">{{ $latestVitals->height }} cm</span>
+                        <span class="font-medium text-gray-900">{{ $consultation->height }} cm</span>
                     </div>
                 @endif
             </div>
-            <p class="text-xs text-gray-400 mt-2">
-                Recorded {{ $latestVitals->created_at->diffForHumans() }}
+            <p class="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-widest">
+                Taken during triage
             </p>
         </div>
     @else
         <div class="bg-white rounded-lg shadow p-4">
-            <h3 class="text-sm font-semibold text-gray-900 mb-3">Latest Vitals</h3>
-            <p class="text-sm text-gray-500">No vitals recorded</p>
+            <h3 class="text-sm font-semibold text-gray-900 mb-3">Today's Vitals</h3>
+            <p class="text-sm text-gray-500">No vitals recorded yet</p>
         </div>
     @endif
 
@@ -212,20 +212,18 @@
         <div class="bg-white rounded-lg shadow p-4">
             <h3 class="text-sm font-semibold text-gray-900 mb-3">Recent Visits</h3>
             <div class="space-y-2">
-                @foreach($recentConsultations as $consultation)
-                    <div class="text-sm border-l-2 border-blue-500 pl-3 py-1">
-                        <p class="text-gray-900 font-medium">
-                            {{ $consultation->consultation_date->format('M d, Y') }}
+                @foreach($recentConsultations as $consultationItem)
+                    <button wire:click="viewPastConsultation({{ $consultationItem->id }})" 
+                            class="w-full text-left text-sm border-l-2 border-blue-500 pl-3 py-2 hover:bg-blue-50 transition-colors group">
+                        <p class="text-gray-900 font-bold group-hover:text-blue-700">
+                            {{ $consultationItem->consultation_date->format('M d, Y') }}
                         </p>
-                        @if($consultation->selected_complaints)
-                            <p class="text-xs text-gray-500">
-                                {{ implode(', ', array_slice($consultation->selected_complaints, 0, 2)) }}
-                                @if(count($consultation->selected_complaints) > 2)
-                                    +{{ count($consultation->selected_complaints) - 2 }} more
-                                @endif
+                        @if($consultationItem->selected_complaints)
+                            <p class="text-[10px] text-gray-500 line-clamp-1">
+                                {{ implode(', ', array_slice($consultationItem->selected_complaints, 0, 2)) }}
                             </p>
                         @endif
-                    </div>
+                    </button>
                 @endforeach
             </div>
         </div>
@@ -386,6 +384,12 @@
                         <span class="text-blue-700">Section:</span>
                         <span class="font-medium text-blue-900">{{ ucfirst($consultation->current_section ?? 'symptoms') }}</span>
                     </div>
+                    @if($consultation->followup_date)
+                        <div class="flex justify-between">
+                            <span class="text-blue-700">Follow-up:</span>
+                            <span class="font-medium text-blue-900">{{ $consultation->followup_date->format('M d, Y') }}</span>
+                        </div>
+                    @endif
                     <div class="flex justify-between">
                         <span class="text-blue-700">Status:</span>
                         <span class="px-2 py-1 text-xs font-medium 
@@ -447,75 +451,390 @@
         <div 
             x-data 
             x-init="$el.style.opacity = '0'; $el.style.transform = 'translateX(20px)'; setTimeout(() => { $el.style.transition = 'all 0.3s ease-out'; $el.style.opacity = '1'; $el.style.transform = 'translateX(0)'; }, 10)">
-        <div class="bg-white rounded-lg shadow p-4">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Vital Signs</h3>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-50 bg-gray-50/50 flex items-center justify-between">
+                <h3 class="text-sm font-black text-gray-900 uppercase tracking-widest">Vital Signs</h3>
+                <span class="px-2 py-1 bg-violet-100 text-violet-700 text-[9px] font-black uppercase tracking-widest rounded-md">Triage Data</span>
+            </div>
             
-            @if($latestVitals)
-                <div class="space-y-4">
-                    <!-- Blood Pressure -->
-                    @if($latestVitals->blood_pressure_systolic && $latestVitals->blood_pressure_diastolic)
-                        <div class="border-l-4 border-blue-500 pl-3">
-                            <p class="text-xs text-gray-500">Blood Pressure</p>
-                            <p class="text-2xl font-bold text-gray-900">
-                                {{ $latestVitals->blood_pressure_systolic }}/{{ $latestVitals->blood_pressure_diastolic }}
-                            </p>
-                            <p class="text-xs text-gray-500">mmHg</p>
+            <div class="p-4">
+                @php
+                    $prev = $recentConsultations->first();
+                @endphp
+
+                @if($consultation->blood_pressure || $consultation->pulse_rate || $consultation->temperature || $consultation->weight)
+                    <div class="space-y-3">
+                        <!-- Blood Pressure -->
+                        <div class="bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:border-blue-200 hover:shadow transition-all group">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-4 bg-blue-500 rounded-full"></div>
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-blue-600 transition-colors">Blood Pressure</span>
+                                </div>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase">mmHg</span>
+                            </div>
+                            <div class="flex items-end justify-between pl-3.5">
+                                <div>
+                                    <p class="text-xl font-black text-gray-900 leading-none">{{ $consultation->blood_pressure ?? '--' }}</p>
+                                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-1.5">Current</p>
+                                </div>
+                                @if($prev && $prev->blood_pressure)
+                                <div class="text-right">
+                                    <p class="text-sm font-bold text-gray-400 leading-none">{{ $prev->blood_pressure }}</p>
+                                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">Last ({{ $prev->consultation_date->format('M d') }})</p>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Heart Rate -->
+                        <div class="bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:border-red-200 hover:shadow transition-all group">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-4 bg-red-500 rounded-full"></div>
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-red-600 transition-colors">Heart Rate</span>
+                                </div>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase">bpm</span>
+                            </div>
+                            <div class="flex items-end justify-between pl-3.5">
+                                <div>
+                                    <p class="text-xl font-black text-gray-900 leading-none">{{ $consultation->pulse_rate ?? '--' }}</p>
+                                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-1.5">Current</p>
+                                </div>
+                                @if($prev && $prev->pulse_rate)
+                                <div class="text-right">
+                                    <p class="text-sm font-bold text-gray-400 leading-none">{{ $prev->pulse_rate }}</p>
+                                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">Last ({{ $prev->consultation_date->format('M d') }})</p>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Temperature -->
+                        <div class="bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:border-orange-200 hover:shadow transition-all group">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-4 bg-orange-500 rounded-full"></div>
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-orange-600 transition-colors">Temperature</span>
+                                </div>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase">°C</span>
+                            </div>
+                            <div class="flex items-end justify-between pl-3.5">
+                                <div>
+                                    <p class="text-xl font-black text-gray-900 leading-none">{{ $consultation->temperature ?? '--' }}</p>
+                                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-1.5">Current</p>
+                                </div>
+                                @if($prev && $prev->temperature)
+                                <div class="text-right">
+                                    <p class="text-sm font-bold text-gray-400 leading-none">{{ $prev->temperature }}</p>
+                                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">Last ({{ $prev->consultation_date->format('M d') }})</p>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Respiratory Rate -->
+                        <div class="bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:border-emerald-200 hover:shadow transition-all group">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-4 bg-emerald-500 rounded-full"></div>
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-emerald-600 transition-colors">Resp. Rate</span>
+                                </div>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase">/min</span>
+                            </div>
+                            <div class="flex items-end justify-between pl-3.5">
+                                <div>
+                                    <p class="text-xl font-black text-gray-900 leading-none">{{ $consultation->respiratory_rate ?? '--' }}</p>
+                                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-1.5">Current</p>
+                                </div>
+                                @if($prev && $prev->respiratory_rate)
+                                <div class="text-right">
+                                    <p class="text-sm font-bold text-gray-400 leading-none">{{ $prev->respiratory_rate }}</p>
+                                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">Last ({{ $prev->consultation_date->format('M d') }})</p>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <!-- Weight -->
+                            <div class="bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:border-purple-200 hover:shadow transition-all group">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-purple-600 transition-colors">Weight</span>
+                                    <span class="text-[9px] font-bold text-gray-400 uppercase">kg</span>
+                                </div>
+                                <div>
+                                    <p class="text-lg font-black text-gray-900 leading-none">{{ $consultation->weight ?? '--' }}</p>
+                                    @if($prev && $prev->weight)
+                                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">Last: {{ $prev->weight }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <!-- Height -->
+                            <div class="bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:border-indigo-200 hover:shadow transition-all group">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-indigo-600 transition-colors">Height</span>
+                                    <span class="text-[9px] font-bold text-gray-400 uppercase">cm</span>
+                                </div>
+                                <div>
+                                    <p class="text-lg font-black text-gray-900 leading-none">{{ $consultation->height ?? '--' }}</p>
+                                    @if($prev && $prev->height)
+                                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">Last: {{ $prev->height }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="py-8 text-center">
+                        <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100">
+                            <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">No vitals recorded yet</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+    @elseif($activeView === 'labs')
+        <!-- LABS & IMAGING VIEW -->
+        <div 
+            x-data 
+            x-init="$el.style.opacity = '0'; $el.style.transform = 'translateX(20px)'; setTimeout(() => { $el.style.transition = 'all 0.3s ease-out'; $el.style.opacity = '1'; $el.style.transform = 'translateX(0)'; }, 10)">
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-purple-900">Labs & Imaging</h3>
+                    <button type="button" 
+                            wire:click="$dispatch('open-lab-upload-modal', { patientId: {{ $patient->id }}, consultationId: {{ $consultation->id ?? 'null' }} })"
+                            class="px-3 py-1.5 text-xs font-bold text-white bg-purple-600 rounded-lg hover:bg-purple-700 shadow-sm transition-transform active:scale-95">
+                        + Upload Result
+                    </button>
+                </div>
+
+                @if($diagnosticTests && $diagnosticTests->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($diagnosticTests as $test)
+                            <div wire:click="viewLabDetail({{ $test->id }})" 
+                                 class="p-3 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md active:scale-95 {{ $test->status === 'resulted' ? 'border-green-100 bg-green-50' : 'border-gray-100 bg-gray-50' }}">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-[10px] font-black uppercase tracking-tighter {{ $test->category === 'imaging' ? 'text-indigo-600' : 'text-purple-600' }}">
+                                        {{ $test->category }}
+                                    </span>
+                                    <span class="px-1.5 py-0.5 text-[9px] font-bold rounded uppercase
+                                        {{ $test->status === 'resulted' ? 'bg-green-200 text-green-800' : '' }}
+                                        {{ $test->status === 'pending' ? 'bg-yellow-200 text-yellow-800' : '' }}
+                                        {{ $test->status === 'requested' ? 'bg-blue-200 text-blue-800' : '' }}">
+                                        {{ $test->status }}
+                                    </span>
+                                </div>
+                                <h4 class="text-sm font-bold text-gray-900">{{ $test->test_name }}</h4>
+                                <p class="text-[10px] text-gray-500">Ordered: {{ $test->requested_at->format('M d, Y') }}</p>
+                                
+                                @if($test->results_findings)
+                                    <div class="mt-2 text-xs text-gray-700 bg-white p-2 rounded border border-gray-200 line-clamp-2">
+                                        {{ $test->results_findings }}
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-12">
+                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-purple-100 text-purple-600 mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                            </svg>
+                        </div>
+                        <p class="text-sm text-gray-500">No diagnostic tests recorded yet.</p>
+                        <p class="text-xs text-gray-400 mt-1">Orders placed during consultation will appear here.</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @elseif($activeView === 'lab_detail' && $viewingLab)
+        <!-- LAB DETAIL VIEW -->
+        <div 
+            x-data 
+            x-init="$el.style.opacity = '0'; $el.style.transform = 'translateX(20px)'; setTimeout(() => { $el.style.transition = 'all 0.3s ease-out'; $el.style.opacity = '1'; $el.style.transform = 'translateX(0)'; }, 10)">
+            
+            <div class="bg-white rounded-lg shadow-lg border-2 border-purple-100 overflow-hidden">
+                <!-- Header -->
+                <div class="bg-purple-600 px-4 py-3 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xs font-bold text-purple-100 uppercase tracking-widest">{{ $viewingLab->category }}</h3>
+                        <p class="text-sm font-bold text-white">{{ $viewingLab->test_name }}</p>
+                    </div>
+                    <button wire:click="closeLabDetail" class="text-white hover:text-purple-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+                    <div>
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</span>
+                        <p class="text-sm font-bold {{ $viewingLab->status === 'resulted' ? 'text-green-600' : 'text-blue-600' }}">
+                            {{ strtoupper($viewingLab->status) }}
+                        </p>
+                    </div>
+
+                    @if($viewingLab->results_findings)
+                        <div>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Results / Findings</span>
+                            <div class="mt-1 p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm text-gray-900 whitespace-pre-wrap font-mono">
+                                {{ $viewingLab->results_findings }}
+                            </div>
                         </div>
                     @endif
 
-                    <!-- Heart Rate -->
-                    @if($latestVitals->heart_rate)
-                        <div class="border-l-4 border-red-500 pl-3">
-                            <p class="text-xs text-gray-500">Heart Rate</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ $latestVitals->heart_rate }}</p>
-                            <p class="text-xs text-gray-500">bpm</p>
+                    @if($viewingLab->request_notes)
+                        <div>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Request Notes</span>
+                            <p class="text-xs text-gray-600 italic mt-1">{{ $viewingLab->request_notes }}</p>
                         </div>
                     @endif
 
-                    <!-- Temperature -->
-                    @if($latestVitals->temperature)
-                        <div class="border-l-4 border-orange-500 pl-3">
-                            <p class="text-xs text-gray-500">Temperature</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ $latestVitals->temperature }}</p>
-                            <p class="text-xs text-gray-500">°C</p>
+                    @if($viewingLab->attachment_path)
+                        <div>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Attachment</span>
+                            @php
+                                $extension = strtolower(pathinfo($viewingLab->attachment_path, PATHINFO_EXTENSION));
+                                $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                            @endphp
+
+                            @if($isImage)
+                                <div class="relative group overflow-hidden rounded-xl border border-gray-200 bg-gray-50 shadow-inner">
+                                    <img src="{{ asset('storage/' . $viewingLab->attachment_path) }}" 
+                                         alt="{{ $viewingLab->test_name }}" 
+                                         class="w-full h-auto object-cover max-h-60 rounded-xl transition-transform duration-300 hover:scale-105">
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                        <a href="{{ asset('storage/' . $viewingLab->attachment_path) }}" 
+                                           target="_blank" 
+                                           class="px-3 py-1.5 bg-white text-gray-900 rounded-lg text-xs font-bold shadow-md hover:bg-gray-100 transition-all flex items-center gap-1.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                            </svg>
+                                            Open Full View
+                                        </a>
+                                    </div>
+                                </div>
+                            @else
+                                <a href="{{ asset('storage/' . $viewingLab->attachment_path) }}" 
+                                   target="_blank" 
+                                   class="flex items-center gap-3 p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl text-red-700 transition-all group">
+                                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-red-500 shadow-sm group-hover:scale-105 transition-transform">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-bold truncate">View Lab PDF Document</p>
+                                        <p class="text-[10px] text-red-500/80 font-semibold uppercase tracking-wider">PDF Document</p>
+                                    </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-red-400 group-hover:translate-x-0.5 transition-transform">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                    </svg>
+                                </a>
+                            @endif
                         </div>
                     @endif
 
-                    <!-- Respiratory Rate -->
-                    @if($latestVitals->respiratory_rate)
-                        <div class="border-l-4 border-green-500 pl-3">
-                            <p class="text-xs text-gray-500">Respiratory Rate</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ $latestVitals->respiratory_rate }}</p>
-                            <p class="text-xs text-gray-500">/min</p>
-                        </div>
-                    @endif
+                    <div class="pt-4 border-t border-gray-100 flex justify-between text-[10px] text-gray-500 font-medium">
+                        <span>Ordered: {{ $viewingLab->requested_at->format('M d, Y') }}</span>
+                        @if($viewingLab->resulted_at)
+                            <span>Resulted: {{ $viewingLab->resulted_at->format('M d, Y') }}</span>
+                        @endif
+                    </div>
+                </div>
 
-                    <!-- Weight & Height -->
-                    <div class="grid grid-cols-2 gap-3">
-                        @if($latestVitals->weight)
-                            <div class="border-l-4 border-purple-500 pl-3">
-                                <p class="text-xs text-gray-500">Weight</p>
-                                <p class="text-xl font-bold text-gray-900">{{ $latestVitals->weight }}</p>
-                                <p class="text-xs text-gray-500">kg</p>
+                <!-- Footer -->
+                <div class="bg-gray-50 px-4 py-2 border-t border-gray-100">
+                    <button wire:click="closeLabDetail" class="w-full text-center text-xs font-bold text-purple-600 hover:text-purple-700">
+                        ← Back to Lab List
+                    </button>
+                </div>
+            </div>
+        </div>
+    @elseif($activeView === 'history_detail' && $viewingConsultation)
+        <!-- PAST CONSULTATION DETAIL VIEW (DUAL-VIEW) -->
+        <div 
+            x-data 
+            x-init="$el.style.opacity = '0'; $el.style.transform = 'translateX(20px)'; setTimeout(() => { $el.style.transition = 'all 0.3s ease-out'; $el.style.opacity = '1'; $el.style.transform = 'translateX(0)'; }, 10)">
+            
+            <div class="bg-white rounded-lg shadow-lg border-2 border-blue-100 overflow-hidden">
+                <!-- Header -->
+                <div class="bg-blue-600 px-4 py-3 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xs font-bold text-blue-100 uppercase tracking-widest">Past Consultation</h3>
+                        <p class="text-sm font-bold text-white">{{ $viewingConsultation->consultation_date->format('M d, Y') }}</p>
+                    </div>
+                    <button wire:click="closeHistoryDetail" class="text-white hover:text-blue-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-4 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                    <!-- Summary content (Reusing the summary style) -->
+                    <div class="space-y-4">
+                        <!-- Symptoms -->
+                        @if($viewingConsultation->selected_complaints)
+                            <div class="border-b border-gray-100 pb-3">
+                                <h4 class="text-[10px] font-black text-gray-400 uppercase mb-1">Subjective (Symptoms)</h4>
+                                <div class="flex flex-wrap gap-1">
+                                    @foreach($viewingConsultation->selected_complaints as $c)
+                                        <span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-[10px] font-medium">{{ $c }}</span>
+                                    @endforeach
+                                </div>
+                                @if($viewingConsultation->symptom_notes_final)
+                                    <div class="mt-2 text-xs text-gray-600 italic line-clamp-3">
+                                        {!! strip_tags($viewingConsultation->symptom_notes_final) !!}
+                                    </div>
+                                @endif
                             </div>
                         @endif
-                        @if($latestVitals->height)
-                            <div class="border-l-4 border-indigo-500 pl-3">
-                                <p class="text-xs text-gray-500">Height</p>
-                                <p class="text-xl font-bold text-gray-900">{{ $latestVitals->height }}</p>
-                                <p class="text-xs text-gray-500">cm</p>
+
+                        <!-- Diagnosis -->
+                        @if($viewingConsultation->diagnoses)
+                            <div class="border-b border-gray-100 pb-3">
+                                <h4 class="text-[10px] font-black text-gray-400 uppercase mb-1">Assessment (Diagnosis)</h4>
+                                <div class="space-y-1">
+                                    @foreach($viewingConsultation->diagnoses as $d)
+                                        <div class="text-xs font-bold text-gray-800">
+                                            <span class="text-blue-600">{{ $d['code'] }}</span> {{ $d['description'] }}
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Plan/Prescriptions -->
+                        @if($viewingConsultation->prescriptions)
+                            <div>
+                                <h4 class="text-[10px] font-black text-gray-400 uppercase mb-1">Plan (Prescriptions)</h4>
+                                <div class="space-y-2">
+                                    @foreach($viewingConsultation->prescriptions as $p)
+                                        <div class="p-2 bg-blue-50 rounded border border-blue-100">
+                                            <p class="text-xs font-bold text-blue-900">{{ $p['medicine_name'] }}</p>
+                                            <p class="text-[10px] text-blue-700">{{ $p['dosage'] }} - {{ $p['duration'] }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         @endif
                     </div>
-
-                    <p class="text-xs text-gray-400 text-center pt-2 border-t">
-                        Recorded {{ $latestVitals->created_at->diffForHumans() }}
-                    </p>
                 </div>
-            @else
-                <p class="text-sm text-gray-500 text-center py-8">No vitals recorded</p>
-            @endif
-        </div>
+
+                <!-- Footer -->
+                <div class="bg-gray-50 px-4 py-2 border-t border-gray-100">
+                    <button wire:click="closeHistoryDetail" class="w-full text-center text-xs font-bold text-blue-600 hover:text-blue-700">
+                        ← Back to Patient Info
+                    </button>
+                </div>
+            </div>
         </div>
     @endif
 </div>

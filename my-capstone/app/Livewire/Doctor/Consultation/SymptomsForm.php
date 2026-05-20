@@ -211,16 +211,101 @@ class SymptomsForm extends Component
         $this->dispatch('consultation-updated');
     }
 
+    public function insertPatientHistory()
+    {
+        $patient = $this->consultation->patient;
+        $history = "\n--- PATIENT HISTORY ---\n";
+        $hasData = false;
+        
+        // 1. Chronic Conditions
+        $conditions = \App\Models\MedicalCondition::whereHas('medicalRecords', function($q) use ($patient) {
+            $q->where('patient_id', $patient->id)
+              ->where('patient_conditions.status', 'active');
+        })->get();
+        
+        if ($conditions->count() > 0) {
+            $history .= "Chronic Conditions: " . $conditions->pluck('condition_name')->implode(', ') . "\n";
+            $hasData = true;
+        }
+        
+        // 2. Known Allergies
+        $patient->refresh(); // Ensure we have the latest data
+        $allergies = $patient->allergies;
+        if ($allergies->count() > 0) {
+            $history .= "Known Allergies: " . $allergies->pluck('allergen_name')->implode(', ') . "\n";
+            $hasData = true;
+        }
+
+        // 3. Family History
+        $familyHistory = $patient->medicalRecord ? $patient->medicalRecord->familyHistories : collect();
+        if ($familyHistory->count() > 0) {
+            $history .= "Family History: " . $familyHistory->pluck('condition')->implode(', ') . " (in relatives)\n";
+            $hasData = true;
+        }
+
+        // 4. Social History
+        $socialHistory = $patient->medicalRecord ? $patient->medicalRecord->socialHistories : collect();
+        if ($socialHistory->count() > 0) {
+            $history .= "Social History: ";
+            $history .= $socialHistory->map(function($sh) {
+                return $sh->type . ($sh->status ? ": " . $sh->status : "");
+            })->implode('; ') . "\n";
+            $hasData = true;
+        }
+
+        // 5. Previous Diagnoses (from past visits)
+        $pastConsultations = $patient->consultations()
+            ->where('status', 'completed')
+            ->where('id', '!=', $this->consultation->id)
+            ->latest()
+            ->take(3)
+            ->get();
+            
+        if ($pastConsultations->count() > 0) {
+            $history .= "Recent Diagnoses: \n";
+            foreach($pastConsultations as $past) {
+                if ($past->diagnoses) {
+                    foreach($past->diagnoses as $diag) {
+                        $history .= "  • " . $diag['description'] . " (" . $past->consultation_date->format('M d, Y') . ")\n";
+                        $hasData = true;
+                    }
+                }
+            }
+        }
+        
+        if (!$hasData) {
+            $this->dispatch('show-toast', message: 'No clinical history found for this patient.', type: 'info');
+            return;
+        }
+        
+        $this->dispatch('insert-into-editor', content: $history);
+    }
+
+    public function insertLatestVitals()
+    {
+        $vitals = $this->consultation->patient->vitalSigns()->latest()->first();
+        if ($vitals) {
+            $snippet = "\n--- LATEST VITALS ---\n";
+            $snippet .= "BP: {$vitals->blood_pressure_systolic}/{$vitals->blood_pressure_diastolic} mmHg, ";
+            $snippet .= "HR: {$vitals->heart_rate} bpm, ";
+            $snippet .= "Temp: {$vitals->temperature}°C\n";
+            
+            $this->dispatch('insert-into-editor', content: $snippet);
+        } else {
+            $this->dispatch('show-toast', message: 'No vital signs recorded for this patient.', type: 'info');
+        }
+    }
+
     public function continueToExamination()
     {
-        // Validate
-        $this->validate([
-            'selectedComplaints' => 'required_without:symptomNotesManual|array|min:1',
-            'symptomNotesManual' => 'required_without:selectedComplaints|string',
-        ], [
-            'selectedComplaints.required_without' => 'Please select at least one complaint or enter manual notes.',
-            'symptomNotesManual.required_without' => 'Please select at least one complaint or enter manual notes.',
-        ]);
+        // Check if we have documentation
+        $hasComplaints = !empty($this->selectedComplaints);
+        $hasNotes = !empty(trim(strip_tags($this->symptomNotesManual)));
+
+        if (!$hasComplaints && !$hasNotes) {
+            $this->dispatch('show-toast', message: 'Please select symptoms or enter clinical notes before continuing.', type: 'error');
+            return;
+        }
         
         // Save before continuing
         $this->saveDraft();
@@ -229,8 +314,7 @@ class SymptomsForm extends Component
         $this->consultation->update(['current_section' => 'examination']);
         
         // Redirect to examination section
-        session()->flash('success', 'Symptoms section completed. Moving to examination.');
-        return redirect()->route('consultations.show', $this->consultation);
+        return redirect()->route('consultations.show', ['consultation' => $this->consultation]);
     }
 
     public function autoSave()

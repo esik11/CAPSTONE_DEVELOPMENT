@@ -30,6 +30,63 @@ class MedicalRecord extends Model
     ];
 
     /**
+     * The attributes that should be cast.
+     */
+    protected $casts = [
+        'visit_date' => 'date',
+        'chief_complaint' => 'encrypted',
+        'history_of_present_illness' => 'encrypted',
+        'review_of_systems' => 'encrypted',
+        'talking_points' => 'encrypted',
+    ];
+
+    /**
+     * Boot the model and add event listeners for audit logging.
+     */
+    protected static function booted()
+    {
+        static::created(function ($medicalRecord) {
+            $patientName = $medicalRecord->patient ? ($medicalRecord->patient->first_name . ' ' . $medicalRecord->patient->last_name) : 'Patient ID: ' . $medicalRecord->patient_id;
+            AuditLog::log(
+                $medicalRecord,
+                'created',
+                'Medical record history created for patient ' . $patientName,
+                null,
+                $medicalRecord->toArray()
+            );
+        });
+
+        static::updated(function ($medicalRecord) {
+            $changes = $medicalRecord->getChanges();
+            $original = $medicalRecord->getOriginal();
+            
+            unset($changes['updated_at'], $changes['created_at']);
+            
+            if (!empty($changes)) {
+                $oldValues = array_intersect_key($original, $changes);
+                $patientName = $medicalRecord->patient ? ($medicalRecord->patient->first_name . ' ' . $medicalRecord->patient->last_name) : 'Patient ID: ' . $medicalRecord->patient_id;
+                
+                AuditLog::log(
+                    $medicalRecord,
+                    'updated',
+                    'Medical record history for patient ' . $patientName . ' updated',
+                    $oldValues,
+                    $changes
+                );
+            }
+        });
+
+        static::deleted(function ($medicalRecord) {
+            $patientName = $medicalRecord->patient ? ($medicalRecord->patient->first_name . ' ' . $medicalRecord->patient->last_name) : 'Patient ID: ' . $medicalRecord->patient_id;
+            AuditLog::log(
+                $medicalRecord,
+                'deleted',
+                'Medical record history for patient ' . $patientName . ' deleted'
+            );
+        });
+    }
+
+    /**
      * Get the patient that owns the medical record.
      */
     public function patient(): BelongsTo

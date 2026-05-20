@@ -1,17 +1,8 @@
 <x-doctor-layout>
     <x-slot name="header">
-        <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-                </svg>
-            </div>
-            <div>
-                <h2 class="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
-                    {{ __('Patients') }}
-                </h2>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Manage patient records and medical history</p>
-            </div>
+        <div>
+            <h2 class="text-xl font-bold text-gray-900">Patients</h2>
+            <p class="text-sm text-gray-500 mt-0.5">Manage patient records and medical history</p>
         </div>
     </x-slot>
 
@@ -19,60 +10,64 @@
         <!-- Statistics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                     <!-- Total Patients -->
-                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-4 text-white">
+                    <div class="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-all duration-200 group relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-teal-500 rounded-l-xl"></div>
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-blue-100 text-xs font-medium">Total Patients</p>
-                                <p class="text-2xl font-bold mt-1">{{ $patients->total() }}</p>
+                                <p class="text-gray-500 text-xs font-medium uppercase tracking-wide">Total Patients</p>
+                                <p class="text-2xl font-bold text-gray-900 mt-1">{{ $patients->total() }}</p>
                             </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            <div class="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center group-hover:bg-teal-100 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-teal-600">
+                                    <path d="M8.25 6.75a3.75 3.75 0 117.5 0 3.75 3.75 0 01-7.5 0zM15.75 9.75a3 3 0 116 0 3 3 0 01-6 0zM2.25 9.75a3 3 0 116 0 3 3 0 01-6 0zM6.31 15.117A6.745 6.745 0 0112 12a6.745 6.745 0 016.709 7.498.75.75 0 01-.372.568A12.696 12.696 0 0112 21.75a12.696 12.696 0 01-6.337-1.684.75.75 0 01-.372-.568 6.787 6.787 0 011.019-4.38z" />
                                 </svg>
                             </div>
                         </div>
                     </div>
 
                     <!-- Active Patients -->
-                    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-4 text-white">
+                    <div class="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-all duration-200 group relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 rounded-l-xl"></div>
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-green-100 text-xs font-medium">Active Patients</p>
-                                <p class="text-2xl font-bold mt-1">{{ \App\Models\Patient::where('status', 'active')->count() }}</p>
+                                <p class="text-gray-500 text-xs font-medium uppercase tracking-wide">Active Patients</p>
+                                <p class="text-2xl font-bold text-gray-900 mt-1">{{ \App\Models\Patient::where('status', 'active')->count() }}</p>
                             </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-emerald-600">
+                                    <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
                                 </svg>
                             </div>
                         </div>
                     </div>
 
                     <!-- Male Patients -->
-                    <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-lg p-4 text-white">
+                    <div class="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-all duration-200 group relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-violet-500 rounded-l-xl"></div>
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-indigo-100 text-xs font-medium">Male Patients</p>
-                                <p class="text-2xl font-bold mt-1">{{ \App\Models\Patient::where('gender', 'Male')->count() }}</p>
+                                <p class="text-gray-500 text-xs font-medium uppercase tracking-wide">Male Patients</p>
+                                <p class="text-2xl font-bold text-gray-900 mt-1">{{ \App\Models\Patient::where('gender', 'Male')->count() }}</p>
                             </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                            <div class="w-10 h-10 bg-violet-50 rounded-xl flex items-center justify-center group-hover:bg-violet-100 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-violet-600">
+                                    <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clip-rule="evenodd" />
                                 </svg>
                             </div>
                         </div>
                     </div>
 
                     <!-- Female Patients -->
-                    <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl shadow-lg p-4 text-white">
+                    <div class="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-all duration-200 group relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-rose-500 rounded-l-xl"></div>
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-pink-100 text-xs font-medium">Female Patients</p>
-                                <p class="text-2xl font-bold mt-1">{{ \App\Models\Patient::where('gender', 'Female')->count() }}</p>
+                                <p class="text-gray-500 text-xs font-medium uppercase tracking-wide">Female Patients</p>
+                                <p class="text-2xl font-bold text-gray-900 mt-1">{{ \App\Models\Patient::where('gender', 'Female')->count() }}</p>
                             </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                            <div class="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center group-hover:bg-rose-100 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-rose-600">
+                                    <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clip-rule="evenodd" />
                                 </svg>
                             </div>
                         </div>
@@ -92,9 +87,9 @@
                     </div>
                 @endif
 
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-xl border border-gray-200 flex-1 flex flex-col">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-100 flex-1 flex flex-col">
                     <!-- Header with Search, Filter, and Add Button -->
-                    <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                    <div class="p-4 border-b border-gray-100 bg-gray-50/50">
                         <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
                             <!-- Search and Filter -->
                             <div class="flex flex-col sm:flex-row gap-3 flex-1">
@@ -120,7 +115,7 @@
                             
                             <!-- Add New Patient Button -->
                             <div class="w-auto">
-                                <a href="{{ route('patients.create') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold rounded-lg shadow-lg shadow-teal-500/50 transition-all duration-200 hover:shadow-xl hover:shadow-teal-500/60 w-full lg:w-auto whitespace-nowrap">
+                                <a href="{{ route('patients.create') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg shadow-sm transition-all duration-200 w-full lg:w-auto whitespace-nowrap">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
@@ -132,7 +127,7 @@
 
                     <div class="overflow-x-auto flex-1">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gradient-to-r from-gray-100 to-gray-50">
+                            <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Photo</th>
                                     <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">Patient Name</th>
@@ -145,7 +140,7 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200" id="patients-table-body">
                                     @forelse ($patients as $patient)
-                                        <tr class="hover:bg-gradient-to-r hover:from-teal-50 hover:to-emerald-50 transition-all duration-200 cursor-pointer group" onclick="window.location='{{ route('patients.show', $patient) }}'">
+                                        <tr class="hover:bg-gray-50 transition-colors duration-150 cursor-pointer group" onclick="window.location='{{ route('patients.show', $patient) }}'">
                                             <td class="px-4 py-3 whitespace-nowrap">
                                                 @if ($patient->photo)
                                                     <img src="{{ Storage::url($patient->photo) }}" alt="Patient Photo" class="w-12 h-12 object-cover rounded-full border-2 border-gray-200 group-hover:border-teal-400 transition-colors shadow-sm">

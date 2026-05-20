@@ -19,6 +19,15 @@ if (document.getElementById('doctor-calendar') || document.getElementById('docto
     });
 }
 
+// Conditionally import availability painter functionality
+if (document.getElementById('availability-calendar')) {
+    import('./doctor-availability.js').then(module => {
+        console.log('Availability painter module loaded');
+    }).catch(err => {
+        console.error('Error loading availability painter module:', err);
+    });
+}
+
 window.initializeFlatpickr = () => {
     flatpickr(".flatpickr", {
         altInput: true,

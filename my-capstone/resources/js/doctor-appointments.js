@@ -60,6 +60,17 @@ function initCalendar() {
             center: 'title',
             right: 'timeGridWeek,timeGridDay'
         },
+        datesSet: function(info) {
+            // Timezone offset correction to match local YYYY-MM-DD
+            const offsetMs = info.view.currentStart.getTimezoneOffset() * 60000;
+            const localDate = new Date(info.view.currentStart.getTime() - offsetMs)
+                .toISOString()
+                .split('T')[0];
+            
+            if (typeof window.onCalendarDateChange === 'function') {
+                window.onCalendarDateChange(localDate);
+            }
+        },
         slotMinTime: '08:00:00', // Start at 8 AM
         slotMaxTime: '20:00:00', // End at 8 PM
         slotDuration: '00:30:00', // 30-minute slots

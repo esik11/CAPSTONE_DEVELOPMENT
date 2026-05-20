@@ -24,7 +24,7 @@ class AppointmentController extends Controller
 
     public function create()
     {
-        $doctors = User::where('role', 'doctor')->get();
+        $doctors = User::where('role', 'doctor')->with('availabilities')->get();
         $medicalConditions = MedicalCondition::all();
 
         return view('patient.appointments.create', compact('doctors', 'medicalConditions'));
@@ -45,6 +45,20 @@ class AppointmentController extends Controller
                 'urgency_priority' => 'required|in:routine,urgent,emergency',
                 'consent' => 'accepted',
             ]);
+
+            // Combine date and time to create start_time and end_time
+            $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $validatedData['appointment_date'] . ' ' . $validatedData['start_time']);
+            $endDateTime = Carbon::createFromFormat('Y-m-d H:i', $validatedData['appointment_date'] . ' ' . $validatedData['end_time']);
+
+            // --- AVAILABILITY CHECK ---
+            $tempAppointment = new Appointment([
+                'doctor_id' => $validatedData['doctor_id'],
+                'start_time' => $startDateTime,
+                'end_time' => $endDateTime,
+            ]);
+
+            $hasConflict = !$tempAppointment->isWithinDoctorAvailability();
+            // ---------------------------
 
             // Get or create patient record
             $patient = $user->patient;
@@ -98,6 +112,12 @@ class AppointmentController extends Controller
                 'mode' => ucfirst($validatedData['appointment_mode']),
                 'reason' => $validatedData['symptoms_complaint'] ?? 'N/A',
             ];
+
+            // Notify all assistants of the new request
+            $assistants = \App\Models\User::where('role', 'assistant')->get();
+            foreach ($assistants as $assistant) {
+                $assistant->notify(new \App\Notifications\NewAppointmentRequest($appointment));
+            }
 
             return redirect()->route('patient.appointments.index')
                 ->with(['success' => 'Appointment request submitted successfully.', 'bookingDetails' => $bookingDetails]);
@@ -162,7 +182,7 @@ class AppointmentController extends Controller
                 'status' => 'pending',
             ]);
 
-            return redirect()->route('patient.appointments.show', $appointment->id)
+            return redirect()->route('patient.appointments.index')
                 ->with('success', 'Appointment rescheduled successfully. Waiting for doctor\'s approval.');
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();

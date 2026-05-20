@@ -1,355 +1,224 @@
 <x-patient-layout>
-    <x-slot name="header">
-        <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                </svg>
-            </div>
-            <div>
-                <h2 class="font-bold text-2xl text-gray-900 dark:text-white leading-tight">
-                    {{ __('My Appointments') }}
-                </h2>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-0.5">View and manage your appointments</p>
-            </div>
-        </div>
-    </x-slot>
+    <x-slot name="title">My Appointments</x-slot>
+    <x-slot name="subtitle">View and manage your clinical schedule</x-slot>
 
-    <x-slot name="headerActions">
-        <a href="{{ route('patient.appointments.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    <div class="mt-6">
+        @if(session('success'))
+            <div class="mb-6 bg-emerald-50 border border-emerald-100 p-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm border border-emerald-200">
+                    <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <p class="text-emerald-900 text-sm font-bold tracking-tight">{{ session('success') }}</p>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 border border-red-100 p-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm border border-red-200">
+                    <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <p class="text-red-900 text-sm font-bold tracking-tight">{{ session('error') }}</p>
+            </div>
+        @endif
+    </div>
+
+    <div class="mb-6 flex justify-end">
+        <a href="{{ route('patient.appointments.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
             </svg>
-            Book Appointment
+            Book New Appointment
         </a>
-    </x-slot>
+    </div>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            @if(session('success'))
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-xl shadow-lg overflow-hidden" x-data="{ show: true }" x-show="show" x-transition>
-                    <div class="p-6">
-                        <div class="flex items-start justify-between">
-                            <div class="flex items-start gap-4 flex-1">
-                                <div class="flex-shrink-0">
-                                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column: Calendar & Timeline -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Calendar Component Placeholder -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-6 bg-emerald-500 rounded-full"></div>
+                        <h3 class="font-bold text-gray-900 tracking-tight">Appointment Calendar</h3>
+                    </div>
+                </div>
+                <div id="patient-calendar" class="min-h-[400px]"></div>
+            </div>
+
+            @php $pendingAppts = $appointments->where('status', 'pending'); @endphp
+            @if($pendingAppts->count() > 0)
+                <div class="bg-white rounded-2xl border border-amber-100 shadow-sm p-6 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-amber-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                    <div class="relative flex items-start gap-4">
+                        <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
+                                <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-900 mb-1">Approval in Progress</h4>
+                            <p class="text-xs text-gray-500 leading-relaxed mb-4">We've received your request. The clinic assistant will review and confirm your slot shortly.</p>
+                            
+                            <div class="flex items-center gap-4">
+                                <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-amber-500 w-2/3 rounded-full"></div>
                                 </div>
-                                <div class="flex-1">
-                                    <h3 class="text-lg font-bold text-gray-900 mb-1">Appointment Booked Successfully!</h3>
-                                    <p class="text-sm text-gray-600 mb-4">Your appointment request has been submitted and is pending doctor approval.</p>
-                                    
-                                    @if(session('bookingDetails'))
-                                        <div class="bg-white rounded-lg p-4 border border-green-200">
-                                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Appointment Details</h4>
-                                            <div class="grid grid-cols-2 gap-3 text-sm">
-                                                <div>
-                                                    <p class="text-gray-500 text-xs">Doctor</p>
-                                                    <p class="font-semibold text-gray-900">Dr. {{ session('bookingDetails')['doctorName'] }}</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-gray-500 text-xs">Date</p>
-                                                    <p class="font-semibold text-gray-900">{{ session('bookingDetails')['date'] }}</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-gray-500 text-xs">Time</p>
-                                                    <p class="font-semibold text-gray-900">{{ session('bookingDetails')['time'] }}</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-gray-500 text-xs">Mode</p>
-                                                    <p class="font-semibold text-gray-900">{{ session('bookingDetails')['mode'] }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="mt-4 flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <div class="text-xs text-blue-800">
-                                                <p class="font-semibold mb-1">What's Next?</p>
-                                                <ul class="space-y-1">
-                                                    <li>• You'll receive a notification once the doctor approves</li>
-                                                    <li>• Check your email for confirmation details</li>
-                                                    <li>• Arrive 10 minutes early for in-clinic visits</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
+                                <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Reviewing</span>
                             </div>
-                            <button @click="show = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
                         </div>
                     </div>
                 </div>
             @endif
 
-            <!-- Calendar and Appointments Layout -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Calendar and Info (Left - 2 columns) -->
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Calendar -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                        <div id="patient-calendar"></div>
-                    </div>
-
-                    @if($appointments->where('status', 'pending')->count() > 0)
-                    <!-- Pending Appointments Info -->
-                    <div class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-sm border border-amber-200 dark:border-gray-600 p-6">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Appointment Pending Approval</h3>
-                                <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">Your appointment request is being reviewed by the doctor. You'll be notified once it's confirmed.</p>
-                                
-                                <!-- Status Timeline -->
-                                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">Approval Progress</span>
-                                        <span class="text-xs text-gray-500 dark:text-gray-500">Typically within 24 hours</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 flex items-center gap-2">
-                                            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            </div>
-                                            <div class="flex-1 h-1 bg-amber-300 rounded"></div>
-                                        </div>
-                                        <div class="flex-1 flex items-center gap-2">
-                                            <div class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center animate-pulse">
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
-                                            </div>
-                                            <div class="flex-1 h-1 bg-gray-200 dark:bg-gray-600 rounded"></div>
-                                        </div>
-                                        <div class="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center justify-between mt-2 text-xs">
-                                        <span class="text-green-600 dark:text-green-400 font-semibold">Submitted</span>
-                                        <span class="text-amber-600 dark:text-amber-400 font-semibold">Under Review</span>
-                                        <span class="text-gray-400">Confirmed</span>
-                                    </div>
-                                </div>
-
-                                <!-- Preparation Checklist -->
-                                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
-                                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                        </svg>
-                                        Prepare for Your Appointment
-                                    </h4>
-                                    <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span>List your current medications and dosages</span>
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span>Note down your symptoms and when they started</span>
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span>Prepare questions you want to ask the doctor</span>
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span>Bring any relevant medical records or test results</span>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <!-- Quick Actions -->
-                                <div class="flex flex-wrap gap-3">
-                                    <button onclick="window.location.reload()" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                        </svg>
-                                        Refresh Status
-                                    </button>
-                                    <a href="mailto:support@clinic.com" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                        </svg>
-                                        Contact Support
-                                    </a>
-                                </div>
-                            </div>
+            <!-- Preparation Checklist -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <h3 class="font-bold text-gray-900 tracking-tight mb-6 flex items-center gap-2">
+                    <div class="w-2 h-6 bg-blue-500 rounded-full"></div>
+                    Pre-Visit Checklist
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-start gap-3 p-4 rounded-xl border border-gray-50 bg-gray-50/30">
+                        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-blue-600 shadow-sm flex-shrink-0 mt-0.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-900">Medical History</p>
+                            <p class="text-[10px] text-gray-500 mt-1">List your current medications and dosages</p>
                         </div>
                     </div>
-                    @endif
-
-                    @if($appointments->where('status', 'confirmed')->count() > 0)
-                    <!-- Upcoming Confirmed Appointments -->
-                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-sm border border-green-200 dark:border-gray-600 p-6">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Appointment Confirmed!</h3>
-                                <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">Your appointment has been confirmed. Here's what you need to know:</p>
-                                
-                                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 space-y-3">
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                                            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Arrive Early</p>
-                                            <p class="text-xs text-gray-600 dark:text-gray-400">Please arrive 10-15 minutes before your scheduled time</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                                            <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Bring ID & Insurance</p>
-                                            <p class="text-xs text-gray-600 dark:text-gray-400">Valid ID and insurance card (if applicable)</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-8 h-8 bg-amber-100 dark:bg-amber-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                                            <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Notification Sent</p>
-                                            <p class="text-xs text-gray-600 dark:text-gray-400">Check your email for appointment details and reminders</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="flex items-start gap-3 p-4 rounded-xl border border-gray-50 bg-gray-50/30">
+                        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-blue-600 shadow-sm flex-shrink-0 mt-0.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-900">Symptoms Note</p>
+                            <p class="text-[10px] text-gray-500 mt-1">Note down when your symptoms started</p>
                         </div>
                     </div>
-                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Appointment List -->
+        <div class="space-y-6">
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-24">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-bold text-gray-900 tracking-tight">Appointments</h3>
+                    <div class="flex gap-1 bg-gray-100 p-1 rounded-lg">
+                        <button onclick="filterAppointments('upcoming')" class="filter-btn active px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all">Upcoming</button>
+                        <button onclick="filterAppointments('all')" class="filter-btn px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all">All</button>
+                    </div>
                 </div>
 
-                <!-- Appointments List (Right - 1 column) -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">My Appointments</h3>
-                    
-                    <!-- Filter Tabs -->
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <button onclick="filterAppointments('upcoming')" class="filter-btn active px-3 py-1.5 rounded-lg font-medium text-xs transition-colors">
-                            Upcoming
-                        </button>
-                        <button onclick="filterAppointments('pending')" class="filter-btn px-3 py-1.5 rounded-lg font-medium text-xs transition-colors">
-                            Pending
-                        </button>
-                        <button onclick="filterAppointments('all')" class="filter-btn px-3 py-1.5 rounded-lg font-medium text-xs transition-colors">
-                            All
-                        </button>
-                    </div>
-
-                    <!-- Appointments List -->
-                    <div class="space-y-3 max-h-[600px] overflow-y-auto" id="appointments-container">
-                @forelse($appointments as $appointment)
-                    <div class="appointment-card bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer" 
-                         data-status="{{ $appointment->status }}"
-                         data-date="{{ $appointment->start_time->format('Y-m-d') }}"
-                         onclick="window.location='{{ route('patient.appointments.show', $appointment) }}'">
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="flex-1 min-w-0">
-                                <p class="font-semibold text-sm text-gray-900 dark:text-white truncate">
-                                    Dr. {{ $appointment->doctor->name }}
-                                </p>
-                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                                    {{ $appointment->start_time->format('M d, g:i A') }}
-                                </p>
-                                <p class="text-xs text-gray-500 dark:text-gray-500 mt-1 truncate">
-                                    {{ $appointment->reason }}
-                                </p>
+                <div class="space-y-4 max-h-[calc(100vh-350px)] overflow-y-auto pr-2 custom-scrollbar" id="appointments-container">
+                    @forelse($appointments as $appointment)
+                        <div class="appointment-card group bg-white rounded-xl border border-gray-100 p-4 hover:border-emerald-100 hover:shadow-md transition-all relative overflow-hidden"
+                             data-status="{{ $appointment->status }}"
+                             data-date="{{ $appointment->start_time->format('Y-m-d') }}">
+                            
+                            @php
+                                $accentColor = [
+                                    'pending' => 'bg-amber-500',
+                                    'confirmed' => 'bg-emerald-500',
+                                    'checked_in' => 'bg-blue-500',
+                                    'completed' => 'bg-gray-400',
+                                    'cancelled' => 'bg-red-500',
+                                ][$appointment->status] ?? 'bg-gray-300';
+                            @endphp
+                            <div class="absolute left-0 top-0 bottom-0 w-1 {{ $accentColor }} opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-bold text-gray-900 truncate group-hover:text-emerald-700 transition-colors">Dr. {{ $appointment->doctor->name }}</p>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ $appointment->start_time->format('M d') }}</span>
+                                        <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ $appointment->start_time->format('h:i A') }}</span>
+                                    </div>
+                                    <p class="text-[10px] text-gray-500 mt-2 line-clamp-1 italic">{{ $appointment->reason }}</p>
+                                </div>
+                                
+                                @php
+                                    $statusClasses = [
+                                        'pending' => 'bg-amber-50 text-amber-600 border-amber-100',
+                                        'confirmed' => 'bg-emerald-50 text-emerald-600 border-emerald-100',
+                                        'checked_in' => 'bg-blue-50 text-blue-600 border-blue-100',
+                                        'completed' => 'bg-gray-50 text-gray-600 border-gray-100',
+                                        'cancelled' => 'bg-red-50 text-red-600 border-red-100',
+                                    ];
+                                    $currentClass = $statusClasses[$appointment->status] ?? 'bg-gray-50 text-gray-600';
+                                @endphp
+                                <span class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border {{ $currentClass }}">
+                                    {{ $appointment->status }}
+                                </span>
                             </div>
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0 {{ 
-                                $appointment->status === 'confirmed' ? 'bg-green-100 text-green-700' : 
-                                ($appointment->status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
-                                ($appointment->status === 'completed' ? 'bg-blue-100 text-blue-700' : 
-                                ($appointment->status === 'cancelled' ? 'bg-red-100 text-red-700' : 
-                                'bg-gray-100 text-gray-700'))) 
-                            }}">
-                                {{ ucfirst($appointment->status) }}
-                            </span>
                         </div>
-                    </div>
-                @empty
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
-                        <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No appointments yet</h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-4">Book your first appointment to get started</p>
-                        <a href="{{ route('patient.appointments.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                            </svg>
-                            Book Appointment
-                        </a>
-                    </div>
-                @endforelse
+                    @empty
+                        <div class="py-12 text-center">
+                            <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100 shadow-inner">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-6 h-6 text-gray-300">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                                </svg>
+                            </div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">No Appointments</p>
+                        </div>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>
 
     <style>
-        .filter-btn {
-            background-color: #f3f4f6;
-            color: #6b7280;
-        }
-        .filter-btn:hover {
-            background-color: #e5e7eb;
-        }
-        .filter-btn.active {
-            background-color: #3b82f6;
-            color: white;
-        }
+        .filter-btn { color: #9ca3af; }
+        .filter-btn:hover { color: #4b5563; }
+        .filter-btn.active { background-color: white; color: #10b981; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
     </style>
 
+    @push('scripts')
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('patient-calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+                events: [
+                    @foreach($appointments as $appointment)
+                    {
+                        title: 'Dr. {{ $appointment->doctor->name }}',
+                        start: '{{ $appointment->start_time->toIso8601String() }}',
+                        end: '{{ $appointment->end_time->toIso8601String() }}',
+                        color: '{{ $appointment->status === "confirmed" ? "#10b981" : ($appointment->status === "pending" ? "#f59e0b" : "#94a3b8") }}'
+                    },
+                    @endforeach
+                ],
+                eventClick: function(info) {
+                    if (info.event.url) {
+                        window.location.href = info.event.url;
+                        return false;
+                    }
+                }
+            });
+            calendar.render();
+        });
+
         function filterAppointments(filter) {
             const cards = document.querySelectorAll('.appointment-card');
             const buttons = document.querySelectorAll('.filter-btn');
             const today = new Date().toISOString().split('T')[0];
 
-            // Update active button
             buttons.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
@@ -358,29 +227,15 @@
                 const date = card.dataset.date;
                 let show = false;
 
-                switch(filter) {
-                    case 'all':
-                        show = true;
-                        break;
-                    case 'upcoming':
-                        show = date >= today && (status === 'pending' || status === 'confirmed');
-                        break;
-                    case 'pending':
-                        show = status === 'pending';
-                        break;
-                    case 'confirmed':
-                        show = status === 'confirmed';
-                        break;
-                    case 'completed':
-                        show = status === 'completed';
-                        break;
-                    case 'cancelled':
-                        show = status === 'cancelled';
-                        break;
+                if (filter === 'all') {
+                    show = true;
+                } else if (filter === 'upcoming') {
+                    show = date >= today && status !== 'cancelled' && status !== 'completed';
                 }
 
                 card.style.display = show ? 'block' : 'none';
             });
         }
     </script>
+    @endpush
 </x-patient-layout>

@@ -16,10 +16,10 @@ class Patient
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->patient) {
+        if (Auth::check() && Auth::user()->role === 'patient') {
             return $next($request);
         }
 
-        return redirect('/dashboard'); // Redirect to a default dashboard or login if not a patient
+        abort(403, 'Unauthorized. Patient access only.');
     }
 }

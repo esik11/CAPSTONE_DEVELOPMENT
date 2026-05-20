@@ -13,7 +13,7 @@ class AppointmentController extends Controller
     {
         $doctor = Auth::user();
         $appointments = Appointment::where('doctor_id', $doctor->id)
-                                ->with(['patient.user', 'patient.medicalRecords'])
+                                ->with(['patient.user', 'patient.medicalRecords', 'reschedules'])
                                 ->orderBy('start_time', 'asc')
                                 ->get();
 
@@ -102,6 +102,7 @@ class AppointmentController extends Controller
             ]);
         }
 
-        return redirect()->route('consultations.show', $consultation->id);
+        return redirect()->route('patients.show', $appointment->patient_id)
+            ->with('success', 'Consultation initiated! Please review and update the patient\'s medical history, allergies, and vitals here, then click "Resume Consult" at the top right to proceed to the active consultation sheet.');
     }
 }

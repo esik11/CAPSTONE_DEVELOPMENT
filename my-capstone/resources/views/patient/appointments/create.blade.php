@@ -1,536 +1,236 @@
 <x-patient-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Schedule Your Visit</h1>
-                <p class="text-sm text-gray-600 mt-0.5">Book an appointment with our healthcare professionals</p>
+    <x-slot name="title">Schedule Your Visit</x-slot>
+    <x-slot name="subtitle">Choose a doctor and pick your preferred time slot</x-slot>
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Progress Indicator -->
+        <div class="mb-10 flex items-center justify-center">
+            <div class="flex items-center gap-4 bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-bold">1</div>
+                    <span class="text-[10px] font-bold text-gray-900 uppercase tracking-widest">Selection</span>
+                </div>
+                <div class="w-8 h-[2px] bg-gray-100"></div>
+                <div class="flex items-center gap-2 opacity-40">
+                    <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-500 text-[10px] flex items-center justify-center font-bold">2</div>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Confirmation</span>
+                </div>
             </div>
         </div>
-    </x-slot>
 
-    <div class="min-h-screen flex flex-col appointment-booking-container">
-        <!-- Progress Steps -->
-        <div class="progress-steps">
-            <button type="button" id="step1" class="progress-step completed">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
-                <span class="text-white">Select Doctor</span>
-            </button>
-            
-            <button type="button" id="step2" class="progress-step active">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <span class="text-white">Pick Time</span>
-            </button>
-            
-            <button type="button" id="step3" class="progress-step pending">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span class="text-white">Confirm Details</span>
-            </button>
-        </div>
+        @if($errors->any())
+            <div class="mb-6 bg-red-50 border border-red-100 p-4 rounded-xl flex flex-col gap-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <p class="text-red-900 text-sm font-bold">Booking Error Detected</p>
+                </div>
+                <ul class="list-disc list-inside text-xs text-red-700 pl-11 space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-        <form action="{{ route('patient.appointments.store') }}" method="POST" class="appointment-form-grid">
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 border border-red-100 p-4 rounded-xl flex items-center gap-3">
+                <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <p class="text-red-900 text-sm font-semibold">{{ session('error') }}</p>
+            </div>
+        @endif
+
+        <form action="{{ route('patient.appointments.store') }}" method="POST" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             @csrf
 
-            <!-- Column 1: Select Doctor -->
-            <div id="column1" class="appointment-column">
-                <div class="flex items-center gap-2 mb-4">
-                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                    <h2 class="text-base font-bold text-white">Select Your Doctor</h2>
-                </div>
-
-                <div class="space-y-2.5 mb-4 flex-shrink-0">
-                    @foreach($doctors as $index => $doctor)
-                    <button type="button" onclick="selectDoctor({{ $doctor->id }}, '{{ $doctor->name }}', '{{ $index }}')" 
-                            class="doctor-card w-full p-4 rounded-lg text-left transition-all {{ $index === 0 ? 'bg-blue-600' : 'bg-slate-700/70 hover:bg-slate-600' }}"
-                            data-doctor-id="{{ $doctor->id }}">
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
-                                {{ substr($doctor->name, 0, 1) }}
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <h3 class="text-white font-semibold text-sm">Dr. {{ $doctor->name }}</h3>
-                                <p class="text-gray-400 text-xs">General Medicine</p>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span class="text-yellow-400 text-xs">★ 4.{{ 7 + $index }}</span>
-                                    <span class="text-green-400 text-xs">Next: Dec {{ 8 + $index }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </button>
-                    @endforeach
-                </div>
-
-                <div id="doctorInfo" class="p-4 bg-blue-900/40 rounded-lg border border-blue-700/50 flex-grow">
-                    <h3 class="text-white font-semibold mb-3 text-sm">Doctor Info</h3>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Specialization:</span>
-                            <span class="text-white" id="docSpecialty">Cardiology</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Rating:</span>
-                            <span class="text-white" id="docRating">4.9/5.0</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Next Available:</span>
-                            <span class="text-white" id="docNext">Dec 9</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <input type="hidden" name="doctor_id" id="doctor_id" value="{{ $doctors->first()->id ?? '' }}" required>
-                @error('doctor_id')
-                    <p class="text-xs text-red-400 mt-2">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Column 2: Schedule Time -->
-            <div id="column2" class="appointment-column active">
-                <div class="flex items-center gap-2 mb-4">
-                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <h2 class="text-base font-bold text-white">Pick Date & Time</h2>
-                </div>
-
-                <!-- Calendar -->
-                <div class="mb-4 flex-shrink-0">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-white font-semibold text-sm" id="current-month">December 2025</h3>
-                        <div class="flex gap-1">
-                            <button type="button" id="prev-month" class="p-1.5 hover:bg-slate-700 rounded">
-                                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                </svg>
-                            </button>
-                            <button type="button" id="next-month" class="p-1.5 hover:bg-slate-700 rounded">
-                                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="calendar-grid" id="calendar"></div>
-                    <p class="text-gray-400 text-xs flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
-                        Available dates
-                    </p>
-                    <input type="hidden" name="appointment_date" id="appointment_date" required>
-                    @error('appointment_date')
-                        <p class="text-xs text-red-400 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Time Selection -->
-                <div id="timeSelection" class="mb-3 flex-grow flex flex-col">
-                    <h3 class="text-white font-semibold mb-3 flex items-center gap-1 text-sm">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        Select Your Time
+            <!-- Left Column: Doctor Selection -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                    <h3 class="font-bold text-gray-900 tracking-tight mb-4 flex items-center gap-2">
+                        <div class="w-2 h-6 bg-emerald-500 rounded-full"></div>
+                        Choose a Physician
                     </h3>
                     
                     <div class="space-y-3">
-                        <!-- Start Time -->
-                        <div>
-                            <label class="text-gray-300 text-sm mb-1.5 block">Start Time *</label>
-                            <input type="time" 
-                                   name="start_time" 
-                                   id="start_time" 
-                                   onchange="updateEndTimeMin(); checkFormComplete();"
-                                   class="w-full p-3 bg-slate-700/70 text-white rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none text-sm"
-                                   required>
-                            @error('start_time')
-                                <p class="text-xs text-red-400 mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        
-                        <!-- End Time -->
-                        <div>
-                            <label class="text-gray-300 text-sm mb-1.5 block">End Time *</label>
-                            <input type="time" 
-                                   name="end_time" 
-                                   id="end_time" 
-                                   onchange="checkFormComplete();"
-                                   class="w-full p-3 bg-slate-700/70 text-white rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none text-sm"
-                                   required>
-                            @error('end_time')
-                                <p class="text-xs text-red-400 mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        
-                        <!-- Duration Display -->
-                        <div id="durationDisplay" class="hidden p-3 bg-blue-900/30 rounded-lg border border-blue-700/50">
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-gray-300">Duration:</span>
-                                <span class="text-blue-300 font-semibold" id="durationText">--</span>
-                            </div>
-                        </div>
+                        @foreach($doctors as $index => $doctor)
+                            <label class="block relative cursor-pointer group">
+                                <input type="radio" name="doctor_id" value="{{ $doctor->id }}" class="peer hidden" {{ $index === 0 ? 'checked' : '' }} 
+                                       @change="$dispatch('doctor-changed', {{ $doctor->id }})">
+                                <div class="p-4 rounded-xl border border-gray-100 bg-white group-hover:border-emerald-200 transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-50/30 peer-checked:ring-4 peer-checked:ring-emerald-500/5">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 font-bold text-xs peer-checked:bg-emerald-500 peer-checked:text-white transition-colors">
+                                            {{ substr($doctor->name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">Dr. {{ $doctor->name }}</p>
+                                            <p class="text-[10px] text-gray-500 font-medium uppercase tracking-tighter mt-0.5">Clinical Specialist</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="absolute right-4 top-1/2 -translate-y-1/2 hidden peer-checked:block">
+                                    <div class="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3 text-white">
+                                            <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </label>
+                        @endforeach
                     </div>
                 </div>
 
-                <div class="p-3 bg-amber-900/30 rounded-lg border border-amber-700/50 flex-shrink-0">
-                    <div class="flex items-start gap-2">
-                        <svg class="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <div class="bg-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-600/20">
+                    <h4 class="font-bold text-sm mb-2 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />
                         </svg>
-                        <div class="text-xs text-amber-300">
-                            <p class="font-semibold mb-1">Appointment Guidelines:</p>
-                            <ul class="space-y-0.5 text-amber-200">
-                                <li>• Minimum duration: 30 minutes</li>
-                                <li>• Recommended: 45-60 minutes</li>
-                                <li>• Choose any available date & time</li>
-                            </ul>
+                        Clinical Schedule
+                    </h4>
+                    <div x-data='{ 
+                        selectedDoctor: {{ $doctors->first()->id }},
+                        doctors: @json($doctors->keyBy("id"))
+                    }' @doctor-changed.window="selectedDoctor = $event.detail">
+                        <div class="space-y-2 mt-3">
+                            <template x-for="day in [1,2,3,4,5,6,0]" :key="day">
+                                <div class="flex justify-between items-center text-[10px]">
+                                    <span class="font-bold opacity-70 uppercase tracking-tighter" x-text="['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]"></span>
+                                    <span class="font-medium" x-text="
+                                        doctors[selectedDoctor].availabilities.filter(a => a.day_of_week == day && a.is_available).length > 0 
+                                        ? doctors[selectedDoctor].availabilities.filter(a => a.day_of_week == day && a.is_available)
+                                            .map(a => a.start_time.substring(0,5) + '-' + a.end_time.substring(0,5))
+                                            .join(' | ')
+                                        : 'Off'
+                                    "></span>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Column 3: Confirm Details -->
-            <div id="column3" class="appointment-column">
-                <div class="flex items-center gap-2 mb-4">
-                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <h2 class="text-base font-bold text-white">Confirm Details</h2>
-                </div>
+            <!-- Middle Column: Date & Time -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                    <h3 class="font-bold text-gray-900 tracking-tight mb-4 flex items-center gap-2">
+                        <div class="w-2 h-6 bg-blue-500 rounded-full"></div>
+                        Select Schedule
+                    </h3>
 
-                <!-- Appointment Type -->
-                <div class="mb-3">
-                    <label class="text-white font-semibold mb-2 block text-sm">Appointment Type *</label>
-                    <div class="space-y-2">
-                        <button type="button" onclick="selectAppointmentType('in-clinic')" id="inClinic" class="w-full p-2.5 rounded-lg text-left transition-all bg-slate-700/70 hover:bg-slate-600 border border-slate-600">
-                            <div class="flex items-center gap-2">
-                                <span class="text-lg">🏥</span>
-                                <div class="flex-1">
-                                    <span class="text-white font-medium text-sm block">In-Clinic Visit</span>
-                                    <span class="text-gray-400 text-xs">Visit clinic in person</span>
-                                </div>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Appointment Date</label>
+                            <input type="date" name="appointment_date" id="appointment_date" required min="{{ date('Y-m-d') }}"
+                                   class="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Start Time</label>
+                                <input type="time" name="start_time" id="start_time" required
+                                       class="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
                             </div>
-                        </button>
-                        <button type="button" onclick="selectAppointmentType('telemedicine')" id="telemedicine" class="w-full p-2.5 rounded-lg text-left transition-all bg-blue-600 border border-blue-500">
-                            <div class="flex items-center gap-2">
-                                <span class="text-lg">💻</span>
-                                <div class="flex-1">
-                                    <span class="text-white font-medium text-sm block">Telemedicine</span>
-                                    <span class="text-gray-300 text-xs">Online video call</span>
-                                </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">End Time</label>
+                                <input type="time" name="end_time" id="end_time" required
+                                       class="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Final Details -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                    <h3 class="font-bold text-gray-900 tracking-tight mb-4 flex items-center gap-2">
+                        <div class="w-2 h-6 bg-violet-500 rounded-full"></div>
+                        Clinical Notes
+                    </h3>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Symptoms & Complaints</label>
+                            <textarea name="symptoms_complaint" rows="4" required placeholder="Describe what you are feeling..."
+                                      class="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Priority Level</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="relative cursor-pointer">
+                                    <input type="radio" name="urgency_priority" value="routine" class="peer hidden" checked>
+                                    <div class="px-3 py-2 rounded-lg border border-gray-100 bg-gray-50 text-[10px] font-bold text-gray-500 text-center uppercase tracking-wider peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 transition-all">
+                                        Routine
+                                    </div>
+                                </label>
+                                <label class="relative cursor-pointer">
+                                    <input type="radio" name="urgency_priority" value="urgent" class="peer hidden">
+                                    <div class="px-3 py-2 rounded-lg border border-gray-100 bg-gray-50 text-[10px] font-bold text-gray-500 text-center uppercase tracking-wider peer-checked:border-red-500 peer-checked:bg-red-50 peer-checked:text-red-700 transition-all">
+                                        Urgent
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Visit Type</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="relative cursor-pointer">
+                                    <input type="radio" name="appointment_mode" value="in-clinic" class="peer hidden" checked>
+                                    <div class="px-3 py-2 rounded-lg border border-gray-100 bg-gray-50 text-[10px] font-bold text-gray-500 text-center uppercase tracking-wider peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 transition-all">
+                                        In-Clinic
+                                    </div>
+                                </label>
+                                <label class="relative cursor-pointer">
+                                    <input type="radio" name="appointment_mode" value="telemedicine" class="peer hidden">
+                                    <div class="px-3 py-2 rounded-lg border border-gray-100 bg-gray-50 text-[10px] font-bold text-gray-500 text-center uppercase tracking-wider peer-checked:border-indigo-500 peer-checked:bg-indigo-50 peer-checked:text-indigo-700 transition-all">
+                                        Video Call
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-50">
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" name="consent" required class="mt-1 w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 transition-all">
+                                <span class="text-[10px] text-gray-500 font-medium leading-relaxed group-hover:text-gray-700 transition-colors">
+                                    I confirm that the information provided is accurate and I agree to the clinic's appointment policy.
+                                </span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="w-full py-4 bg-emerald-600 text-white text-xs font-bold uppercase tracking-[0.2em] rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98]">
+                            Request Appointment
                         </button>
                     </div>
-                    <input type="hidden" name="appointment_mode" id="appointment_mode" value="telemedicine" required>
-                    @error('appointment_mode')
-                        <p class="text-xs text-red-400 mt-1">{{ $message }}</p>
-                    @enderror
                 </div>
-
-                <!-- Urgency Level -->
-                <div class="mb-3">
-                    <label class="text-white font-semibold mb-2 block text-sm">Urgency Level *</label>
-                    <select name="urgency_priority" class="w-full p-2.5 bg-slate-700/70 text-white rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none text-sm" required>
-                        <option value="routine">🟢 Routine</option>
-                        <option value="urgent">🟡 Urgent</option>
-                        <option value="emergency">🔴 Emergency</option>
-                    </select>
-                    @error('urgency_priority')
-                        <p class="text-xs text-red-400 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Symptoms -->
-                <div class="mb-3 flex-grow flex flex-col">
-                    <label class="text-white font-semibold mb-2 block text-sm">Describe Your Symptoms *</label>
-                    <textarea id="symptoms" name="symptoms_complaint" onkeyup="checkSymptoms()" placeholder="Example: Headaches for 3 days with mild fever..." class="symptoms-textarea" required>{{ old('symptoms_complaint') }}</textarea>
-                    <p class="text-gray-400 text-xs mt-1">Be specific to help the doctor prepare</p>
-                    @error('symptoms_complaint')
-                        <p class="text-xs text-red-400 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Quick Tips -->
-                <div class="p-4 bg-blue-900/40 rounded-lg border border-blue-700/50 mb-3 flex-shrink-0">
-                    <h3 class="text-blue-300 font-semibold mb-2 flex items-center gap-2 text-sm">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                        Quick Tips:
-                    </h3>
-                    <ul class="text-gray-300 text-xs space-y-1">
-                        <li>• Book 24hrs ahead for routine visits</li>
-                        <li>• Arrive 10min early for in-clinic</li>
-                        <li>• Have medical history ready</li>
-                    </ul>
-                </div>
-
-                <!-- Consent Checkbox -->
-                <div class="mb-3 flex-shrink-0">
-                    <label class="flex items-start gap-2 cursor-pointer">
-                        <input type="checkbox" name="consent" value="1" onchange="checkFormComplete()" class="mt-1 w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500" required>
-                        <span class="text-gray-300 text-xs">I agree to the terms and conditions and consent to the appointment booking *</span>
-                    </label>
-                    @error('consent')
-                        <p class="text-xs text-red-400 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" id="confirmBtn" disabled class="submit-btn bg-slate-600 text-gray-400 w-full flex-shrink-0">
-                    Complete All Fields
-                </button>
             </div>
         </form>
     </div>
 
-    <style>
-        .doctor-card { transition: all 0.2s; }
-        .doctor-card:hover { transform: translateY(-1px); }
-        .calendar-day { transition: all 0.2s; }
-        .calendar-day:hover:not(:disabled) { transform: scale(1.05); }
-        .time-slot { transition: all 0.2s; }
-        .time-slot:hover:not(:disabled) { transform: translateY(-1px); }
-        
-        /* Full screen layout */
-        @media (min-width: 1024px) {
-            form.grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                min-height: calc(100vh - 220px);
-            }
-            #column1, #column2, #column3 {
-                display: flex;
-                flex-direction: column;
-                height: 100%;
-            }
-        }
-        
-        /* Custom scrollbar */
-        #timeSlotsGrid::-webkit-scrollbar {
-            width: 5px;
-        }
-        #timeSlotsGrid::-webkit-scrollbar-track {
-            background: #1e293b;
-            border-radius: 4px;
-        }
-        #timeSlotsGrid::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 4px;
-        }
-    </style>
-
+    @push('scripts')
     <script>
-        let selectedDoctor = { name: '{{ $doctors->first()->name ?? "Not selected" }}', specialty: 'Cardiology', rating: '4.9', next: 'Dec 9' };
-        let selectedDate = null;
-        let appointmentType = 'telemedicine';
-
-        function selectDoctor(id, name, index) {
-            selectedDoctor = { name, specialty: 'Cardiology', rating: (4.7 + parseInt(index) * 0.1).toFixed(1), next: 'Dec ' + (8 + parseInt(index)) };
-            document.getElementById('doctor_id').value = id;
-            document.getElementById('docSpecialty').textContent = 'Cardiology';
-            document.getElementById('docRating').textContent = selectedDoctor.rating + '/5.0';
-            document.getElementById('docNext').textContent = selectedDoctor.next;
-            
-            document.querySelectorAll('.doctor-card').forEach(btn => {
-                btn.classList.remove('bg-blue-600');
-                btn.classList.add('bg-slate-700/70');
-            });
-            event.currentTarget.classList.remove('bg-slate-700/70');
-            event.currentTarget.classList.add('bg-blue-600');
-            
-            updateStep(2);
-            checkFormComplete();
-        }
-
-        function generateCalendar() {
-            const calendar = document.getElementById('calendar');
-            const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-            const today = new Date();
-            const currentDay = today.getDate();
-            const currentMonth = today.getMonth();
-            const currentYear = today.getFullYear();
-            
-            dayNames.forEach(day => {
-                const header = document.createElement('div');
-                header.className = 'text-center text-gray-400 text-sm font-medium p-2';
-                header.textContent = day;
-                calendar.appendChild(header);
-            });
-            
-            // Get days in current month
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            
-            for (let day = 1; day <= daysInMonth; day++) {
-                const isPast = day < currentDay;
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = `calendar-day ${
-                    !isPast ? 'bg-slate-700/50 text-white cursor-pointer hover:bg-blue-600' : 'text-gray-600 cursor-not-allowed opacity-50'
-                }`;
-                btn.textContent = day;
-                btn.disabled = isPast;
+        document.getElementById('start_time').addEventListener('change', function() {
+            if (this.value) {
+                const [hours, minutes] = this.value.split(':');
+                const date = new Date();
+                date.setHours(parseInt(hours, 10), parseInt(minutes, 10));
                 
-                if (!isPast) {
-                    btn.onclick = () => selectDate(day, btn);
-                }
-                calendar.appendChild(btn);
-            }
-        }
-
-        function selectDate(day, btn) {
-            selectedDate = day;
-            const year = new Date().getFullYear();
-            const month = String(new Date().getMonth() + 1).padStart(2, '0');
-            const dayStr = String(day).padStart(2, '0');
-            document.getElementById('appointment_date').value = `${year}-${month}-${dayStr}`;
-            
-            document.querySelectorAll('.calendar-day').forEach(b => {
-                b.classList.remove('selected');
-            });
-            btn.classList.add('selected');
-            
-            checkFormComplete();
-        }
-
-        function updateEndTimeMin() {
-            const startTime = document.getElementById('start_time').value;
-            const endTimeInput = document.getElementById('end_time');
-            
-            if (startTime) {
-                // Set minimum end time to 30 minutes after start time
-                const [hours, minutes] = startTime.split(':');
-                const startDate = new Date();
-                startDate.setHours(parseInt(hours), parseInt(minutes));
-                startDate.setMinutes(startDate.getMinutes() + 30);
+                // Add 1 hour
+                date.setHours(date.getHours() + 1);
                 
-                const minEndTime = `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`;
-                endTimeInput.min = minEndTime;
-                
-                // Auto-set end time to 1 hour after start if not set
-                if (!endTimeInput.value) {
-                    startDate.setMinutes(startDate.getMinutes() + 30); // Total 1 hour
-                    endTimeInput.value = `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`;
-                }
-                
-                calculateDuration();
-            }
-        }
-
-        function calculateDuration() {
-            const startTime = document.getElementById('start_time').value;
-            const endTime = document.getElementById('end_time').value;
-            const durationDisplay = document.getElementById('durationDisplay');
-            const durationText = document.getElementById('durationText');
-            
-            if (startTime && endTime) {
-                const [startHours, startMinutes] = startTime.split(':').map(Number);
-                const [endHours, endMinutes] = endTime.split(':').map(Number);
-                
-                const startTotalMinutes = startHours * 60 + startMinutes;
-                const endTotalMinutes = endHours * 60 + endMinutes;
-                const durationMinutes = endTotalMinutes - startTotalMinutes;
-                
-                if (durationMinutes > 0) {
-                    const hours = Math.floor(durationMinutes / 60);
-                    const minutes = durationMinutes % 60;
-                    
-                    let durationStr = '';
-                    if (hours > 0) durationStr += `${hours} hour${hours > 1 ? 's' : ''}`;
-                    if (minutes > 0) durationStr += `${hours > 0 ? ' ' : ''}${minutes} min`;
-                    
-                    durationText.textContent = durationStr;
-                    durationDisplay.classList.remove('hidden');
-                } else {
-                    durationDisplay.classList.add('hidden');
-                }
-            }
-        }
-
-        // Add event listeners for duration calculation
-        document.addEventListener('DOMContentLoaded', function() {
-            const startTimeInput = document.getElementById('start_time');
-            const endTimeInput = document.getElementById('end_time');
-            
-            if (startTimeInput) {
-                startTimeInput.addEventListener('change', calculateDuration);
-            }
-            if (endTimeInput) {
-                endTimeInput.addEventListener('change', calculateDuration);
+                const endHours = String(date.getHours()).padStart(2, '0');
+                const endMinutes = String(date.getMinutes()).padStart(2, '0');
+                document.getElementById('end_time').value = `${endHours}:${endMinutes}`;
             }
         });
-
-        function selectAppointmentType(type) {
-            appointmentType = type;
-            document.getElementById('appointment_mode').value = type;
-            const inClinic = document.getElementById('inClinic');
-            const telemedicine = document.getElementById('telemedicine');
-            
-            if (type === 'in-clinic') {
-                inClinic.classList.remove('bg-slate-700/70', 'border-slate-600');
-                inClinic.classList.add('bg-blue-600', 'border-blue-500');
-                telemedicine.classList.remove('bg-blue-600', 'border-blue-500');
-                telemedicine.classList.add('bg-slate-700/70', 'border-slate-600');
-            } else {
-                telemedicine.classList.remove('bg-slate-700/70', 'border-slate-600');
-                telemedicine.classList.add('bg-blue-600', 'border-blue-500');
-                inClinic.classList.remove('bg-blue-600', 'border-blue-500');
-                inClinic.classList.add('bg-slate-700/70', 'border-slate-600');
-            }
-            checkFormComplete();
-        }
-
-        function checkSymptoms() {
-            checkFormComplete();
-        }
-
-        function checkFormComplete() {
-            const symptoms = document.getElementById('symptoms').value;
-            const startTime = document.getElementById('start_time').value;
-            const endTime = document.getElementById('end_time').value;
-            const consent = document.querySelector('input[name="consent"]').checked;
-            const btn = document.getElementById('confirmBtn');
-            
-            if (selectedDate && startTime && endTime && symptoms.trim() && consent) {
-                btn.disabled = false;
-                btn.classList.remove('bg-slate-600', 'text-gray-400');
-                btn.classList.add('bg-green-600', 'text-white');
-                btn.textContent = '✓ Confirm Appointment';
-            } else {
-                btn.disabled = true;
-                btn.classList.remove('bg-green-600', 'text-white');
-                btn.classList.add('bg-slate-600', 'text-gray-400');
-                btn.textContent = 'Complete All Fields';
-            }
-        }
-
-        function updateStep(step) {
-            const steps = [1, 2, 3];
-            steps.forEach(s => {
-                const stepEl = document.getElementById(`step${s}`);
-                const columnEl = document.getElementById(`column${s}`);
-                
-                if (s === step) {
-                    stepEl.classList.remove('pending', 'completed');
-                    stepEl.classList.add('active');
-                    columnEl.classList.add('active');
-                } else if (s < step) {
-                    stepEl.classList.remove('pending', 'active');
-                    stepEl.classList.add('completed');
-                    columnEl.classList.remove('active');
-                } else {
-                    stepEl.classList.remove('active', 'completed');
-                    stepEl.classList.add('pending');
-                    columnEl.classList.remove('active');
-                }
-            });
-        }
-
-        // Initialize
-        generateCalendar();
     </script>
+    @endpush
 </x-patient-layout>

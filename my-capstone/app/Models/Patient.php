@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Carbon\Carbon;
 
 class Patient extends Model
@@ -84,6 +85,10 @@ class Patient extends Model
         'status',
     ];
 
+    protected $casts = [
+        'date_of_birth' => 'date',
+    ];
+
     /**
      * Get the medical records for the patient.
      */
@@ -100,6 +105,11 @@ class Patient extends Model
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function consultations(): HasMany
+    {
+        return $this->hasMany(Consultation::class);
     }
 
     public function medicalRecord(): HasOne
@@ -149,34 +159,46 @@ class Patient extends Model
     /**
      * Get patient conditions through medical record.
      */
-    public function conditions()
+    public function conditions(): HasManyThrough
     {
-        if (!$this->medicalRecord) {
-            return collect();
-        }
-        return $this->medicalRecord->medicalConditions();
+        return $this->hasManyThrough(
+            MedicalCondition::class,
+            MedicalRecord::class,
+            'patient_id', // Foreign key on medical_records table...
+            'medical_record_id', // Foreign key on medical_conditions table...
+            'id', // Local key on patients table...
+            'id' // Local key on medical_records table...
+        );
     }
 
     /**
      * Get patient medications through medical record.
      */
-    public function medications()
+    public function medications(): HasManyThrough
     {
-        if (!$this->medicalRecord) {
-            return collect();
-        }
-        return $this->medicalRecord->medications();
+        return $this->hasManyThrough(
+            Medication::class,
+            MedicalRecord::class,
+            'patient_id',
+            'medical_record_id',
+            'id',
+            'id'
+        );
     }
 
     /**
      * Get patient allergies through medical record.
      */
-    public function allergies()
+    public function allergies(): HasManyThrough
     {
-        if (!$this->medicalRecord) {
-            return collect();
-        }
-        return $this->medicalRecord->allergies;
+        return $this->hasManyThrough(
+            Allergy::class,
+            MedicalRecord::class,
+            'patient_id',
+            'medical_record_id',
+            'id',
+            'id'
+        );
     }
 
     /**
@@ -219,6 +241,14 @@ class Patient extends Model
                 'Patient record deleted'
             );
         });
+    }
+
+    /**
+     * Get the diagnostic tests for the patient.
+     */
+    public function diagnosticTests(): HasMany
+    {
+        return $this->hasMany(DiagnosticTest::class);
     }
 }
 

@@ -97,167 +97,13 @@
             </div>
 
             <!-- RIGHT SIDEBAR: Today's Patients -->
+            <!-- RIGHT SIDEBAR: Dynamic Schedule Panel -->
             <div class="w-96 bg-white border-l border-gray-200 overflow-y-auto">
-                <div class="p-6">
-                    <!-- Date and Doctor Info -->
-                    <div class="mb-6">
-                        <div class="text-sm text-gray-600 mb-1">
-                            {{ now()->format('d M') }} · My schedule
-                        </div>
-                        <div class="text-lg font-semibold text-gray-900">
-                            {{ Auth::user()->name }}
-                        </div>
+                <div class="p-6" id="right-sidebar-container">
+                    <!-- Populate via dynamic JS rendering -->
+                    <div class="flex items-center justify-center h-full py-12">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
                     </div>
-
-                    @php
-                        $inProgress = $appointments->where('status', 'in_progress')->where('start_time', '>=', now()->startOfDay());
-                        $checkedIn = $appointments->where('status', 'checked_in')->where('start_time', '>=', now()->startOfDay());
-                        $waiting = $appointments->whereIn('status', ['confirmed', 'pending'])->where('start_time', '>=', now()->startOfDay());
-                        $completed = $appointments->where('status', 'completed')->where('start_time', '>=', now()->startOfDay());
-                    @endphp
-
-                    <!-- In Progress -->
-                    @if($inProgress->count() > 0)
-                        <div class="mb-6">
-                            <h3 class="text-sm font-semibold text-gray-700 mb-3">
-                                In Progress ({{ $inProgress->count() }})
-                            </h3>
-                            @foreach($inProgress as $appointment)
-                                <div class="bg-orange-50 border-l-4 border-orange-500 rounded-lg p-4 mb-3">
-                                    <div class="flex items-start justify-between mb-2">
-                                        <div>
-                                            <div class="font-semibold text-gray-900">
-                                                {{ $appointment->patient->user->name }}
-                                            </div>
-                                            <div class="text-xs text-gray-600">
-                                                {{ $appointment->start_time->format('g:i A') }}
-                                            </div>
-                                        </div>
-                                        <span class="text-xs text-orange-600 font-medium">
-                                            {{ $appointment->start_time->diffForHumans() }}
-                                        </span>
-                                    </div>
-                                    <div class="text-sm text-gray-700 mb-3">
-                                        {{ Str::limit($appointment->reason, 50) }}
-                                    </div>
-                                    <button class="w-full px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition">
-                                        View Consultation
-                                    </button>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    <!-- Checked In -->
-                    @if($checkedIn->count() > 0)
-                        <div class="mb-6">
-                            <h3 class="text-sm font-semibold text-gray-700 mb-3">
-                                Checked In ({{ $checkedIn->count() }})
-                            </h3>
-                            @foreach($checkedIn as $appointment)
-                                <div class="bg-purple-50 border-l-4 border-purple-500 rounded-lg p-4 mb-3">
-                                    <div class="flex items-start justify-between mb-2">
-                                        <div>
-                                            <div class="font-semibold text-gray-900">
-                                                {{ $appointment->patient->user->name }}
-                                            </div>
-                                            <div class="text-xs text-gray-600">
-                                                in {{ $appointment->checked_in_at ? $appointment->checked_in_at->diffForHumans() : 'recently' }}
-                                            </div>
-                                        </div>
-                                        <button class="text-gray-400 hover:text-gray-600">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div class="text-sm text-gray-700 mb-3">
-                                        {{ Str::limit($appointment->reason, 50) }}
-                                    </div>
-                                    <button onclick="startConsultation({{ $appointment->id }})" 
-                                            class="w-full px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition">
-                                        Start Consultation
-                                    </button>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    <!-- Waiting / Upcoming -->
-                    @if($waiting->count() > 0)
-                        <div class="mb-6">
-                            <h3 class="text-sm font-semibold text-gray-700 mb-3">
-                                Upcoming ({{ $waiting->count() }})
-                            </h3>
-                            @foreach($waiting as $appointment)
-                                <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 mb-3">
-                                    <div class="flex items-start justify-between mb-2">
-                                        <div>
-                                            <div class="font-semibold text-gray-900">
-                                                {{ $appointment->patient->user->name }}
-                                            </div>
-                                            <div class="text-xs text-gray-600">
-                                                {{ $appointment->start_time->format('g:i A') }}
-                                            </div>
-                                        </div>
-                                        <span class="px-2 py-1 text-xs font-medium rounded-full {{ $appointment->status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                                            {{ ucfirst($appointment->status) }}
-                                        </span>
-                                    </div>
-                                    <div class="text-sm text-gray-700 mb-3">
-                                        {{ Str::limit($appointment->reason, 50) }}
-                                    </div>
-                                    <div class="flex gap-2">
-                                        @if($appointment->status === 'pending')
-                                            <button onclick="approveAppointment({{ $appointment->id }})" 
-                                                    class="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition">
-                                                Approve
-                                            </button>
-                                            <button onclick="declineAppointment({{ $appointment->id }})" 
-                                                    class="flex-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition">
-                                                Decline
-                                            </button>
-                                        @else
-                                            <button onclick="checkInPatient({{ $appointment->id }})" 
-                                                    class="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
-                                                Check In
-                                            </button>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    <!-- Completed -->
-                    @if($completed->count() > 0)
-                        <div>
-                            <h3 class="text-sm font-semibold text-gray-700 mb-3">
-                                Completed ({{ $completed->count() }})
-                            </h3>
-                            @foreach($completed as $appointment)
-                                <div class="bg-gray-50 rounded-lg p-3 mb-2">
-                                    <div class="flex items-center justify-between">
-                                        <div class="text-sm font-medium text-gray-700">
-                                            {{ $appointment->patient->user->name }}
-                                        </div>
-                                        <div class="text-xs text-gray-500">
-                                            {{ $appointment->start_time->format('g:i A') }}
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    @if($appointments->where('start_time', '>=', now()->startOfDay())->count() === 0)
-                        <div class="text-center py-12">
-                            <svg class="w-16 h-16 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <p class="text-gray-500">No appointments today</p>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
@@ -266,6 +112,245 @@
     <script>
         // Pass appointments data to JavaScript
         window.doctorAppointments = @json($appointments);
+
+        // Helper to format ISO dates to local YYYY-MM-DD
+        function getLocalDateString(dateObj) {
+            const offsetMs = dateObj.getTimezoneOffset() * 60000;
+            return new Date(dateObj.getTime() - offsetMs).toISOString().split('T')[0];
+        }
+
+        // Render schedule sidebar dynamically
+        function renderRightSidebar(dateStr) {
+            const container = document.getElementById('right-sidebar-container');
+            if (!container) return;
+
+            // Selected date formatted beautifully (e.g. "19 May")
+            const parsedDate = new Date(dateStr);
+            const formattedDate = parsedDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+            
+            // Filter appointments matching dateStr (YYYY-MM-DD)
+            const dayAppointments = window.doctorAppointments.filter(apt => {
+                const aptDate = apt.start_time.slice(0, 10);
+                return aptDate === dateStr;
+            });
+
+            // Grouping
+            const inProgress = dayAppointments.filter(apt => apt.status === 'in_progress');
+            const checkedIn = dayAppointments.filter(apt => apt.status === 'checked_in');
+            
+            // Confirmed appointments represent "Approved & Rescheduled"
+            const confirmed = dayAppointments.filter(apt => apt.status === 'confirmed');
+            
+            const pending = dayAppointments.filter(apt => apt.status === 'pending');
+            const completed = dayAppointments.filter(apt => apt.status === 'completed');
+
+            let html = `
+                <!-- Date and Doctor Info Header -->
+                <div class="mb-6 pb-4 border-b border-gray-100">
+                    <div class="text-[10px] font-black text-teal-600 uppercase tracking-widest mb-1 flex items-center gap-1">
+                        <svg class="w-3 h-3 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        ${formattedDate} · Selected Schedule
+                    </div>
+                    <div class="text-base font-extrabold text-gray-900 tracking-tight">
+                        ${"{{ Auth::user()->name }}"}
+                    </div>
+                </div>
+            `;
+
+            if (dayAppointments.length === 0) {
+                html += `
+                    <div class="text-center py-16">
+                        <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider">No active appointments</p>
+                    </div>
+                `;
+                container.innerHTML = html;
+                return;
+            }
+
+            // Helper to format time (e.g. "8:00 AM")
+            const formatTime = (isoStr) => {
+                const dateObj = new Date(isoStr);
+                return dateObj.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            };
+
+            // 1. In Progress Section
+            if (inProgress.length > 0) {
+                html += `
+                    <div class="mb-6">
+                        <h3 class="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping"></span>
+                            In Progress (${inProgress.length})
+                        </h3>
+                        ${inProgress.map(apt => `
+                            <div class="bg-orange-50/50 border-l-4 border-orange-500 rounded-xl p-4 mb-3 shadow-sm">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div>
+                                        <div class="font-bold text-sm text-gray-900 leading-tight">${apt.patient.user.name}</div>
+                                        <div class="text-[10px] text-gray-500 font-semibold mt-0.5">${formatTime(apt.start_time)}</div>
+                                    </div>
+                                    <span class="px-2 py-0.5 bg-orange-100 text-[9px] font-black text-orange-700 rounded-full uppercase tracking-wider">Active</span>
+                                </div>
+                                <div class="text-xs text-gray-600 mb-3 line-clamp-2 italic">"${apt.reason}"</div>
+                                <button onclick="startConsultation(${apt.id})" class="w-full py-2 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-black uppercase tracking-wider rounded-lg transition-all active:scale-[0.98]">
+                                    Resume Consultation
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // 2. Checked In Section
+            if (checkedIn.length > 0) {
+                html += `
+                    <div class="mb-6">
+                        <h3 class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                            Checked In / Ready (${checkedIn.length})
+                        </h3>
+                        ${checkedIn.map(apt => `
+                            <div class="bg-purple-50/30 border-l-4 border-purple-500 rounded-xl p-4 mb-3 shadow-sm">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div>
+                                        <div class="font-bold text-sm text-gray-900 leading-tight">${apt.patient.user.name}</div>
+                                        <div class="text-[10px] text-gray-500 font-semibold mt-0.5">${formatTime(apt.start_time)}</div>
+                                    </div>
+                                    <span class="px-2 py-0.5 bg-purple-100 text-[9px] font-black text-purple-700 rounded-full uppercase tracking-wider">Ready</span>
+                                </div>
+                                <div class="text-xs text-gray-600 mb-3 line-clamp-2">Reason: ${apt.reason}</div>
+                                <button onclick="startConsultation(${apt.id})" class="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-black uppercase tracking-wider rounded-lg transition-all active:scale-[0.98]">
+                                    Start Consultation
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // 3. Approved & Rescheduled Section
+            if (confirmed.length > 0) {
+                html += `
+                    <div class="mb-6">
+                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            Approved & Rescheduled (${confirmed.length})
+                        </h3>
+                        ${confirmed.map(apt => {
+                            const isRescheduled = apt.reschedules && apt.reschedules.length > 0;
+                            const badgeColor = isRescheduled ? 'bg-violet-50 text-violet-700 border border-violet-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+                            const badgeText = isRescheduled ? 'Rescheduled' : 'Approved';
+                            
+                            return `
+                                <div class="bg-gray-50/50 border border-gray-100 rounded-xl p-4 mb-3 shadow-sm hover:border-gray-200 transition-all">
+                                    <div class="flex items-start justify-between mb-2 gap-2">
+                                        <div>
+                                            <div class="font-bold text-sm text-gray-900 leading-tight">${apt.patient.user.name}</div>
+                                            <div class="text-[10px] text-gray-500 font-semibold mt-0.5">${formatTime(apt.start_time)}</div>
+                                        </div>
+                                        <span class="px-2 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-lg ${badgeColor}">
+                                            ${badgeText}
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-gray-600 mb-3 line-clamp-2">Reason: ${apt.reason}</div>
+                                    <div class="flex gap-2">
+                                        <button onclick="checkInPatient(${apt.id})" class="flex-1 py-2 border border-gray-200 hover:bg-gray-50 text-gray-600 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all">
+                                            Check In
+                                        </button>
+                                        <button onclick="startConsultation(${apt.id})" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-wider rounded-lg transition-all active:scale-[0.98]">
+                                            Start Consultation
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            // 4. Pending Requests Section
+            if (pending.length > 0) {
+                html += `
+                    <div class="mb-6">
+                        <h3 class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                            Pending Approvals (${pending.length})
+                        </h3>
+                        ${pending.map(apt => `
+                            <div class="bg-amber-50/20 border border-amber-100 rounded-xl p-4 mb-3 shadow-sm">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div>
+                                        <div class="font-bold text-sm text-gray-900 leading-tight">${apt.patient.user.name}</div>
+                                        <div class="text-[10px] text-gray-500 font-semibold mt-0.5">${formatTime(apt.start_time)}</div>
+                                    </div>
+                                    <span class="px-2 py-0.5 bg-amber-50 text-[9px] font-black text-amber-700 rounded-full uppercase tracking-wider">Pending</span>
+                                </div>
+                                <div class="text-xs text-gray-600 mb-3 line-clamp-2">Reason: ${apt.reason}</div>
+                                <div class="flex gap-2">
+                                    <button onclick="approveAppointment(${apt.id})" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-wider rounded-lg transition-all">
+                                        Approve
+                                    </button>
+                                    <button onclick="declineAppointment(${apt.id})" class="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white text-[10px] font-black uppercase tracking-wider rounded-lg transition-all">
+                                        Decline
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // 5. Completed Section
+            if (completed.length > 0) {
+                html += `
+                    <div>
+                        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
+                            Completed (${completed.length})
+                        </h3>
+                        <div class="space-y-2">
+                            ${completed.map(apt => `
+                                <div class="bg-gray-50 rounded-xl px-4 py-3 flex items-center justify-between border border-gray-100 shadow-inner">
+                                    <div class="text-xs font-bold text-gray-700">${apt.patient.user.name}</div>
+                                    <div class="text-[10px] text-gray-400 font-black uppercase">${formatTime(apt.start_time)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Global callback triggered by FullCalendar date changes
+        window.onCalendarDateChange = function(dateStr) {
+            renderRightSidebar(dateStr);
+            
+            // Sync the mini calendar highlight to match the visible date
+            const parsedDate = new Date(dateStr);
+            const targetYear = parsedDate.getFullYear();
+            const targetMonth = parsedDate.getMonth();
+            const targetDay = parsedDate.getDate();
+            
+            if (targetYear !== currentCalendarYear || targetMonth !== currentCalendarMonth) {
+                currentCalendarYear = targetYear;
+                currentCalendarMonth = targetMonth;
+                generateMiniCalendar(currentCalendarYear, currentCalendarMonth);
+                updateMonthYearSelect();
+            }
+            
+            // Highlight active day in the mini grid
+            document.querySelectorAll('#calendar-days button').forEach(btn => {
+                btn.style.border = 'none';
+                if (parseInt(btn.textContent) === targetDay && !btn.style.color.includes('D1D5DB')) {
+                    btn.style.border = '2px solid #14B8A6';
+                }
+            });
+        };
 
         // Mini calendar generation
         function generateMiniCalendar(year = null, month = null) {
@@ -315,9 +400,15 @@
                 
                 dayCell.textContent = day;
                 dayCell.onclick = function() {
-                    // Handle date selection
                     const selectedDate = new Date(currentYear, currentMonth, day);
-                    console.log('Selected date:', selectedDate);
+                    const dateStr = getLocalDateString(selectedDate);
+                    renderRightSidebar(dateStr);
+                    
+                    // Highlight selected day on mini calendar
+                    document.querySelectorAll('#calendar-days button').forEach(btn => {
+                        btn.style.border = 'none';
+                    });
+                    dayCell.style.border = '2px solid #14B8A6';
                 };
                 
                 calendarDays.appendChild(dayCell);
@@ -396,6 +487,7 @@
             }
         }
 
+        // Decline / Cancel
         function declineAppointment(id) {
             if (confirm('Decline this appointment?')) {
                 fetch(`/doctor/appointments/${id}/decline`, {
@@ -408,6 +500,7 @@
             }
         }
 
+        // Check in patient
         function checkInPatient(id) {
             fetch(`/doctor/appointments/${id}/check-in`, {
                 method: 'POST',
@@ -415,17 +508,28 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Content-Type': 'application/json'
                 }
-            }).then(() => location.reload());
+            }).then(res => res.json())
+              .then(data => {
+                  if (data.success) {
+                      // Fetch updated appointments globally or simply reload
+                      location.reload();
+                  }
+              });
         }
 
+        // Start consultation bypass
         function startConsultation(appointmentId) {
             window.location.href = `/doctor/appointments/${appointmentId}/start-consultation`;
         }
 
-        // Initialize
+        // Initialize on DOM ready
         document.addEventListener('DOMContentLoaded', function() {
             generateMiniCalendar();
             updateMonthYearSelect();
+            
+            // Initial sidebar render for today
+            const todayStr = getLocalDateString(new Date());
+            renderRightSidebar(todayStr);
         });
     </script>
 </x-doctor-layout>

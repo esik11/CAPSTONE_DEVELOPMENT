@@ -14,6 +14,8 @@ class PlanForm extends Component
     public $patientEducation = '';
     public $followupInstructions = '';
     public $doctorNotes = '';
+    public $followupDate = '';
+    public $referralDetails = '';
     
     // Auto-save tracking
     public $lastSaved = null;
@@ -30,6 +32,8 @@ class PlanForm extends Component
         $this->patientEducation = $consultation->patient_education ?? '';
         $this->followupInstructions = $consultation->followup_instructions ?? '';
         $this->doctorNotes = $consultation->doctor_notes ?? '';
+        $this->followupDate = $consultation->followup_date ? $consultation->followup_date->format('Y-m-d') : '';
+        $this->referralDetails = $consultation->referral_details ?? '';
     }
 
     public function saveDraft()
@@ -41,6 +45,8 @@ class PlanForm extends Component
             'patient_education' => $this->patientEducation,
             'followup_instructions' => $this->followupInstructions,
             'doctor_notes' => $this->doctorNotes,
+            'followup_date' => $this->followupDate ?: null,
+            'referral_details' => $this->referralDetails,
         ]);
         
         $this->lastSaved = now()->format('H:i:s');
@@ -80,10 +86,9 @@ class PlanForm extends Component
     public function completeConsultation()
     {
         $this->saveDraft();
-        $this->consultation->markAsCompleted();
         
-        session()->flash('success', 'Consultation completed successfully!');
-        return redirect()->route('patients.show', $this->consultation->patient);
+        // Redirect to summary page for review (don't mark as completed yet)
+        $this->dispatch('redirect-to-summary', url: route('consultations.summary', $this->consultation));
     }
 
     public function render()

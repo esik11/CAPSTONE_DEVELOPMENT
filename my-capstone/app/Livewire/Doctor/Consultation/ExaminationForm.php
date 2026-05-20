@@ -8,6 +8,7 @@ use Livewire\Component;
 class ExaminationForm extends Component
 {
     public Consultation $consultation;
+    public ?Consultation $previousConsultation = null;
     
     // Vital signs
     public $temperature = null;
@@ -60,6 +61,14 @@ class ExaminationForm extends Component
     public function mount(Consultation $consultation)
     {
         $this->consultation = $consultation;
+        
+        // Fetch previous completed consultation for this patient by this doctor
+        $this->previousConsultation = Consultation::where('patient_id', $consultation->patient_id)
+            ->where('doctor_id', $consultation->doctor_id)
+            ->where('status', 'completed')
+            ->where('id', '!=', $consultation->id)
+            ->latest('consultation_date')
+            ->first();
         
         // Load vital signs
         $this->temperature = $consultation->temperature;

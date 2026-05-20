@@ -13,13 +13,15 @@ class AppointmentStatusUpdated extends Notification
     use Queueable;
 
     protected $appointment;
+    protected $action;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(Appointment $appointment)
+    public function __construct(Appointment $appointment, string $action = null)
     {
         $this->appointment = $appointment;
+        $this->action = $action; // e.g. 'rescheduled', 'cancelled', 'confirmed'
     }
 
     /**
@@ -29,7 +31,7 @@ class AppointmentStatusUpdated extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -37,20 +39,27 @@ class AppointmentStatusUpdated extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $status = ucfirst($this->appointment->status);
-        $patientName = $this->appointment->patient->user->name ?? 'Patient';
         $doctorName = $this->appointment->doctor->name ?? 'Doctor';
-        $appointmentTime = $this->appointment->start_time->format('F j, Y, g:i a');
+        $newTime = $this->appointment->start_time->format('F j, Y \a\t g:i A');
 
-        $subject = "Appointment {$status}: {$appointmentTime}";
-        $greeting = "Hello {$notifiable->name},";
+        if ($this->action === 'rescheduled') {
+            return (new MailMessage)
+                ->subject("Appointment Rescheduled: {$newTime}")
+                ->greeting("Hello {$notifiable->name},")
+                ->line("Your appointment with Dr. {$doctorName} has been rescheduled.")
+                ->line("**New Schedule:** {$newTime}")
+                ->action('View Appointment', url('/patient/appointments'))
+                ->line('Thank you for choosing Salamat Doc!');
+        }
+
+        $status = ucfirst($this->action ?? $this->appointment->status);
 
         return (new MailMessage)
-            ->subject($subject)
-            ->greeting($greeting)
-            ->line("Your appointment with {$doctorName} for {$patientName} on {$appointmentTime} has been {$status}.")
-            ->action('View Appointment', url('/appointments/' . $this->appointment->id))
-            ->line('Thank you for using our application!');
+            ->subject("Appointment {$status}: {$newTime}")
+            ->greeting("Hello {$notifiable->name},")
+            ->line("Your appointment with Dr. {$doctorName} on {$newTime} has been updated to {$status}.")
+            ->action('View Appointment', url('/patient/appointments'))
+            ->line('Thank you for choosing Salamat Doc!');
     }
 
     /**
@@ -60,8 +69,25 @@ class AppointmentStatusUpdated extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $doctorName = $this->appointment->doctor->name ?? 'Doctor';
+        $newTime = $this->appointment->start_time->format('M j, Y \a\t g:i A');
+
+        if ($this->action === 'rescheduled') {
+            return [
+                'title' => 'Appointment Rescheduled',
+                'message' => "Your appointment with Dr. {$doctorName} has been rescheduled to {$newTime}.",
+                'appointment_id' => $this->appointment->id,
+                'status' => $this->appointment->status,
+            ];
+        }
+
+        $status = ucfirst($this->action ?? $this->appointment->status);
+
         return [
-            //
+            'title' => 'Appointment Status Updated',
+            'message' => "Your appointment with Dr. {$doctorName} is now {$status}.",
+            'appointment_id' => $this->appointment->id,
+            'status' => $this->appointment->status,
         ];
     }
 }

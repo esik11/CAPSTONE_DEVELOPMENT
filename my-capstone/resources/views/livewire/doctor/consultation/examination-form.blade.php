@@ -18,6 +18,9 @@
                             <input type="number" step="0.1" wire:model.blur="temperature" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" placeholder="37.0">
                             <span class="text-xs text-gray-500">°C</span>
                         </div>
+                        @if($previousConsultation && $previousConsultation->temperature)
+                            <p class="text-[10px] text-gray-400 mt-0.5 font-medium">Last: {{ $previousConsultation->temperature }} °C</p>
+                        @endif
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Pulse rate</label>
@@ -25,6 +28,9 @@
                             <input type="number" wire:model.blur="pulseRate" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" placeholder="72">
                             <span class="text-xs text-gray-500">bpm</span>
                         </div>
+                        @if($previousConsultation && $previousConsultation->pulse_rate)
+                            <p class="text-[10px] text-gray-400 mt-0.5 font-medium">Last: {{ $previousConsultation->pulse_rate }} bpm</p>
+                        @endif
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Blood pressure</label>
@@ -32,6 +38,9 @@
                             <input type="text" wire:model.blur="bloodPressure" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" placeholder="120/80">
                             <span class="text-xs text-gray-500">mmHg</span>
                         </div>
+                        @if($previousConsultation && $previousConsultation->blood_pressure)
+                            <p class="text-[10px] text-gray-400 mt-0.5 font-medium">Last: {{ $previousConsultation->blood_pressure }} mmHg</p>
+                        @endif
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Respiratory rate</label>
@@ -39,6 +48,9 @@
                             <input type="number" wire:model.blur="respiratoryRate" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" placeholder="16">
                             <span class="text-xs text-gray-500">/min</span>
                         </div>
+                        @if($previousConsultation && $previousConsultation->respiratory_rate)
+                            <p class="text-[10px] text-gray-400 mt-0.5 font-medium">Last: {{ $previousConsultation->respiratory_rate }} /min</p>
+                        @endif
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">SpO2</label>
@@ -53,6 +65,9 @@
                             <input type="number" step="0.1" wire:model.blur="weight" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" placeholder="70">
                             <span class="text-xs text-gray-500">kg</span>
                         </div>
+                        @if($previousConsultation && $previousConsultation->weight)
+                            <p class="text-[10px] text-gray-400 mt-0.5 font-medium">Last: {{ $previousConsultation->weight }} kg</p>
+                        @endif
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Height</label>
@@ -99,7 +114,9 @@
                             Use Normal
                         </button>
                     </div>
-                    <div x-ref="editor" class="bg-white border border-gray-300 rounded" style="min-height: 60px;"></div>
+                    <div wire:ignore class="bg-white border border-gray-300 rounded overflow-hidden">
+                        <div x-ref="editor" style="min-height: 60px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,7 +189,9 @@
                             Use Normal
                         </button>
                     </div>
-                    <div x-ref="editor" class="bg-white border border-gray-300 rounded" style="min-height: 60px;"></div>
+                    <div wire:ignore class="bg-white border border-gray-300 rounded overflow-hidden">
+                        <div x-ref="editor" style="min-height: 60px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -245,7 +264,9 @@
                             Use Normal
                         </button>
                     </div>
-                    <div x-ref="editor" class="bg-white border border-gray-300 rounded" style="min-height: 60px;"></div>
+                    <div wire:ignore class="bg-white border border-gray-300 rounded overflow-hidden">
+                        <div x-ref="editor" style="min-height: 60px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -315,7 +336,9 @@
                             Use Normal
                         </button>
                     </div>
-                    <div x-ref="editor" class="bg-white border border-gray-300 rounded" style="min-height: 60px;"></div>
+                    <div wire:ignore class="bg-white border border-gray-300 rounded overflow-hidden">
+                        <div x-ref="editor" style="min-height: 60px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -385,7 +408,9 @@
                             Use Normal
                         </button>
                     </div>
-                    <div x-ref="editor" class="bg-white border border-gray-300 rounded" style="min-height: 60px;"></div>
+                    <div wire:ignore class="bg-white border border-gray-300 rounded overflow-hidden">
+                        <div x-ref="editor" style="min-height: 60px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -455,7 +480,9 @@
                             Use Normal
                         </button>
                     </div>
-                    <div x-ref="editor" class="bg-white border border-gray-300 rounded" style="min-height: 60px;"></div>
+                    <div wire:ignore class="bg-white border border-gray-300 rounded overflow-hidden">
+                        <div x-ref="editor" style="min-height: 60px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -525,7 +552,9 @@
                             Use Normal
                         </button>
                     </div>
-                    <div x-ref="editor" class="bg-white border border-gray-300 rounded" style="min-height: 60px;"></div>
+                    <div wire:ignore class="bg-white border border-gray-300 rounded overflow-hidden">
+                        <div x-ref="editor" style="min-height: 60px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -595,7 +624,9 @@
                             Use Normal
                         </button>
                     </div>
-                    <div x-ref="editor" class="bg-white border border-gray-300 rounded" style="min-height: 60px;"></div>
+                    <div wire:ignore class="bg-white border border-gray-300 rounded overflow-hidden">
+                        <div x-ref="editor" style="min-height: 60px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -628,7 +659,9 @@
                 }
             }">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Additional Examination Notes</label>
-                <div x-ref="editor" class="bg-white border border-gray-300 rounded" style="min-height: 80px;"></div>
+                <div wire:ignore class="bg-white border border-gray-300 rounded overflow-hidden">
+                    <div x-ref="editor" style="min-height: 80px;"></div>
+                </div>
             </div>
         </div>
     </div>

@@ -25,15 +25,15 @@ class ConsultationController extends Controller
      */
     public function start(Patient $patient)
     {
-        // Check if there's an existing draft consultation for this patient
+        // Check if there's an existing draft/active consultation for this patient
         $existingDraft = Consultation::where('patient_id', $patient->id)
             ->where('doctor_id', Auth::id())
-            ->where('status', 'draft')
+            ->whereIn('status', ['draft', 'in_progress'])
             ->latest()
             ->first();
 
         if ($existingDraft) {
-            // Resume existing draft
+            // Resume existing draft/active consultation
             return redirect()->route('consultations.show', $existingDraft);
         }
 
@@ -47,12 +47,6 @@ class ConsultationController extends Controller
             'current_section' => 'symptoms',
             'documentation_mode' => 'template', // Default to template mode
         ]);
-
-        // Log the consultation creation
-        activity()
-            ->performedOn($consultation)
-            ->causedBy(Auth::user())
-            ->log('Consultation started');
 
         return redirect()->route('consultations.show', $consultation);
     }
@@ -161,12 +155,6 @@ class ConsultationController extends Controller
         // Update the consultation
         $consultation->update($validated);
 
-        // Log the save
-        activity()
-            ->performedOn($consultation)
-            ->causedBy(Auth::user())
-            ->log('Consultation draft saved');
-
         return response()->json([
             'success' => true,
             'message' => 'Draft saved successfully',
@@ -190,12 +178,6 @@ class ConsultationController extends Controller
             
             // Move to examination section
             $consultation->update(['current_section' => 'examination']);
-            
-            // Log the progression
-            activity()
-                ->performedOn($consultation)
-                ->causedBy(Auth::user())
-                ->log('Moved to examination section');
 
             return response()->json([
                 'success' => true,
@@ -258,15 +240,70 @@ class ConsultationController extends Controller
 
         $patientId = $consultation->patient_id;
 
-        // Log the deletion
-        activity()
-            ->performedOn($consultation)
-            ->causedBy(Auth::user())
-            ->log('Consultation draft deleted');
-
         $consultation->delete();
 
         return redirect()->route('patients.show', $patientId)
             ->with('success', 'Draft consultation deleted successfully.');
+    }
+
+    /**
+     * Show consultation summary for review before finalizing
+     */
+    public function summary(Consultation $consultation)
+    {
+        // Check authorization
+        $this->authorize('view', $consultation);
+
+        // Load relationships
+        $consultation->load(['patient', 'doctor', 'appointment']);
+
+        return view('doctor.consultations.summary', compact('consultation'));
+    }
+
+    /**
+     * Finalize and sign the consultation
+     */
+    public function finalize(Request $request, Consultation $consultation)
+    {
+        // Check authorization
+        $this->authorize('update', $consultation);
+
+        // Mark as completed
+        $consultation->update([
+            'status' => 'completed',
+            'completed_at' => now(),
+        ]);
+
+        // Update appointment status if linked
+        if ($consultation->appointment) {
+            $consultation->appointment->update([
+                'status' => 'completed',
+                'completed_at' => now(),
+            ]);
+        }
+
+        // Redirect to billing page
+        return redirect()->route('doctor.billing.create', $consultation)
+            ->with('success', 'Consultation finalized successfully! Please complete the billing.');
+    }
+
+    /**
+     * Generate PDF of consultation summary
+     */
+    public function generatePdf(Consultation $consultation)
+    {
+        // Check authorization
+        $this->authorize('view', $consultation);
+
+        // Load relationships
+        $consultation->load(['patient', 'doctor', 'appointment']);
+
+        // Generate PDF using DomPDF
+        $pdf = \PDF::loadView('doctor.consultations.pdf', compact('consultation'));
+
+        // Download PDF
+        $filename = 'consultation_' . $consultation->patient->first_name . '_' . $consultation->patient->last_name . '_' . $consultation->consultation_date->format('Y-m-d') . '.pdf';
+
+        return $pdf->download($filename);
     }
 }

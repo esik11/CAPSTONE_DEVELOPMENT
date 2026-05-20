@@ -10,8 +10,8 @@
                     Smart Templates
                 </button>
                 <button type="button"
-                        wire:click="switchMode('free-text')"
-                        class="px-4 py-2 text-sm font-medium {{ $documentationMode === 'free-text' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}">
+                        wire:click="switchMode('freetext')"
+                        class="px-4 py-2 text-sm font-medium {{ $documentationMode === 'freetext' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}">
                     Free Text
                 </button>
             </div>
@@ -171,14 +171,47 @@
                             this.quill.root.innerHTML = value || '';
                         }
                     });
+
+                    // Listen for snippet insertions
+                    window.addEventListener('insert-into-editor', (event) => {
+                        console.log('Snippet received:', event.detail);
+                        const contentToInsert = event.detail.content || event.detail[0]?.content || '';
+                        
+                        if (this.quill && contentToInsert) {
+                            const range = this.quill.getSelection();
+                            const position = range ? range.index : this.quill.getLength();
+                            this.quill.insertText(position, contentToInsert);
+                            
+                            // Manually trigger the content update and force sync to Livewire
+                            const newContent = this.quill.root.innerHTML;
+                            this.content = newContent;
+                            this.$wire.set('symptomNotesManual', newContent);
+                        }
+                    });
                 }
             });
         }
     }">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">
-            {{ $documentationMode === 'free-text' ? 'Clinical Notes' : 'Additional Notes' }}
-        </h3>
-        <div x-ref="editor" class="bg-white border border-gray-300 rounded-lg" style="min-height: 200px;"></div>
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">
+                {{ $documentationMode === 'freetext' ? 'Clinical Notes' : 'Additional Notes' }}
+            </h3>
+            <div class="flex gap-2">
+                <button type="button" 
+                        wire:click="insertPatientHistory"
+                        class="px-3 py-1 text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                    + Insert History
+                </button>
+                <button type="button" 
+                        wire:click="insertLatestVitals"
+                        class="px-3 py-1 text-xs font-bold text-green-600 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
+                    + Insert Vitals
+                </button>
+            </div>
+        </div>
+        <div wire:ignore class="bg-white border border-gray-300 rounded-lg overflow-hidden">
+            <div x-ref="editor" style="min-height: 200px;"></div>
+        </div>
         @error('symptomNotesManual')
             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
         @enderror

@@ -28,6 +28,15 @@ class SocialHistory extends Model
         'living_situation',
     ];
 
+    protected $casts = [
+        'parents_comments' => 'encrypted',
+        'smoking_comments' => 'encrypted',
+        'alcohol_comments' => 'encrypted',
+        'drug_comments' => 'encrypted',
+        'diet_exercise' => 'encrypted',
+        'living_situation' => 'encrypted',
+    ];
+
     public function medicalRecord(): BelongsTo
     {
         return $this->belongsTo(MedicalRecord::class);
