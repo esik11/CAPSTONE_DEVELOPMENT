@@ -37,10 +37,22 @@ class AuditLogController extends Controller
         
         $logs = $query->paginate(20);
         
-        // Simple statistics
+        // Statistics expected by the view
+        $now = now();
         $stats = [
-            'total_count' => AuditLog::where('user_id', Auth::id())->count(),
-            'phi_count' => AuditLog::where('user_id', Auth::id())->where('involves_phi', true)->count(),
+            'total_this_month' => AuditLog::where('user_id', Auth::id())
+                ->whereYear('created_at', $now->year)
+                ->whereMonth('created_at', $now->month)
+                ->count(),
+            'phi_access_count' => AuditLog::where('user_id', Auth::id())
+                ->where('involves_phi', true)
+                ->count(),
+            'anomalies_count' => AuditLog::where('user_id', Auth::id())
+                ->where('is_anomaly', true)
+                ->count(),
+            'high_risk_count' => AuditLog::where('user_id', Auth::id())
+                ->whereIn('risk_level', ['high', 'critical'])
+                ->count(),
         ];
         
         return view('doctor.audit-logs.index', compact('logs', 'stats'));
