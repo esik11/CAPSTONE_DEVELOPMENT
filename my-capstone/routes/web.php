@@ -6,7 +6,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    // Redirect logged-in users to their appropriate dashboard
+    if (Auth::check()) {
+        return redirect('/dashboard');
+    }
+    
+    // Redirect guests to login page
+    return redirect()->route('login');
 });
 
 Route::get('/dashboard', function () {
