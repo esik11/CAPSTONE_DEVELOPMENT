@@ -2,8 +2,33 @@
     <div class="py-6">
         <!-- Welcome Section -->
         <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">Welcome back, Dr. {{ Auth::user()->name }}</h1>
-            <p class="text-gray-500 mt-1 text-sm">Here's what's happening with your practice today.</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Welcome back, Dr. {{ Auth::user()->name }}</h1>
+                    <p class="text-gray-500 mt-1 text-sm">Here's what's happening with your practice today.</p>
+                </div>
+                @if($nextAppointment)
+                <div class="bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-4 flex items-center gap-3 animate-pulse-slow">
+                    <div class="w-12 h-12 bg-violet-500 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                            <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-violet-900 uppercase tracking-wide">Next Appointment</p>
+                        <p class="text-sm font-bold text-violet-700">{{ $nextAppointment->patient->first_name }} {{ $nextAppointment->patient->last_name }}</p>
+                        <p class="text-xs text-violet-600 mt-0.5">
+                            @if($nextAppointment->start_time->isToday())
+                                Today at {{ $nextAppointment->start_time->format('g:i A') }}
+                            @else
+                                {{ $nextAppointment->start_time->format('M d, g:i A') }}
+                            @endif
+                            <span class="font-semibold">({{ $nextAppointment->start_time->diffForHumans() }})</span>
+                        </p>
+                    </div>
+                </div>
+                @endif
+            </div>
         </div>
 
         <!-- Statistics Cards -->
@@ -109,6 +134,93 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
             <!-- Left Column - Upcoming Appointments & Recent Activity -->
             <div class="lg:col-span-2 space-y-5">
+                <!-- Today's Schedule Widget -->
+                @if($todaySchedule->count() > 0)
+                <div class="bg-white rounded-xl border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-6 bg-violet-500 rounded-full"></div>
+                            <h2 class="text-sm font-semibold text-gray-900">Today's Schedule</h2>
+                            <span class="text-xs bg-violet-50 text-violet-700 px-2 py-0.5 rounded-full font-bold">{{ $todaySchedule->count() }} appointments</span>
+                        </div>
+                        <span class="text-xs text-gray-400 font-medium">{{ now()->format('D, M d, Y') }}</span>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        @foreach($todaySchedule as $appointment)
+                            <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-50
+                                {{ $appointment->start_time->isPast() && $appointment->status !== 'completed' ? 'bg-red-50/30 border-red-100' : '' }}
+                                {{ $appointment->start_time->isFuture() && $appointment->start_time->diffInHours() <= 1 ? 'bg-amber-50/30 border-amber-100' : '' }}">
+                                
+                                <div class="flex flex-col items-center justify-center bg-gray-100 rounded-lg px-3 py-2 min-w-[60px]">
+                                    <span class="text-xs font-bold text-gray-900">{{ $appointment->start_time->format('g:i') }}</span>
+                                    <span class="text-[10px] font-semibold text-gray-500 uppercase">{{ $appointment->start_time->format('A') }}</span>
+                                </div>
+                                
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 truncate">{{ $appointment->patient->first_name }} {{ $appointment->patient->last_name }}</p>
+                                    <p class="text-xs text-gray-500 truncate">{{ Str::limit($appointment->symptoms_complaint ?? 'No details', 40) }}</p>
+                                </div>
+                                
+                                <div class="flex flex-col items-end gap-1">
+                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wide
+                                        {{ $appointment->status === 'approved' ? 'bg-emerald-50 text-emerald-700' : '' }}
+                                        {{ $appointment->status === 'pending' ? 'bg-amber-50 text-amber-700' : '' }}
+                                        {{ $appointment->status === 'checked_in' ? 'bg-blue-50 text-blue-700' : '' }}
+                                        {{ $appointment->status === 'in_progress' ? 'bg-violet-50 text-violet-700' : '' }}
+                                        {{ $appointment->status === 'completed' ? 'bg-gray-100 text-gray-600' : '' }}">
+                                        {{ str_replace('_', ' ', $appointment->status) }}
+                                    </span>
+                                    @if($appointment->status === 'approved')
+                                        <a href="{{ route('doctor.appointments.index') }}" class="text-xs text-violet-600 hover:text-violet-700 font-medium">Start →</a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                <!-- Quick Prescription Access -->
+                @if($recentWithPrescriptions->count() > 0)
+                <div class="bg-gradient-to-br from-teal-50 to-emerald-50 rounded-xl border border-teal-100 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-white">
+                                    <path fill-rule="evenodd" d="M10.5 3.798v5.02a3 3 0 01-.879 2.121l-2.377 2.377a9.845 9.845 0 015.091 1.013 8.315 8.315 0 005.713.636l.285-.071-3.954-3.955a3 3 0 01-.879-2.121v-5.02a23.614 23.614 0 00-3 0zm4.5.138a.75.75 0 00.093-1.495A24.837 24.837 0 0012 2.25a25.048 25.048 0 00-3.093.191A.75.75 0 009 3.936v4.882a1.5 1.5 0 01-.44 1.06l-6.293 6.294c-1.62 1.621-.903 4.475 1.471 4.88 2.686.46 5.447.698 8.262.698 2.816 0 5.576-.239 8.262-.697 2.373-.406 3.092-3.26 1.47-4.881L15.44 9.879A1.5 1.5 0 0115 8.818V3.936z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <h2 class="text-sm font-semibold text-gray-900">Quick Prescription Access</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        @foreach($recentWithPrescriptions as $consultation)
+                            @php
+                                $prescriptions = is_string($consultation->prescriptions) ? json_decode($consultation->prescriptions, true) : $consultation->prescriptions;
+                            @endphp
+                            <div class="bg-white rounded-lg p-4 border border-teal-100 hover:shadow-md transition-all cursor-pointer group">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-700 font-bold text-sm">
+                                        {{ substr($consultation->patient->first_name, 0, 1) }}{{ substr($consultation->patient->last_name, 0, 1) }}
+                                    </div>
+                                    <span class="text-[9px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-bold">{{ $consultation->consultation_date->format('M d') }}</span>
+                                </div>
+                                <p class="text-sm font-bold text-gray-900 mb-1 group-hover:text-teal-700 transition-colors">{{ $consultation->patient->first_name }} {{ $consultation->patient->last_name }}</p>
+                                <p class="text-xs text-gray-500 mb-2">{{ is_array($prescriptions) ? count($prescriptions) : 0 }} medications</p>
+                                <a href="{{ route('consultations.show', $consultation) }}" class="text-xs text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1">
+                                    View Rx 
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
+                                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                                    </svg>
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
                 <!-- Upcoming Appointments -->
                 <div class="bg-white rounded-xl border border-gray-100 p-6">
                     <div class="flex items-center justify-between mb-4">

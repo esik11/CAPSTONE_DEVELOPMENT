@@ -23,6 +23,20 @@
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+        <style>
+            @keyframes pulse-slow {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.8;
+                }
+            }
+            .animate-pulse-slow {
+                animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+        </style>
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
@@ -121,16 +135,24 @@
 
                     <!-- My Schedule -->
                     <a href="{{ route('doctor.appointments.index') }}"
-                       class="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-200
+                       class="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-200 relative
                               {{ request()->routeIs('doctor.appointments.*')
                                   ? 'bg-teal-500/10 text-teal-400 border-l-[3px] border-teal-400 ml-0 pl-[9px]'
                                   : 'text-slate-400 hover:text-white hover:bg-white/[0.04]' }}"
                        :class="sidebarCollapsed ? 'justify-center' : ''"
-                       x-data="{ tip: false }" @mouseenter="tip = sidebarCollapsed" @mouseleave="tip = false">
+                       x-data="{ 
+                           tip: false,
+                           pendingCount: {{ App\Models\Appointment::where('doctor_id', Auth::id())->where('status', 'pending')->count() }}
+                       }" 
+                       @mouseenter="tip = sidebarCollapsed" 
+                       @mouseleave="tip = false">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 flex-shrink-0">
                             <path fill-rule="evenodd" d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z" clip-rule="evenodd" />
                         </svg>
-                        <span x-show="!sidebarCollapsed" x-transition.opacity.duration.200ms class="text-sm font-medium">My Schedule</span>
+                        <span x-show="!sidebarCollapsed" x-transition.opacity.duration.200ms class="text-sm font-medium flex-1">My Schedule</span>
+                        <template x-if="pendingCount > 0">
+                            <span class="flex-shrink-0 px-1.5 py-0.5 bg-amber-500 text-white text-[9px] font-bold rounded-full" x-text="pendingCount" x-show="!sidebarCollapsed"></span>
+                        </template>
                         <div x-show="tip" x-transition class="absolute left-full ml-3 px-2.5 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap z-50 border border-slate-700">
                             My Schedule
                         </div>
@@ -260,6 +282,92 @@
                             </div>
 
                             <div class="flex items-center gap-3 flex-shrink-0">
+                                <!-- Global Patient Search -->
+                                <div x-data="patientSearch()" class="relative">
+                                    <div class="relative">
+                                        <input 
+                                            type="text" 
+                                            x-model="query"
+                                            @input.debounce.300ms="search()"
+                                            @focus="focused = true"
+                                            @keydown.escape="clear()"
+                                            placeholder="Quick search patients..."
+                                            class="w-64 pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                                        />
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                        </svg>
+                                        <button 
+                                            x-show="query.length > 0"
+                                            @click="clear()"
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Search Results Dropdown -->
+                                    <div 
+                                        x-show="focused && results.length > 0"
+                                        @click.away="focused = false"
+                                        x-transition
+                                        class="absolute top-full mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50"
+                                    >
+                                        <div class="p-2 bg-gray-50 border-b border-gray-100">
+                                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Search Results</p>
+                                        </div>
+                                        <div class="max-h-80 overflow-y-auto">
+                                            <template x-for="patient in results" :key="patient.id">
+                                                <a 
+                                                    :href="`/patients/${patient.id}`"
+                                                    class="block p-3 hover:bg-teal-50 transition-colors border-b border-gray-50 last:border-0"
+                                                    @click="clear()"
+                                                >
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                                                            <span x-text="patient.name.charAt(0)"></span>
+                                                        </div>
+                                                        <div class="flex-1 min-w-0">
+                                                            <p class="text-sm font-semibold text-gray-900" x-text="patient.name"></p>
+                                                            <div class="flex items-center gap-2 mt-0.5">
+                                                                <span class="text-xs text-gray-500" x-text="`ID: ${patient.patient_id}`"></span>
+                                                                <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                                                                <span class="text-xs text-gray-500" x-text="`${patient.age} yrs`"></span>
+                                                                <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                                                                <span class="text-xs text-gray-500 capitalize" x-text="patient.gender"></span>
+                                                            </div>
+                                                        </div>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400">
+                                                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                </a>
+                                            </template>
+                                        </div>
+                                        <div class="p-2 bg-gray-50 border-t border-gray-100 text-center">
+                                            <a href="{{ route('patients.index') }}" class="text-xs font-bold text-teal-600 hover:text-teal-700 uppercase tracking-wide">
+                                                View All Patients →
+                                            </a>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- No Results -->
+                                    <div 
+                                        x-show="focused && query.length > 0 && results.length === 0 && !loading"
+                                        @click.away="focused = false"
+                                        x-transition
+                                        class="absolute top-full mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-100 p-6 text-center z-50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto text-gray-300 mb-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
+                                        </svg>
+                                        <p class="text-sm text-gray-500 font-medium">No patients found</p>
+                                        <p class="text-xs text-gray-400 mt-1">Try searching by name, ID, or phone number</p>
+                                    </div>
+                                </div>
+
                                 <!-- Quick Actions (if provided) -->
                                 @if (isset($headerActions))
                                     {{ $headerActions }}
@@ -321,6 +429,47 @@
         <div id="toast-container" class="fixed top-6 right-6 z-[100] space-y-3"></div>
 
         <script>
+            function patientSearch() {
+                return {
+                    query: '',
+                    results: [],
+                    focused: false,
+                    loading: false,
+                    
+                    search() {
+                        if (this.query.length < 2) {
+                            this.results = [];
+                            return;
+                        }
+                        
+                        this.loading = true;
+                        
+                        fetch(`/doctor/patients/quick-search?q=${encodeURIComponent(this.query)}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            this.results = data.patients || [];
+                            this.loading = false;
+                        })
+                        .catch(error => {
+                            console.error('Search error:', error);
+                            this.results = [];
+                            this.loading = false;
+                        });
+                    },
+                    
+                    clear() {
+                        this.query = '';
+                        this.results = [];
+                        this.focused = false;
+                    }
+                }
+            }
+            
             function showToast(message, type = 'success') {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');

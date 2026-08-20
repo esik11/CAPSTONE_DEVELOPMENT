@@ -87,24 +87,47 @@ export function initAvailabilityPainter() {
         container.innerHTML = ''; 
         
         const allEvents = calendar.getEvents();
-        allEvents.forEach((event, index) => {
-            // event.start.getDay() returns 0 for Sunday, 1 for Monday, etc.
+        
+        console.log('📅 Total events in calendar:', allEvents.length);
+        
+        // Group events by day of week first
+        const eventsByDay = {};
+        allEvents.forEach((event) => {
             const dayOfWeek = event.start.getDay();
-            
-            const hours = event.start.getHours().toString().padStart(2, '0');
-            const minutes = event.start.getMinutes().toString().padStart(2, '0');
-            const endHours = event.end.getHours().toString().padStart(2, '0');
-            const endMinutes = event.end.getMinutes().toString().padStart(2, '0');
-            
-            const startTime = `${hours}:${minutes}`;
-            const endTime = `${endHours}:${endMinutes}`;
-            
-            container.insertAdjacentHTML('beforeend', `
-                <input type="hidden" name="days[${dayOfWeek}][is_available]" value="1">
-                <input type="hidden" name="days[${dayOfWeek}][slots][${index}][start]" value="${startTime}">
-                <input type="hidden" name="days[${dayOfWeek}][slots][${index}][end]" value="${endTime}">
-            `);
+            if (!eventsByDay[dayOfWeek]) {
+                eventsByDay[dayOfWeek] = [];
+            }
+            eventsByDay[dayOfWeek].push(event);
         });
+        
+        console.log('📊 Events grouped by day:', eventsByDay);
+        
+        // Now generate hidden inputs with proper per-day indexing
+        Object.keys(eventsByDay).forEach(dayOfWeek => {
+            const dayEvents = eventsByDay[dayOfWeek];
+            
+            console.log(`📌 Day ${dayOfWeek} has ${dayEvents.length} slots`);
+            
+            dayEvents.forEach((event, slotIndex) => {
+                const hours = event.start.getHours().toString().padStart(2, '0');
+                const minutes = event.start.getMinutes().toString().padStart(2, '0');
+                const endHours = event.end.getHours().toString().padStart(2, '0');
+                const endMinutes = event.end.getMinutes().toString().padStart(2, '0');
+                
+                const startTime = `${hours}:${minutes}`;
+                const endTime = `${endHours}:${endMinutes}`;
+                
+                console.log(`  ➡️ Slot ${slotIndex}: ${startTime} - ${endTime}`);
+                
+                container.insertAdjacentHTML('beforeend', `
+                    <input type="hidden" name="days[${dayOfWeek}][is_available]" value="1">
+                    <input type="hidden" name="days[${dayOfWeek}][slots][${slotIndex}][start]" value="${startTime}">
+                    <input type="hidden" name="days[${dayOfWeek}][slots][${slotIndex}][end]" value="${endTime}">
+                `);
+            });
+        });
+        
+        console.log('✅ Hidden inputs updated:', container.innerHTML);
     }
 
     updateHiddenInputs();

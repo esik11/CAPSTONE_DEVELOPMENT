@@ -30,6 +30,85 @@ class AppointmentController extends Controller
         return view('patient.appointments.create', compact('doctors', 'medicalConditions'));
     }
 
+    /**
+     * Get available time slots for a specific doctor on a specific date.
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAvailableSlots(Request $request)
+    {
+        $request->validate([
+            'doctor_id' => 'required|exists:users,id',
+            'date' => 'required|date|after_or_equal:today',
+        ]);
+
+        $doctorId = $request->doctor_id;
+        $date = Carbon::parse($request->date);
+        $dayOfWeek = $date->dayOfWeek;
+
+        // Get doctor's availability for this day
+        $availabilities = \App\Models\DoctorAvailability::where('doctor_id', $doctorId)
+            ->where('day_of_week', $dayOfWeek)
+            ->where('is_available', true)
+            ->get();
+
+        if ($availabilities->isEmpty()) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Doctor is not available on this day.',
+                'slots' => []
+            ]);
+        }
+
+        // Get all booked appointments for this day
+        $bookedAppointments = Appointment::where('doctor_id', $doctorId)
+            ->whereDate('start_time', $date)
+            ->whereIn('status', ['pending', 'confirmed', 'checked_in', 'in_progress'])
+            ->get(['start_time', 'end_time']);
+
+        $availableSlots = [];
+        $slotDuration = 60; // 1 hour slots
+        $bufferTime = 15; // 15-minute buffer
+
+        foreach ($availabilities as $availability) {
+            $slotStart = Carbon::parse($date->toDateString() . ' ' . $availability->start_time);
+            $slotEnd = Carbon::parse($date->toDateString() . ' ' . $availability->end_time);
+
+            while ($slotStart->lt($slotEnd)) {
+                $slotEndTime = $slotStart->copy()->addMinutes($slotDuration);
+
+                if ($slotEndTime->gt($slotEnd)) {
+                    break;
+                }
+
+                // Check if this slot conflicts with any booked appointment (including buffer)
+                $hasConflict = $bookedAppointments->contains(function ($appointment) use ($slotStart, $slotEndTime, $bufferTime) {
+                    $bufferedStart = $slotStart->copy()->subMinutes($bufferTime);
+                    $bufferedEnd = $slotEndTime->copy()->addMinutes($bufferTime);
+
+                    return $appointment->start_time->lt($bufferedEnd) && $appointment->end_time->gt($bufferedStart);
+                });
+
+                if (!$hasConflict) {
+                    $availableSlots[] = [
+                        'start' => $slotStart->format('H:i'),
+                        'end' => $slotEndTime->format('H:i'),
+                        'display' => $slotStart->format('g:i A') . ' - ' . $slotEndTime->format('g:i A'),
+                    ];
+                }
+
+                $slotStart->addMinutes($slotDuration);
+            }
+        }
+
+        return response()->json([
+            'available' => count($availableSlots) > 0,
+            'message' => count($availableSlots) > 0 ? 'Available slots found.' : 'No available slots for this day.',
+            'slots' => $availableSlots
+        ]);
+    }
+
     public function store(Request $request)
     {
         $user = Auth::user();
@@ -50,14 +129,26 @@ class AppointmentController extends Controller
             $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $validatedData['appointment_date'] . ' ' . $validatedData['start_time']);
             $endDateTime = Carbon::createFromFormat('Y-m-d H:i', $validatedData['appointment_date'] . ' ' . $validatedData['end_time']);
 
-            // --- AVAILABILITY CHECK ---
+            // --- AVAILABILITY & CONFLICT CHECK ---
             $tempAppointment = new Appointment([
                 'doctor_id' => $validatedData['doctor_id'],
                 'start_time' => $startDateTime,
                 'end_time' => $endDateTime,
             ]);
 
-            $hasConflict = !$tempAppointment->isWithinDoctorAvailability();
+            // Check if doctor is available at this time
+            if (!$tempAppointment->isWithinDoctorAvailability()) {
+                throw ValidationException::withMessages([
+                    'appointment_date' => 'The doctor is not available at this time. Please check their schedule and try again.'
+                ]);
+            }
+
+            // Check for schedule conflicts (double-booking)
+            if ($tempAppointment->hasScheduleConflict()) {
+                throw ValidationException::withMessages([
+                    'start_time' => 'This time slot is already booked. Please choose a different time.'
+                ]);
+            }
             // ---------------------------
 
             // Get or create patient record

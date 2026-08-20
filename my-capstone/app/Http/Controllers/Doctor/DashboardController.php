@@ -30,18 +30,18 @@ class DashboardController extends Controller
         // This Week's Revenue
         $weekStart = now()->startOfWeek();
         $weekEnd = now()->endOfWeek();
-        
+
         $weekRevenue = Billing::whereHas('consultation', function ($query) use ($doctorId) {
-                $query->where('doctor_id', $doctorId);
-            })
+            $query->where('doctor_id', $doctorId);
+        })
             ->whereBetween('billing_date', [$weekStart, $weekEnd])
             ->where('payment_status', 'paid')
             ->sum('total_amount');
 
         // This Month's Revenue
         $monthRevenue = Billing::whereHas('consultation', function ($query) use ($doctorId) {
-                $query->where('doctor_id', $doctorId);
-            })
+            $query->where('doctor_id', $doctorId);
+        })
             ->whereMonth('billing_date', now()->month)
             ->whereYear('billing_date', now()->year)
             ->where('payment_status', 'paid')
@@ -49,8 +49,8 @@ class DashboardController extends Controller
 
         // Patient Statistics
         $totalPatients = Patient::whereHas('consultations', function ($query) use ($doctorId) {
-                $query->where('doctor_id', $doctorId);
-            })
+            $query->where('doctor_id', $doctorId);
+        })
             ->count();
 
         $activePatients = Patient::where('status', 'active')
@@ -81,6 +81,31 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // Today's Schedule - All appointments for today
+        $todaySchedule = Appointment::where('doctor_id', $doctorId)
+            ->with('patient')
+            ->whereDate('start_time', today())
+            ->orderBy('start_time')
+            ->get();
+
+        // Next Appointment (upcoming within 24 hours)
+        $nextAppointment = Appointment::where('doctor_id', $doctorId)
+            ->with('patient')
+            ->whereIn('status', ['approved', 'checked_in'])
+            ->where('start_time', '>=', now())
+            ->where('start_time', '<=', now()->addHours(24))
+            ->orderBy('start_time')
+            ->first();
+
+        // Recent consultations with prescriptions (for quick access)
+        $recentWithPrescriptions = Consultation::where('doctor_id', $doctorId)
+            ->with('patient')
+            ->where('status', 'completed')
+            ->whereNotNull('prescriptions')
+            ->latest('consultation_date')
+            ->take(3)
+            ->get();
+
         // Monthly Consultation Trend (last 6 months)
         $monthlyTrend = Consultation::where('doctor_id', $doctorId)
             ->where('status', 'completed')
@@ -95,8 +120,8 @@ class DashboardController extends Controller
 
         // Monthly Revenue Trend (last 6 months)
         $revenueTrend = Billing::whereHas('consultation', function ($query) use ($doctorId) {
-                $query->where('doctor_id', $doctorId);
-            })
+            $query->where('doctor_id', $doctorId);
+        })
             ->where('billing_date', '>=', now()->subMonths(6))
             ->where('payment_status', 'paid')
             ->select(
@@ -117,6 +142,9 @@ class DashboardController extends Controller
             'pendingAppointments',
             'recentConsultations',
             'upcomingAppointments',
+            'todaySchedule',
+            'nextAppointment',
+            'recentWithPrescriptions',
             'monthlyTrend',
             'revenueTrend'
         ));

@@ -122,4 +122,56 @@ class Appointment extends Model
 
         return false;
     }
+
+    /**
+     * Check if this appointment conflicts with any existing appointments.
+     * Includes buffer time to prevent back-to-back scheduling.
+     * 
+     * @param int $bufferMinutes Buffer time in minutes (default: 15)
+     * @return bool True if there's a conflict, false otherwise
+     */
+    public function hasScheduleConflict(int $bufferMinutes = 15): bool
+    {
+        // Add buffer time to start and end
+        $bufferedStart = $this->start_time->copy()->subMinutes($bufferMinutes);
+        $bufferedEnd = $this->end_time->copy()->addMinutes($bufferMinutes);
+
+        $query = self::where('doctor_id', $this->doctor_id)
+            ->whereIn('status', ['pending', 'confirmed', 'checked_in', 'in_progress'])
+            ->where(function ($q) use ($bufferedStart, $bufferedEnd) {
+                $q->whereBetween('start_time', [$bufferedStart, $bufferedEnd])
+                  ->orWhereBetween('end_time', [$bufferedStart, $bufferedEnd])
+                  ->orWhere(function ($q2) use ($bufferedStart, $bufferedEnd) {
+                      $q2->where('start_time', '<=', $bufferedStart)
+                         ->where('end_time', '>=', $bufferedEnd);
+                  });
+            });
+
+        // Exclude current appointment when updating
+        if ($this->exists) {
+            $query->where('id', '!=', $this->id);
+        }
+
+        return $query->exists();
+    }
+
+    /**
+     * Get all conflicting appointments for this time slot.
+     */
+    public function getConflictingAppointments()
+    {
+        return self::where('doctor_id', $this->doctor_id)
+            ->whereIn('status', ['pending', 'confirmed', 'checked_in', 'in_progress'])
+            ->where('id', '!=', $this->id ?? 0)
+            ->where(function ($q) {
+                $q->whereBetween('start_time', [$this->start_time, $this->end_time])
+                  ->orWhereBetween('end_time', [$this->start_time, $this->end_time])
+                  ->orWhere(function ($q2) {
+                      $q2->where('start_time', '<=', $this->start_time)
+                         ->where('end_time', '>=', $this->end_time);
+                  });
+            })
+            ->with('patient')
+            ->get();
+    }
 }

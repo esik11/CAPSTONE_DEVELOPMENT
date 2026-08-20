@@ -33,7 +33,7 @@ Your clinic information system is **well-built, secure, and demonstrates solid u
 - ✅ Vital signs tracking
 - ✅ Medical history (allergies, medications, conditions, surgical history)
 - ✅ Real-time notifications
-- ✅ PDF generation for prescriptions & consultations
+- ✅    iptions & consultations
 - ✅ Reports & analytics
 
 **Defense talking points:**

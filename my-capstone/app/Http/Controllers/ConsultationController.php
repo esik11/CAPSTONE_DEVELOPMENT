@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class ConsultationController extends Controller
 {
     use AuthorizesRequests;
-    
+
     protected $templateService;
 
     public function __construct(TemplateService $templateService)
@@ -58,7 +58,7 @@ class ConsultationController extends Controller
     {
         // Check authorization
         $this->authorize('view', $consultation);
-        
+
         // Handle section navigation via query parameter
         if ($request->has('section')) {
             $section = $request->get('section');
@@ -79,7 +79,7 @@ class ConsultationController extends Controller
         $latestMedicalRecord = \App\Models\MedicalRecord::where('patient_id', $consultation->patient_id)
             ->latest()
             ->first();
-            
+
         $activeConditions = $latestMedicalRecord
             ? $latestMedicalRecord->medicalConditions()
                 ->wherePivot('status', 'active')
@@ -142,13 +142,13 @@ class ConsultationController extends Controller
         ]);
 
         // Generate auto notes if in template mode
-        if ($validated['documentation_mode'] === 'template' && !empty($validated['selected_complaints'])) {
+        if ($validated['documentation_mode'] === 'template' && ! empty($validated['selected_complaints'])) {
             $autoNotes = $this->templateService->generateNotes(
                 $validated['selected_complaints'],
                 $validated['template_responses'] ?? [],
                 $validated['visit_type'] ?? null
             );
-            
+
             $validated['symptom_notes_auto'] = $autoNotes;
         }
 
@@ -175,7 +175,7 @@ class ConsultationController extends Controller
         // Validate based on current section
         if ($currentSection === 'symptoms') {
             $this->validateSymptomsSection($request, $consultation);
-            
+
             // Move to examination section
             $consultation->update(['current_section' => 'examination']);
 
@@ -207,13 +207,13 @@ class ConsultationController extends Controller
         ]);
 
         // If using template mode, validate template responses
-        if ($consultation->documentation_mode === 'template' && !empty($consultation->selected_complaints)) {
+        if ($consultation->documentation_mode === 'template' && ! empty($consultation->selected_complaints)) {
             $errors = $this->templateService->validateResponses(
                 $consultation->selected_complaints,
                 $consultation->template_responses ?? []
             );
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return response()->json([
                     'success' => false,
                     'errors' => $errors,
@@ -261,6 +261,20 @@ class ConsultationController extends Controller
     }
 
     /**
+     * Show print-optimized view of consultation
+     */
+    public function printView(Consultation $consultation)
+    {
+        $this->authorize('view', $consultation);
+
+        $consultation->load(['patient', 'doctor', 'appointment']);
+
+        $autoPrint = true;
+
+        return view('doctor.consultations.summary', compact('consultation', 'autoPrint'));
+    }
+
+    /**
      * Finalize and sign the consultation
      */
     public function finalize(Request $request, Consultation $consultation)
@@ -302,7 +316,7 @@ class ConsultationController extends Controller
         $pdf = \PDF::loadView('doctor.consultations.pdf', compact('consultation'));
 
         // Download PDF
-        $filename = 'consultation_' . $consultation->patient->first_name . '_' . $consultation->patient->last_name . '_' . $consultation->consultation_date->format('Y-m-d') . '.pdf';
+        $filename = 'consultation_'.$consultation->patient->first_name.'_'.$consultation->patient->last_name.'_'.$consultation->consultation_date->format('Y-m-d').'.pdf';
 
         return $pdf->download($filename);
     }

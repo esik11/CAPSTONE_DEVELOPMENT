@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PatientController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
@@ -12,20 +12,20 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     if (Auth::check()) {
         $user = Auth::user();
-        
+
         if ($user->isPatient()) {
             return redirect()->route('patient.dashboard');
         }
-        
+
         if ($user->isAssistant()) {
             return redirect()->route('assistant.dashboard');
         }
-        
+
         if ($user->isDoctor()) {
             return app(\App\Http\Controllers\Doctor\DashboardController::class)->index();
         }
     }
-    
+
     return redirect()->route('login');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -45,6 +45,7 @@ Route::middleware(['web', 'auth', 'patient'])->group(function () {
     Route::get('/patient/dashboard', [\App\Http\Controllers\Patient\DashboardController::class, 'index'])->name('patient.dashboard');
     Route::get('/patient/appointments', [\App\Http\Controllers\Patient\AppointmentController::class, 'index'])->name('patient.appointments.index');
     Route::get('/patient/appointments/create', [\App\Http\Controllers\Patient\AppointmentController::class, 'create'])->name('patient.appointments.create');
+    Route::get('/patient/appointments/available-slots', [\App\Http\Controllers\Patient\AppointmentController::class, 'getAvailableSlots'])->name('patient.appointments.available-slots');
     Route::post('/patient/appointments', [\App\Http\Controllers\Patient\AppointmentController::class, 'store'])->name('patient.appointments.store');
     Route::get('/patient/appointments/{appointment}', [\App\Http\Controllers\Patient\AppointmentController::class, 'show'])->name('patient.appointments.show');
     Route::get('/patient/appointments/{appointment}/edit', [\App\Http\Controllers\Patient\AppointmentController::class, 'edit'])->name('patient.appointments.edit');
@@ -71,7 +72,7 @@ Route::middleware(['web', 'auth', 'patient'])->group(function () {
 Route::middleware(['web', 'auth', 'assistant'])->prefix('assistant')->name('assistant.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Assistant\DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Patient Management
     Route::get('/patients', [\App\Http\Controllers\Assistant\PatientController::class, 'index'])->name('patients.index');
     Route::get('/patients/create', [\App\Http\Controllers\Assistant\PatientController::class, 'create'])->name('patients.create');
@@ -79,7 +80,7 @@ Route::middleware(['web', 'auth', 'assistant'])->prefix('assistant')->name('assi
     Route::get('/patients/{patient}', [\App\Http\Controllers\Assistant\PatientController::class, 'show'])->name('patients.show');
     Route::get('/patients/{patient}/edit', [\App\Http\Controllers\Assistant\PatientController::class, 'edit'])->name('patients.edit');
     Route::patch('/patients/{patient}', [\App\Http\Controllers\Assistant\PatientController::class, 'update'])->name('patients.update');
-    
+
     // Appointment Management
     Route::get('/appointments', [\App\Http\Controllers\Assistant\AppointmentController::class, 'index'])->name('appointments.index');
 
@@ -87,11 +88,11 @@ Route::middleware(['web', 'auth', 'assistant'])->prefix('assistant')->name('assi
     Route::post('/appointments/{appointment}/cancel', [\App\Http\Controllers\Assistant\AppointmentController::class, 'cancel'])->name('appointments.cancel');
     Route::post('/appointments/{appointment}/reschedule', [\App\Http\Controllers\Assistant\AppointmentController::class, 'reschedule'])->name('appointments.reschedule');
     Route::post('/appointments/{appointment}/check-in', [\App\Http\Controllers\Assistant\AppointmentController::class, 'checkIn'])->name('appointments.checkIn'); // Legacy fast check-in
-    
+
     // Triage / Vital Signs
     Route::get('/appointments/{appointment}/triage', [\App\Http\Controllers\Assistant\AppointmentController::class, 'triage'])->name('appointments.triage');
     Route::post('/appointments/{appointment}/triage', [\App\Http\Controllers\Assistant\AppointmentController::class, 'storeTriage'])->name('appointments.storeTriage');
-    
+
     // Billing & Payments
     Route::get('/billing', [\App\Http\Controllers\Assistant\BillingController::class, 'index'])->name('billing.index');
     Route::get('/billing/{billing}', [\App\Http\Controllers\Assistant\BillingController::class, 'show'])->name('billing.show');
@@ -120,45 +121,47 @@ Route::middleware(['web', 'auth', 'doctor'])->group(function () {
     Route::post('patients/{patient}/medical-records', [\App\Http\Controllers\MedicalRecordController::class, 'store'])->name('patients.medicalRecords.store');
     Route::get('patients/{patient}/medical-records/{medical_record}', [\App\Http\Controllers\MedicalRecordController::class, 'show'])->name('patients.medicalRecords.show');
     Route::get('patients/{patient}/medical-records/{medical_record}/edit', [\App\Http\Controllers\MedicalRecordController::class, 'edit'])->name('patients.medicalRecords.edit');
-    
+
     Route::get('/doctor/appointments', [\App\Http\Controllers\Doctor\AppointmentController::class, 'index'])->name('doctor.appointments.index');
     Route::get('/doctor/appointments/{appointment}', [\App\Http\Controllers\Doctor\AppointmentController::class, 'show'])->name('doctor.appointments.show');
-    
+
     // Appointment Actions
     Route::post('/doctor/appointments/{appointment}/approve', [\App\Http\Controllers\Doctor\AppointmentController::class, 'approve'])->name('doctor.appointments.approve');
     Route::post('/doctor/appointments/{appointment}/decline', [\App\Http\Controllers\Doctor\AppointmentController::class, 'decline'])->name('doctor.appointments.decline');
     Route::post('/doctor/appointments/{appointment}/check-in', [\App\Http\Controllers\Doctor\AppointmentController::class, 'checkIn'])->name('doctor.appointments.checkIn');
     Route::get('/doctor/appointments/{appointment}/start-consultation', [\App\Http\Controllers\Doctor\AppointmentController::class, 'startConsultation'])->name('doctor.appointments.startConsultation');
-    
+
     Route::get('/doctor/patients/{patient}/details', [\App\Http\Controllers\Doctor\PatientController::class, 'showDetails'])->name('doctor.patients.details');
+    Route::get('/doctor/patients/quick-search', [\App\Http\Controllers\Doctor\PatientController::class, 'quickSearch'])->name('doctor.patients.quickSearch');
     Route::get('/doctor/patients/{patient}/medical-records', [\App\Http\Controllers\Doctor\MedicalRecordController::class, 'index'])->name('doctor.patients.medicalRecords.index');
-    
+
     // E-Prescription Routes (Controller missing - commented out)
     // Route::get('/doctor/e-prescription', [\App\Http\Controllers\Doctor\EPrescriptionController::class, 'index'])->name('doctor.ePrescription.index');
     // Route::get('/doctor/e-prescription/search', [\App\Http\Controllers\Doctor\EPrescriptionController::class, 'searchPatients'])->name('doctor.ePrescription.search');
     // Route::get('/doctor/e-prescription/patient/{patient}', [\App\Http\Controllers\Doctor\EPrescriptionController::class, 'getPatientDetails'])->name('doctor.ePrescription.patientDetails');
     // Route::post('/doctor/e-prescription/create', [\App\Http\Controllers\Doctor\EPrescriptionController::class, 'createStandalonePrescription'])->name('doctor.ePrescription.create');
     // Route::post('/doctor/e-prescription/consultation/{consultation}/update', [\App\Http\Controllers\Doctor\EPrescriptionController::class, 'updateConsultationPrescription'])->name('doctor.ePrescription.updateConsultation');
-    
+
     // Consultation Routes
     Route::get('/patients/{patient}/consultation/start', [\App\Http\Controllers\ConsultationController::class, 'start'])->name('consultations.start');
     Route::get('/consultations/{consultation}', [\App\Http\Controllers\ConsultationController::class, 'show'])->name('consultations.show');
     Route::post('/consultations/{consultation}/save-draft', [\App\Http\Controllers\ConsultationController::class, 'saveDraft'])->name('consultations.saveDraft');
     Route::post('/consultations/{consultation}/continue', [\App\Http\Controllers\ConsultationController::class, 'continue'])->name('consultations.continue');
     Route::delete('/consultations/{consultation}', [\App\Http\Controllers\ConsultationController::class, 'destroy'])->name('consultations.destroy');
-    
+
     // Consultation Summary & Finalization
     Route::get('/consultations/{consultation}/summary', [\App\Http\Controllers\ConsultationController::class, 'summary'])->name('consultations.summary');
+    Route::get('/consultations/{consultation}/print', [\App\Http\Controllers\ConsultationController::class, 'printView'])->name('consultations.print');
     Route::post('/consultations/{consultation}/finalize', [\App\Http\Controllers\ConsultationController::class, 'finalize'])->name('consultations.finalize');
     Route::get('/consultations/{consultation}/pdf', [\App\Http\Controllers\ConsultationController::class, 'generatePdf'])->name('consultations.pdf');
-    
+
     // Billing Routes
     Route::get('/consultations/{consultation}/billing/create', [\App\Http\Controllers\Doctor\BillingController::class, 'create'])->name('doctor.billing.create');
     Route::post('/consultations/{consultation}/billing', [\App\Http\Controllers\Doctor\BillingController::class, 'store'])->name('doctor.billing.store');
     Route::get('/billing/{billing}', [\App\Http\Controllers\Doctor\BillingController::class, 'show'])->name('doctor.billing.show');
     Route::get('/billing/{billing}/receipt', [\App\Http\Controllers\Doctor\BillingController::class, 'receipt'])->name('doctor.billing.receipt');
     Route::get('/billing', [\App\Http\Controllers\Doctor\BillingController::class, 'index'])->name('doctor.billing.index');
-    
+
     // Reports Routes
     Route::get('/reports', [\App\Http\Controllers\Doctor\ReportController::class, 'index'])->name('doctor.reports.index');
     Route::get('/reports/consultations', [\App\Http\Controllers\Doctor\ReportController::class, 'consultations'])->name('doctor.reports.consultations');
@@ -169,7 +172,7 @@ Route::middleware(['web', 'auth', 'doctor'])->group(function () {
     // Availability Routes
     Route::get('/doctor/availability', [\App\Http\Controllers\Doctor\AvailabilityController::class, 'index'])->name('doctor.availability.index');
     Route::post('/doctor/availability', [\App\Http\Controllers\Doctor\AvailabilityController::class, 'update'])->name('doctor.availability.update');
-    
+
     // Audit Log Routes (Simplified)
     Route::get('/doctor/audit-logs', [\App\Http\Controllers\Doctor\AuditLogController::class, 'index'])->name('doctor.audit-logs.index');
     Route::get('/doctor/audit-logs/{auditLog}', [\App\Http\Controllers\Doctor\AuditLogController::class, 'show'])->name('doctor.audit-logs.show');

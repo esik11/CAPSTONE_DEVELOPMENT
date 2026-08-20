@@ -63,6 +63,48 @@
                 </div>
             </div>
 
+            <!-- Custom Delete Confirmation Modal -->
+            <div id="deleteModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+                <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full transform transition-all scale-95 opacity-0" id="deleteModalContent">
+                    <!-- Modal Header -->
+                    <div class="p-6 border-b border-gray-100">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-red-600">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">Remove Clinical Block?</h3>
+                                <p class="text-sm text-gray-500 mt-0.5">This action cannot be undone</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Body -->
+                    <div class="p-6">
+                        <div class="bg-red-50 border border-red-100 rounded-xl p-4">
+                            <p class="text-sm text-red-900">
+                                <span class="font-bold">Time Slot:</span> <span id="deleteTimeSlot">--</span>
+                            </p>
+                            <p class="text-xs text-red-700 mt-2">
+                                Remember to click "Save Schedule" after making changes.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="p-6 bg-gray-50 rounded-b-3xl flex items-center justify-end gap-3">
+                        <button type="button" id="cancelDelete" class="px-6 py-3 text-gray-600 hover:text-gray-900 font-bold text-sm transition-colors rounded-xl hover:bg-white">
+                            Cancel
+                        </button>
+                        <button type="button" id="confirmDelete" class="px-6 py-3 bg-red-600 text-white font-bold text-sm rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-600/30 active:scale-95">
+                            Yes, Remove Block
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Form & Action Footer -->
             <form action="{{ route('doctor.availability.update') }}" method="POST">
                 @csrf
@@ -152,6 +194,24 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             opacity: 0.8;
+        }
+
+        /* Custom Modal Animations */
+        #deleteModal.show {
+            display: flex !important;
+        }
+        #deleteModal.show #deleteModalContent {
+            animation: modalSlideIn 0.3s ease-out forwards;
+        }
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
     </style>
 </x-doctor-layout>
