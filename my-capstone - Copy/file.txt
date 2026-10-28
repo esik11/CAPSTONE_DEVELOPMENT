@@ -1,0 +1,33 @@
+SCOPE OF THE PROJECT
+	The scope of the study includes:
+•	Patient Information and Record Management
+o	Patient Profiles
+o	Consultation Notes
+o	Medical History
+o	Prescriptions
+•	Telemedicine Features
+o	Allows online scheduling of virtual consultations
+o	 Logs details of video consultations
+o	Saves doctor’s remarks and diagnosis from teleconsultations
+
+•	Billing and Transaction
+o	Handles patient registration for both online and in-clinic visits
+o	Tracks consultation fees and payment records
+o	Appointment management (in-clinic and telemedicine)
+
+•	Reports
+o	Generates daily consultation logs
+o	Provides billing summaries
+o	Lists all issued prescriptions
+o	Shows active and inactive patient records
+
+•	User Management
+o	The doctor manages all user accounts and system access
+o	The doctor can view and update patient records, write notes, and give prescriptions
+o	Patients can log in to see their records, book appointments, and view past consultations
+o	Each user has limited access based on their role
+•	Patient Dashboard
+o	Let’s patients view their medical records and prescriptions
+o	Allows booking and managing appointments
+o	Shows previous consultation summaries
+o	Displays consultation charges and payment history

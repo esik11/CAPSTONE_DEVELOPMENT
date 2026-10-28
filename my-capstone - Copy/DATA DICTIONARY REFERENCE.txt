@@ -1,0 +1,96 @@
+1.Customers Table
+
+Field Name	Description / Meaning	Type
+Customer_ID	Unique identifier for customer	PK
+First_name	Customer’s given name	String
+Last_name	Customer’s surname	String
+Contact_number	Customer’s contact number	Integer
+Address/Email	Contact details	String
+
+2. Item Category Table
+
+Field Name	Description	Type
+Category_ID	Unique category ID	PK
+Category_name	Name of the category	String
+Description	Category details	String
+
+3. Employee Table
+
+Field Name	Description	Type
+Employees_ID	Unique employee ID	PK
+Username	Login username	String
+Password	Login password	String
+First_name	Employee’s first name	String
+Last_name	Employee’s surname	String
+Position	Employee role	String
+
+4. Items Table
+
+Field Name	Description	Type
+Item_ID	Unique item ID	PK
+Item_name	Name of the item	String
+Category_ID	Foreign key referencing category	FK
+Quantity	Available stocks	Integer
+Price	Item price	Float
+Description	Item details	String
+
+5. Purchase Transaction Table
+
+Field Name	Description	Type
+Purchase_ID	Unique purchase transaction ID	PK
+Customer_ID	FK referencing customer	FK
+Employee_ID	FK referencing employee handling the process	FK
+Date	Purchase date	Date
+Total_amount	Total cost of purchase	Float
+
+6. Supplier Table
+
+Field Name	Description	Type
+Supplier_ID	Unique supplier ID	PK
+Supplier_name	Name of supplier	String
+Contact_number	Supplier contact number	Integer
+Address	Supplier address	String
+Email	Supplier email	String
+Item_name	Name of item being supplied	String
+
+7. Item Receiving / Inventory Table
+
+Field Name	Description	Type
+Receiving_Inv_ID	Unique ID for item receiving record	PK
+Supplier_ID	FK – supplier	FK
+Item_ID	FK – item	FK
+Quantity	Quantity of items received	Integer
+Date	Date received	Date
+Employee_ID	FK – employee who received items	FK
+
+8. Purchase List Table
+
+Field Name	Description	Type
+Purchase_list_ID	Unique ID per item in a purchase	PK
+Purchase_ID	FK referencing the purchase transaction	FK
+Item_ID	FK referencing the item	FK
+Quantity	Number of units bought	Integer
+Subtotal	Total price per item (qty × price)	Float
+
+9. Payment Table
+
+Field Name	Description	Type
+Payment_ID	Unique payment ID	PK
+Purchase_ID	FK referencing purchase	FK
+Amount_paid	Cash paid	Float
+Payment_type	Type of payment (cash, card, etc.)	String
+
+10. Audit Trail Table
+
+Field Name	Description	Type
+Audit_ID	Unique audit log ID	PK
+Employees_ID	FK referencing employee	FK
+Date	Timestamp of activity	Date
+Action	What the employee did	String
+
+11. Login Table
+
+Field Name	Description	Type
+Login_ID	Unique login session ID	PK
+Username	Username used in login	String
+Password	Password used in login	String
